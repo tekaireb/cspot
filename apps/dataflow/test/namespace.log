@@ -1,0 +1,275 @@
+[10879] [debug] Registering backend zmq
+[10879] [debug] starting platform listening to port 54163
+[10879] [debug] Using backend docker
+[10879] [debug] WooFInit: WooF_dir: /home/centos/cspot/apps/dataflow/test
+[10879] [debug] WooFInit: namespace: /home/centos/cspot/apps/dataflow/test
+[10879] [debug] WooFInit: namelog dir: /home/centos/cspot/apps/dataflow/test
+[10879] [debug] WooFInit: Name log at /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163 with name cspot-log.10251743952245244163
+[10879] [debug] WooFHostInit: created /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[10879] [debug] worker names
+[10879] [debug] _home_centos_cspot_apps_dataflow_test
+[10879] [debug] 	 - CSPOTWorker-_home_centos_cspot_apps_dataflow_test-8e4582cef9d64103-0
+[10879] [debug] CleanUpDocker command: docker rm -f CSPOTWorker-_home_centos_cspot_apps_dataflow_test-8e4582cef9d64103-0
+
+Error: No such container: CSPOTWorker-_home_centos_cspot_apps_dataflow_test-8e4582cef9d64103-0
+[10879] [debug] WooFContainerLauncher started
+[10879] [debug] WooFContainerLauncher: launch 1
+[10879] [debug] 	command: 'docker run --network=host --rm --name CSPOTWorker-_home_centos_cspot_apps_dataflow_test-8e4582cef9d64103-0 -e LD_LIBRARY_PATH=/usr/local/lib -e WOOFC_DIR=/home/centos/cspot/apps/dataflow/test -e WOOFC_NAMESPACE=/home/centos/cspot/apps/dataflow/test -e WOOF_HOST_IP=172.31.17.146 -e WOOF_NAMELOG_DIR=/home/centos/cspot/apps/dataflow/test -e WOOF_NAMELOG_NAME=cspot-log.10251743952245244163 -e WOOF_NAME_ID=10251743952245244163 -p 54163:54163 -v /home/centos/cspot/apps/dataflow/test:/home/centos/cspot/apps/dataflow/test cspot-docker-centos7 /home/centos/cspot/apps/dataflow/test/woofc-container -M '
+docker run --network=host --rm --name CSPOTWorker-_home_centos_cspot_apps_dataflow_test-8e4582cef9d64103-0 -e LD_LIBRARY_PATH=/usr/local/lib -e WOOFC_DIR=/home/centos/cspot/apps/dataflow/test -e WOOFC_NAMESPACE=/home/centos/cspot/apps/dataflow/test -e WOOF_HOST_IP=172.31.17.146 -e WOOF_NAMELOG_DIR=/home/centos/cspot/apps/dataflow/test -e WOOF_NAMELOG_NAME=cspot-log.10251743952245244163 -e WOOF_NAME_ID=10251743952245244163 -p 54163:54163 -v /home/centos/cspot/apps/dataflow/test:/home/centos/cspot/apps/dataflow/test cspot-docker-centos7 /home/centos/cspot/apps/dataflow/test/woofc-container -M 
+[10879] [debug] LAUNCH: docker run --network=host --rm --name CSPOTWorker-_home_centos_cspot_apps_dataflow_test-8e4582cef9d64103-0 -e LD_LIBRARY_PATH=/usr/local/lib -e WOOFC_DIR=/home/centos/cspot/apps/dataflow/test -e WOOFC_NAMESPACE=/home/centos/cspot/apps/dataflow/test -e WOOF_HOST_IP=172.31.17.146 -e WOOF_NAMELOG_DIR=/home/centos/cspot/apps/dataflow/test -e WOOF_NAMELOG_NAME=cspot-log.10251743952245244163 -e WOOF_NAME_ID=10251743952245244163 -p 54163:54163 -v /home/centos/cspot/apps/dataflow/test:/home/centos/cspot/apps/dataflow/test cspot-docker-centos7 /home/centos/cspot/apps/dataflow/test/woofc-container -M 
+WARNING: Published ports are discarded when using host network mode
+[1] [debug] Registering backend zmq
+[1] [debug] WooFContainerInit: namespace /home/centos/cspot/apps/dataflow/test
+[1] [debug] WooFContainerInit: WOOFC_DIR=/home/centos/cspot/apps/dataflow/test
+[1] [debug] WooFContainerInit: log /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163 open
+[1[1] [debug] ] [debug] [1] [debug] [[11] [debug] ] [debug] [1] [debug] [1] [debug] [1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[[1] 1] [debug] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[[11] ] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[1] [debug] [1] [debug] [1] [debug] woofc-container: started message server
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[1] [debug] woofc-container: about to start message server with namespace /home/centos/cspot/apps/dataflow/test
+[1] [debug] WooFMsgServer: started for namespace /home/centos/cspot/apps/dataflow/test
+[1] [debug] WooFMsgServer: frontend at tcp://*:54163
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test started
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test memset called
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[1] [debug] [1] [debug] WooFMsgThread: about to call receive
+WooFMsgThread: about to call receive
+[1] [debug] [1] [debug] WooFMsgThread: about to call receive
+[1] [debug] [1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+WooFMsgThread: about to call receive
+WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFMsgThread: about to call receive
+[1] [debug] WooFForker (140506661967616): namespace: /home/centos/cspot/apps/dataflow/test awake
+[1] [debug] WooFForker (140506661967616): namespace: /home/centos/cspot/apps/dataflow/test, in mutex, size: 10001, last: 0
+[1] [debug] WooFForker: considering /home/centos/cspot/apps/dataflow/test 2
+[1] [debug] WooFForker: no firing found for /home/centos/cspot/apps/dataflow/test 2
+[1] [debug] WooFForker (140506661967616): namespace: /home/centos/cspot/apps/dataflow/test accepted and firing woof: test.dfoperand handler: dfhandler woof_seq_no: 1 log_seq_no: 2
+[1] [debug] WooFForker: logging TRIGGER_FIRING for /home/centos/cspot/apps/dataflow/test 2
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test out of mutex with log tail
+[1] [debug] Forker calling P with Tcount 15
+[1] [debug] Forker awake, after decrement 14
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test seq_no: 2, handler: dfhandler
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[1] [debug] WooFForker (140506661967616): namespace: /home/centos/cspot/apps/dataflow/test awake
+[1] [debug] WooFForker (140506661967616): namespace: /home/centos/cspot/apps/dataflow/test, in mutex, size: 10001, last: 2
+[1] [debug] WooFForker: considering /home/centos/cspot/apps/dataflow/test 4
+[1] [debug] WooFForker: no firing found for /home/centos/cspot/apps/dataflow/test 4
+[1] [debug] WooFForker (140506661967616): namespace: /home/centos/cspot/apps/dataflow/test accepted and firing woof: test.dfoperand handler: dfhandler woof_seq_no: 2 log_seq_no: 4
+[1] [debug] WooFForker: logging TRIGGER_FIRING for /home/centos/cspot/apps/dataflow/test 4
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test out of mutex with log tail
+[1] [debug] Forker calling P with Tcount 14
+[1] [debug] Forker awake, after decrement 13
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test seq_no: 4, handler: dfhandler
+[1] [debug] WooFForker: namespace: /home/centos/cspot/apps/dataflow/test caling P
+[1] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfoperand from fname , test.dfoperand with dir /home/centos/cspot/apps/dataflow/test
+[1] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfoperand
+[41] [debug] Registering backend zmq
+[41] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfoperand from fname , test.dfoperand with dir /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfoperand
+[41] [debug] WooFPut: called test.dfprogram (null)
+[41] [debug] WooFPut: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfprogram
+[41] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfprogram from fname , test.dfprogram with dir /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfprogram
+[41] [debug] WooFPut: WooF test.dfprogram open
+[41] [debug] WooFAppendWithCause: called test.dfprogram (null)
+[41] [debug] WooFAppendWithCause: checking for empty slot, ino: 74142
+[41] [debug] WooFAppendWithCause: got empty slot
+[41] [debug] WooFAppendWithCause: adding element
+[41] [debug] WooFAppendWithCause: in mutex
+[41] [debug] WooFAppendWithCause: element in
+[41] [debug] WooFAppendWithCause: writing element 0x5327b900
+[41] [debug] WooFAppendWithCause: out of element mutex
+[41] [debug] WooFAppendWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFAppendWithCause: ndx: 2
+[41] [debug] WooFAppendWithCause: seq_no: 2
+[41] [debug] WooFAppendWithCause: element_size 40
+[41] [debug] WooFAppendWithCause: history_size 10000
+[41] [debug] WooFAppendWithCause: name test.dfprogram
+[41] [debug] WooFAppendWithCause: ino 74142
+[41] [debug] WooFAppendWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[41] [debug] WooFAppendWithCause: logged 6 for woof test.dfprogram 
+[41] [debug] WooFGet: called test.dfprogram 1
+[41] [debug] WooFGet: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfprogram
+[41] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfprogram from fname , test.dfprogram with dir /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfprogram
+[41] [debug] WooFGet: WooF test.dfprogram open
+[41] [debug] WooFReadWithCause: head: 2 tail: 0 size: 10000 last_valid: 1 seq_no: 1 old: 1 young: 2 ndx: 1
+[41] [debug] WooFReadWithCause: seq_no: 1, found seq_no: 1
+[41] [debug] WooFReadWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFReadWithCause: ndx: 1
+[41] [debug] WooFReadWithCause: seq_no: 1
+[41] [debug] WooFReadWithCause: element_size 40
+[41] [debug] WooFReadWithCause: history_size 10000
+[41] [debug] WooFReadWithCause: name test.dfprogram
+[41] [debug] WooFReadWithCause: ino 74142
+[41] [debug] WooFReadWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[41] [debug] WooFReadWithCause: logged 7 for woof test.dfprogram 
+[1] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfoperand from fname , test.dfoperand with dir /home/centos/cspot/apps/dataflow/test
+[1] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfoperand
+[41] [debug] WooFPut: called test.dfprogram (null)
+[41] [debug] WooFPut: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfprogram
+[41] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfprogram from fname ot/apps/dataflow/test/cspot-log.8¯[, test.dfprogram with dir /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfprogram
+[41] [debug] WooFPut: WooF test.dfprogram open
+[41] [debug] WooFAppendWithCause: called test.dfprogram (null)
+[41] [debug] WooFAppendWithCause: checking for empty slot, ino: 74142
+[41] [debug] WooFAppendWithCause: got empty slot
+[41] [debug] WooFAppendWithCause: adding element
+[41] [debug] WooFAppendWithCause: in mutex
+[41] [debug] WooFAppendWithCause: element in
+[41] [debug] WooFAppendWithCause: writing element 0x5327b938
+[41] [debug] WooFAppendWithCause: out of element mutex
+[41] [debug] WooFAppendWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[41] [debug] WooFAppendWithCause: ndx: 3
+[41] [debug] WooFAppendWithCause: seq_no: 3
+[41] [debug] WooFAppendWithCause: element_size 40
+[41] [debug] WooFAppendWithCause: history_size 10000
+[41] [debug] WooFAppendWithCause: name test.dfprogram
+[41] [debug] WooFAppendWithCause: ino 74142
+[41] [debug] WooFAppendWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[41] [debug] WooFAppendWithCause: logged 8 for woof test.dfprogram 
+[42] [debug] Registering backend zmq
+[42] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfoperand from fname , test.dfoperand with dir /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfoperand
+[42] [debug] WooFPut: called test.dfprogram (null)
+[42] [debug] WooFPut: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfprogram
+[42] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfprogram from fname , test.dfprogram with dir /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfprogram
+[42] [debug] WooFPut: WooF test.dfprogram open
+[42] [debug] WooFAppendWithCause: called test.dfprogram (null)
+[42] [debug] WooFAppendWithCause: checking for empty slot, ino: 74142
+[42] [debug] WooFAppendWithCause: got empty slot
+[42] [debug] WooFAppendWithCause: adding element
+[42] [debug] WooFAppendWithCause: in mutex
+[42] [debug] WooFAppendWithCause: element in
+[42] [debug] WooFAppendWithCause: writing element 0x3c48e970
+[42] [debug] WooFAppendWithCause: out of element mutex
+[42] [debug] WooFAppendWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFAppendWithCause: ndx: 4
+[42] [debug] WooFAppendWithCause: seq_no: 4
+[42] [debug] WooFAppendWithCause: element_size 40
+[42] [debug] WooFAppendWithCause: history_size 10000
+[42] [debug] WooFAppendWithCause: name test.dfprogram
+[42] [debug] WooFAppendWithCause: ino 74142
+[42] [debug] WooFAppendWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[42] [debug] WooFAppendWithCause: logged 9 for woof test.dfprogram 
+[42] [debug] WooFGet: called test.dfprogram 3
+[42] [debug] WooFGet: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfprogram
+[42] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfprogram from fname , test.dfprogram with dir /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfprogram
+[42] [debug] WooFGet: WooF test.dfprogram open
+[42] [debug] WooFReadWithCause: head: 4 tail: 0 size: 10000 last_valid: 1 seq_no: 3 old: 1 young: 4 ndx: 3
+[42] [debug] WooFReadWithCause: seq_no: 3, found seq_no: 3
+[42] [debug] WooFReadWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFReadWithCause: ndx: 3
+[42] [debug] WooFReadWithCause: seq_no: 3
+[42] [debug] WooFReadWithCause: element_size 40
+[42] [debug] WooFReadWithCause: history_size 10000
+[42] [debug] WooFReadWithCause: name test.dfprogram
+[42] [debug] WooFReadWithCause: ino 74142
+[42] [debug] WooFReadWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[42] [debug] WooFReadWithCause: logged 10 for woof test.dfprogram 
+[42] [debug] WooFPut: called test.dfprogram (null)
+[42] [debug] WooFPut: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfprogram
+[42] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfprogram from fname ot/apps/dataflow/test/cspot-log.8¯[, test.dfprogram with dir /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfprogram
+[42] [debug] WooFPut: WooF test.dfprogram open
+[42] [debug] WooFAppendWithCause: called test.dfprogram (null)
+[42] [debug] WooFAppendWithCause: checking for empty slot, ino: 74142
+[42] [debug] WooFAppendWithCause: got empty slot
+[42] [debug] WooFAppendWithCause: adding element
+[42] [debug] WooFAppendWithCause: in mutex
+[42] [debug] WooFAppendWithCause: element in
+[42] [debug] WooFAppendWithCause: writing element 0x3c48e9a8
+[42] [debug] WooFAppendWithCause: out of element mutex
+[42] [debug] WooFAppendWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFAppendWithCause: ndx: 5
+[42] [debug] WooFAppendWithCause: seq_no: 5
+[42] [debug] WooFAppendWithCause: element_size 40
+[42] [debug] WooFAppendWithCause: history_size 10000
+[42] [debug] WooFAppendWithCause: name test.dfprogram
+[42] [debug] WooFAppendWithCause: ino 74142
+[42] [debug] WooFAppendWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[42] [debug] WooFAppendWithCause: logged 11 for woof test.dfprogram 
+[42] [debug] WooFPut: called test.dfoperand (null)
+[42] [debug] WooFPut: namespace: /home/centos/cspot/apps/dataflow/test,  WooF_dir: /home/centos/cspot/apps/dataflow/test, name: test.dfoperand
+[42] [debug] WooFOpen: trying to open /home/centos/cspot/apps/dataflow/test/test.dfoperand from fname , test.dfoperand with dir /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFOpen: opened /home/centos/cspot/apps/dataflow/test/test.dfoperand
+[42] [debug] WooFPut: WooF test.dfoperand open
+[42] [debug] WooFAppendWithCause: called test.dfoperand (null)
+[42] [debug] WooFAppendWithCause: checking for empty slot, ino: 498765
+[42] [debug] WooFAppendWithCause: got empty slot
+[42] [debug] WooFAppendWithCause: adding element
+[42] [debug] WooFAppendWithCause: in mutex
+[42] [debug] WooFAppendWithCause: element in
+[42] [debug] WooFAppendWithCause: writing element 0x3bb068d8
+[42] [debug] WooFAppendWithCause: out of element mutex
+[42] [debug] WooFAppendWithCause: namespace: /home/centos/cspot/apps/dataflow/test
+[42] [debug] WooFAppendWithCause: ndx: 3
+[42] [debug] WooFAppendWithCause: seq_no: 3
+[42] [debug] WooFAppendWithCause: element_size 1040
+[42] [debug] WooFAppendWithCause: history_size 10000
+[42] [debug] WooFAppendWithCause: name test.dfoperand
+[42] [debug] WooFAppendWithCause: ino 498765
+[42] [debug] WooFAppendWithCause: logging event to /home/centos/cspot/apps/dataflow/test/cspot-log.10251743952245244163
+[42] [debug] WooFAppendWithCause: logged 12 for woof test.dfoperand 
+dfhandler: prog: test.dfprogram, dst_no 1, value: 2.000000
+CLAIM prog: test.dfprogram, node_no: 1 dst_no 1 value: 2.000000
+scanning: prog: test.dfprogram, node_no: 1 dst_no 1 state: 0
+PARTIAL created prog: test.dfprogram, node_no: 1 dst_no 1
+dfhandler: prog: test.dfprogram, dst_no 1, value: 2.000000
+CLAIM prog: test.dfprogram, node_no: 1 dst_no 1 value: 2.000000
+scanning: prog: test.dfprogram, node_no: 1 dst_no 1 state: 0
+firing partial: prog: test.dfprogram, node_no: 1 dst_no 1 state: 0
+second arrived retiring: prog: test.dfprogram, node_no: 1 dst_no 1 value 2.000000 first val: 2.000000 result: 4.000000 state: 0
+DONE prog: test.dfprogram, node_no: 1
+result operand put: prog: test.dfprogram, node_no: 1 dst_no 0 result 4.000000
+[1] [debug] Reaper: count after increment: 14
+[1] [debug] Reaper: count after increment: 15

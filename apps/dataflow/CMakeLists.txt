@@ -18,6 +18,10 @@ add_executable(dfgetoperand dfgetoperand.c)
 target_link_libraries(dfgetoperand PUBLIC woof)
 target_include_directories(dfgetoperand PUBLIC "./include")
 
+add_executable(two_plus_two two_plus_two.c dfinterface.c)
+target_link_libraries(two_plus_two PUBLIC woof)
+target_include_directories(two_plus_two PUBLIC "./include")
+
 # TODO: fix wf->shared->filename
 add_handler(dfhandler dfhandler.c)
 target_link_libraries(dfhandler PUBLIC woof dfoperation)
