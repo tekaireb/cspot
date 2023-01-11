@@ -33,6 +33,23 @@ double DFOperation(int opcode, double* op_values, int size) {
     case SQR:
         result = sqrt(op_values[0]);
         break;
+
+    case LT:
+        result = (double)(op_values[0] < op_values[1]);
+        break;
+
+    case GT:
+        result = (double)(op_values[0] > op_values[1]);
+        break;
+
+    case EQ:
+        result = (double)(op_values[0] == op_values[1]);
+        break;
+    
+    case MUX:
+        result = op_values[(int)(op_values[0]) + 1];
+        break;
+
     default:
         result = NAN;
         break;

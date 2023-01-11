@@ -9,6 +9,12 @@
 #define DIV (4)
 #define SQR (5)
 
+#define LT (6)
+#define GT (7)
+#define EQ (8)
+
+#define MUX (9)
+
 enum df_node_state_enum
 {
     WAITING,
