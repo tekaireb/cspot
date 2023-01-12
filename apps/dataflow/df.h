@@ -14,6 +14,7 @@
 #define EQ (8)
 
 #define MUX (9)
+#define DEMUX (10)
 
 enum df_node_state_enum
 {
@@ -46,6 +47,6 @@ struct df_operand_stc {
 };
 typedef struct df_operand_stc DFOPERAND;
 
-extern double DFOperation(int opcode, double* values, int size);
+extern double DFOperation(DFNODE *node, int opcode, double* values, int size);
 
 #endif

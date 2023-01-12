@@ -227,7 +227,7 @@ int dfhandler(WOOF* wf, unsigned long operand_sequence_number, void* ptr) {
 
             // if all inputs are received fire the node.
             if (node.received_values_count == node.total_values_count) {
-                double result = DFOperation(node.opcode, node.values, node.total_values_count);
+                double result = DFOperation(&node, node.opcode, node.values, node.total_values_count);
 
                 char* all_inputs_values_string = values_as_string(node.values, node.total_values_count);
                 log_info("[woof: %s] ALL INPUTS RECEIVED during SCAN-1 at sequence_number:\"%lu\" for NODE "
@@ -340,7 +340,7 @@ int dfhandler(WOOF* wf, unsigned long operand_sequence_number, void* ptr) {
 
                 // if all inputs are received then fire the node
                 if (node.received_values_count == node.total_values_count) {
-                    double result = DFOperation(node.opcode, node.values, node.total_values_count);
+                    double result = DFOperation(&node, node.opcode, node.values, node.total_values_count);
 
                     char* all_inputs_values_string = values_as_string(node.values, node.total_values_count);
                     log_info("[woof: %s] ALL INPUTS RECEIVED during SCAN-2 at sequence_number:\"%lu\" for NODE "
@@ -427,7 +427,7 @@ int dfhandler(WOOF* wf, unsigned long operand_sequence_number, void* ptr) {
 
             // if all inputs are received then fire the node.
             if (node.received_values_count == node.total_values_count) {
-                double result = DFOperation(node.opcode, node.values, node.total_values_count);
+                double result = DFOperation(&node, node.opcode, node.values, node.total_values_count);
 
                 char* all_inputs_values_string = values_as_string(node.values, node.total_values_count);
                 log_info("[woof: %s] ALL INPUTS RECEIVED during SCAN-3 at sequence_number:\"%lu\" for NODE "
