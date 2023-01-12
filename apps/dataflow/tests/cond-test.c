@@ -112,8 +112,8 @@ int main() {
 
     // Expected result: 2
 
-    ////////////////////////////////////
-    // Basic test: demux (sel + 2 options)
+    ////////////////////////////////////////////
+    // Basic test: demux (sel + val + 2 options)
 
     // add_node(wf, 1, 2 + 2 * 2, DEMUX, 0, 0);
 
@@ -133,10 +133,10 @@ int main() {
     // add_operand(wf, 1, 4, 0.0); sleep(2);
     // add_operand(wf, 1, 5, 0.0); sleep(2);
 
-    ////////////////////////////////////
-    // Basic test: mux (sel + 5 options)
+    ////////////////////////////////////////////
+    // Basic test: demux (sel + val + 5 options)
 
-    add_node(wf, 1, 2 + 5 * 2, MUX, 0, 0);
+    add_node(wf, 1, 2 + 5 * 2, DEMUX, 0, 0);
 
     sleep(2);
 
@@ -166,31 +166,4 @@ int main() {
     add_operand(wf, 1, 10, 5.0); sleep(2);
     add_operand(wf, 1, 11, 1.0); sleep(2);
 
-
-    /////////////////////////////////////////////////
-    // Perform op, classify as -, +, 0 to select dest
-    
-    /*
-    a = 0
-    b = 1
-
-    res = a + b
-
-    if res < 0:
-        sel = 0
-    elif res == 0:
-        sel = 1
-    else:
-        sel = 2
-        
-    if sel == 0:
-        neg = res
-    elif sel == 1:
-        zero = res
-    else:
-        pos = res
-        
-    */
-
-    // TODO
 }

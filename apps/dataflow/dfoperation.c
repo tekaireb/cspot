@@ -55,8 +55,8 @@ double DFOperation(DFNODE *node, int opcode, double* op_values, int size) {
     // sel, input, id0, port0, id1, port1, id2, port2, ...
         result = op_values[1];
         int index = ((int)op_values[0] + 1) * 2;
-        node->destination_node_id = index;
-        node->destination_port = index + 1;
+        node->destination_node_id = op_values[index];
+        node->destination_port = op_values[index + 1];
         break;
 
     default:
