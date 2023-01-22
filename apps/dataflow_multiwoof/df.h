@@ -17,6 +17,8 @@
 
 struct operand {
     double value;
+
+    operand(double value) : value(value) {}
 };
 
 struct subscriber {
@@ -46,7 +48,7 @@ struct subscription_event {
     int port;
     unsigned long seq;
 
-    subscription_event(int id, int port, unsigned long seqno)
+    subscription_event(int id=0, int port=0, unsigned long seqno=0)
         : id(id), port(port), seq(seqno) {}
 };
 

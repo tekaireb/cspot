@@ -39,22 +39,22 @@ void woof_get(std::string name, void* element, unsigned long seq_no) {
     }
 }
 
-unsigned long woof_latest(std::string name) {
+unsigned long woof_last_seq(std::string name) {
     return WooFGetLatestSeqno(name.c_str());
 }
 
 void add_node(const std::string& program, int id, int opcode) {
-    std::string woof_name_base = program + "." + std::to_string(id);
+    std::string id_str = std::to_string(id);
 
     // Create output woof
-    woof_create(woof_name_base + ".output", sizeof(operand), 10);
+    woof_create(program + ".output." + id_str, sizeof(operand), 10);
 
     // Create subscription_events woof
-    woof_create(woof_name_base + ".subscription_events",
+    woof_create(program + ".subscription_events." + id_str,
                 sizeof(subscription_event), 25);
 
     // Create consumer_pointer woof
-    woof_create(woof_name_base + ".subscription_pointer",
+    woof_create(program + ".subscription_pointer." + id_str,
                 sizeof(unsigned long), 1);
 
     // Create node
@@ -62,10 +62,10 @@ void add_node(const std::string& program, int id, int opcode) {
 }
 
 void add_operand(const std::string& program, int id) {
-    std::string woof_name_base = program + "." + std::to_string(id);
+    std::string id_str = std::to_string(id);
 
     // Create output woof
-    woof_create(woof_name_base + ".output", sizeof(operand), 10);
+    woof_create(program + ".output." + id_str, sizeof(operand), 10);
 
     nodes.insert(node(id, OPERAND));
 }

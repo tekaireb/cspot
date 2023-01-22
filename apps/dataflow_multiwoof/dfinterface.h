@@ -11,7 +11,7 @@
 void woof_create(std::string name, unsigned long element_size, unsigned long history_size);
 unsigned long woof_put(std::string name, std::string handler, const void* element);
 void woof_get(std::string name, void* element, unsigned long seq_no);
-unsigned long woof_latest(std::string name);
+unsigned long woof_last_seq(std::string name);
 
 void add_node(const std::string& program, int id, int opcode);
 
