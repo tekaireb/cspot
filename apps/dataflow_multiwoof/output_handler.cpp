@@ -63,5 +63,4 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     std::cout << "OUTPUT HANDLER DONE" << std::endl;
     
     return 0;
-
 }

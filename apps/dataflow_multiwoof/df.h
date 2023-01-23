@@ -56,7 +56,7 @@ struct node {
     int id;
     int opcode;
 
-    node(int id, int opcode) : id(id), opcode(opcode) {}
+    node(int id=0, int opcode=0) : id(id), opcode(opcode) {}
 
     bool operator<(const node& other) const {
         return id < other.id;
