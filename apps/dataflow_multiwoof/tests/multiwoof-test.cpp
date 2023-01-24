@@ -29,7 +29,7 @@ int main() {
     out << "subscriber_map size: " << woof_last_seq(p + ".subscriber_map") << std::endl;
 
     unsigned long last_seq;
-    int idx;
+    unsigned long idx;
     subscriber sub;
 
     last_seq = woof_last_seq(p + ".subscriber_map");
@@ -66,13 +66,20 @@ int main() {
     }
 
     operand op(100.0);
-    woof_put(p + ".output.1", "output_handler", &op);
+    woof_put(p + ".output.3", "output_handler", &op);// sleep(2);
+    woof_put(p + ".output.4", "output_handler", &op);// sleep(2);
+    woof_put(p + ".output.5", "output_handler", &op);// sleep(2);
+
     sleep(2);
-
     subscription_event se;
-    woof_get(p + ".subscription_events.2", &se, 1);
-
+    woof_get(p + ".subscription_events.1", &se, 1);
     std::cout << "{id=" << se.id << ", port=" << se.port << "}" << std::endl;
+
+    operand result_node1, result_node2;
+    woof_get(p + ".output.1", &result_node1, 1);
+    woof_get(p + ".output.2", &result_node2, 1);
+    std::cout << "node #1 result = " << result_node1.value << std::endl;
+    std::cout << "node #2 result = " << result_node2.value << std::endl;
 
     std::cout << "DONE" << std::endl;
 

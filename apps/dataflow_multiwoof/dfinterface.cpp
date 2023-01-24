@@ -54,8 +54,13 @@ void add_node(const std::string& program, int id, int opcode) {
                 sizeof(subscription_event), 25);
 
     // Create consumer_pointer woof
-    woof_create(program + ".subscription_pointer." + id_str,
-                sizeof(unsigned long), 1);
+    std::string consumer_ptr_woof = program + ".subscription_pointer." + id_str;
+    unsigned long initial_consumer_ptr = 1;
+    // TODO: consumer_ptr_woof should be of size 1, but CSPOT hangs when
+    // writing to full woof (instead of overwriting), so the size has
+    // been increased temporarily as a stop-gap measure while testing
+    woof_create(consumer_ptr_woof, sizeof(unsigned long), 100);
+    woof_put(consumer_ptr_woof, "", &initial_consumer_ptr);
 
     // Create node
     nodes.insert(node(id, opcode));
@@ -79,11 +84,11 @@ void subscribe(int dst_id, int dst_port, int src_id) {
 
 void setup(const std::string& program) {
     // Create woof hashmaps to hold subscribers
-    woof_create(program + ".subscriber_map", sizeof(int), nodes.size());
+    woof_create(program + ".subscriber_map", sizeof(unsigned long), nodes.size());
     woof_create(program + ".subscriber_data", sizeof(subscriber),
                 subscribe_entries);
 
-    int current_data_pos = 1;
+    unsigned long current_data_pos = 1;
     for (size_t i = 1; i <= nodes.size(); i++) {
         // Add entry in map (idx = node id, val = start idx in subscriber_data)
         woof_put(program + ".subscriber_map", "", &current_data_pos);        
@@ -95,7 +100,7 @@ void setup(const std::string& program) {
     }
 
     // Create woof hashmaps to hold subscriptions
-    woof_create(program + ".subscription_map", sizeof(int), nodes.size());
+    woof_create(program + ".subscription_map", sizeof(unsigned long), nodes.size());
     woof_create(program + ".subscription_data", sizeof(subscription),
                 subscribe_entries);
 

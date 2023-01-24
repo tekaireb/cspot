@@ -18,7 +18,7 @@
 struct operand {
     double value;
 
-    operand(double value) : value(value) {}
+    operand(double value=0.0) : value(value) {}
 };
 
 struct subscriber {

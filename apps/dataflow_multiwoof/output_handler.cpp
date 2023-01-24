@@ -36,17 +36,16 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
     // Get data range (TODO: factor out into function for woofmap)
     woof_get(submap, &start_idx, id);
-    if (start_idx == last_seq) {
-        end_idx = woof_last_seq(subdata);
+    if (id == last_seq) {
+        end_idx = woof_last_seq(subdata) + 1;
     } else {
         woof_get(submap, &end_idx, id + 1);
-        end_idx--;
     }
 
     std::cout << "start_idx: " << start_idx << ", end_idx: " << end_idx << std::endl;
 
     // Iterate over subscribers and push to respective woofs
-    for (unsigned long i = start_idx; i <= end_idx; i++) {
+    for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get subscriber data
         subscriber sub;
         woof_get(subdata, &sub, i);
@@ -55,7 +54,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         std::string subscriber_woof =
             program + ".subscription_events." + std::to_string(sub.id);
         subscription_event subevent(sub.id, sub.port, seqno);
-        woof_put(subscriber_woof, "", &subevent);
+        woof_put(subscriber_woof, "subscription_event_handler", &subevent);
 
         std::cout << "{id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;
     }
