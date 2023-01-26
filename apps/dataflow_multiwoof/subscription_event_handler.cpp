@@ -21,9 +21,9 @@ operand perform_operation(const std::vector<operand>& ops, int opcode) {
         }
         break;
     case SUB:
-        result.value = 0;
-        for (auto& op : ops) {
-            result.value -= op.value;
+        result.value = ops[0].value;
+        for (size_t i = 1; i < ops.size(); i++) {
+            result.value -= ops[i].value;
         }
         break;
     case MUL:

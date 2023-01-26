@@ -6,7 +6,7 @@
 
 #include <unistd.h>
 
-int main() {
+void simple_test() {
     std::ofstream out("test.txt");
     std::string p = "test_program";
 
@@ -82,5 +82,79 @@ int main() {
     std::cout << "node #2 result = " << result_node2.value << std::endl;
 
     std::cout << "DONE" << std::endl;
+}
 
+void quadratic_test(double a, double b, double c) {
+    std::ofstream out("test.txt");
+    std::string p = "test_program";
+
+    add_node(p, 1, DIV);
+    add_node(p, 2, MUL);
+    add_node(p, 3, MUL);
+    add_node(p, 4, ADD);
+    add_node(p, 5, SQR);
+    add_node(p, 6, SUB);
+    add_node(p, 7, MUL);
+    add_node(p, 8, MUL);
+
+    add_operand(p, 9); // a
+    add_operand(p, 10); // b
+    add_operand(p, 11); // c
+    add_operand(p, 12); // 2 for 2 * a
+    add_operand(p, 13); // -1 for -1 * b
+    add_operand(p, 14); // 4 for 4 * a * c
+
+    subscribe(1, 0, 4);
+    subscribe(1, 1, 2);
+    subscribe(2, 0, 9);
+    subscribe(2, 1, 12);
+    subscribe(3, 0, 13);
+    subscribe(3, 1, 10);
+    subscribe(4, 0, 5);
+    subscribe(4, 1, 3);
+    subscribe(5, 0, 6);
+    subscribe(6, 0, 7);
+    subscribe(6, 1, 8);
+    subscribe(7, 0, 10);
+    subscribe(7, 1, 10);
+    subscribe(8, 0, 9);
+    subscribe(8, 1, 11);
+    subscribe(8, 2, 14);
+    
+
+    setup(p);
+
+    sleep(2);
+
+    std::cout << "Finished setup" << std::endl;
+
+    operand op(a);
+    woof_put(p + ".output.9", "output_handler", &op);
+    op.value = b;
+    woof_put(p + ".output.10", "output_handler", &op);
+    op.value = c;
+    woof_put(p + ".output.11", "output_handler", &op);
+    op.value = 2;
+    woof_put(p + ".output.12", "output_handler", &op);
+    op.value = -1;
+    woof_put(p + ".output.13", "output_handler", &op);
+    op.value = 4;
+    woof_put(p + ".output.14", "output_handler", &op);
+    
+    do {
+        sleep(1);
+    } while (woof_last_seq(p + ".output.1") == 0);
+
+    operand result;
+    for (int i = 14; i > 0; i--) {
+        woof_get(p + ".output." + std::to_string(i), &result, 1);
+        std::cout << "node #" << i << " result = " << result.value << std::endl;
+    }
+
+    std::cout << "DONE" << std::endl;
+}
+
+int main() {
+    // simple_test();
+    quadratic_test(2, 5, 2);
 }
