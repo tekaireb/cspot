@@ -155,12 +155,11 @@ std::string graphviz_representation() {
     }
 
     // Add edges
-    for (auto& [id, subs] : subscribers) {
-        g += "\n\tnode_" + std::to_string(id) + ":out -> {";
-        for (auto& s : subs) {
-            g += "node_" + std::to_string(s.id) + ":" + std::to_string(s.port);
+    for (auto& [id, subs] : subscriptions) {
+        for (auto s = subs.begin(); s != subs.end(); s++) {
+            g += "\n\tnode_" + std::to_string(s->id) + ":out -> ";
+            g += "node_" + std::to_string(id) + ":" + std::to_string(s->port) + ";";
         }
-        g += "};";
     }
 
     g += "\n}";
