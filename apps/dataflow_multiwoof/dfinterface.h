@@ -21,6 +21,8 @@ void subscribe(int dst_id, int dst_port, int src_id);
 
 void setup(const std::string& program);
 
+std::string graphviz_representation();
+
 
 // /**
 //  * Create a new woof.

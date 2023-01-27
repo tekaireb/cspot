@@ -3,17 +3,29 @@
 
 // opcodes
 
-#define OPERAND (0)
-#define ADD (1)
-#define SUB (2)
-#define MUL (3)
-#define DIV (4)
-#define SQR (5)
+#define OPCODES \
+    OP(OPERAND) \
+    OP(ADD)     \
+    OP(SUB)     \
+    OP(MUL)     \
+    OP(DIV)     \
+    OP(SQR)     \
+    OP(LT)      \
+    OP(GT)      \
+    OP(EQ)      
 
-#define LT (6)
-#define GT (7)
-#define EQ (8)
+enum Opcode {
+#define OP(name) name,
+  OPCODES
+#undef OP
+    OPCODES_N
+};
 
+static const char* OPCODE_STR[OPCODES_N] = {
+#define OP(name) [name] = #name,
+    OPCODES
+#undef OP
+};
 
 struct operand {
     double value;

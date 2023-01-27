@@ -1,6 +1,8 @@
+#include "df.h"
 #include "dfinterface.h"
 
 #include <iostream>
+#include <string>
 
 #include <unistd.h>
 
@@ -121,8 +123,51 @@ void setup(const std::string& program) {
     for (auto& node : nodes) {
         woof_put(program + ".nodes", "", &node);
     }
-
 }
+
+std::string graphviz_representation() {
+    std::string g = "digraph G {\n\tnode [shape=\"record\", style=\"rounded\"];";
+
+    // Add nodes
+    auto n = nodes.begin();
+    auto s = subscriptions.begin();
+    while (n != nodes.end()) {
+        g += "\n\tnode_" + std::to_string(n->id) + " [label=\"{";
+        
+        // Add ports
+        if (n->opcode != OPERAND) {
+            g += "{";
+            for (size_t port = 0; port < s->second.size(); port++) {
+                std::string p = std::to_string(port);
+                g += "<" + p + "> " + p;
+                if (port < s->second.size() - 1) {
+                    g += '|';
+                }
+            }
+            g += "}|";
+        }
+
+        g += "<out>[" + std::string(OPCODE_STR[n->opcode]);
+        g += "]\\nNode #" + std::to_string(n->id) + "}\"];";
+    
+        n++;
+        s++;
+    }
+
+    // Add edges
+    for (auto& [id, subs] : subscribers) {
+        g += "\n\tnode_" + std::to_string(id) + ":out -> {";
+        for (auto& s : subs) {
+            g += "node_" + std::to_string(s.id) + ":" + std::to_string(s.port);
+        }
+        g += "};";
+    }
+
+    g += "\n}";
+
+    return g;
+}
+
 
 
 // void add_node(char* prog, int id) {

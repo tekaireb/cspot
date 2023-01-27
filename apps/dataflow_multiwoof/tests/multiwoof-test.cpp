@@ -85,7 +85,6 @@ void simple_test() {
 }
 
 void quadratic_test(double a, double b, double c) {
-    std::ofstream out("test.txt");
     std::string p = "test_program";
 
     add_node(p, 1, DIV);
@@ -120,7 +119,6 @@ void quadratic_test(double a, double b, double c) {
     subscribe(8, 0, 9);
     subscribe(8, 1, 11);
     subscribe(8, 2, 14);
-    
 
     setup(p);
 
@@ -154,7 +152,47 @@ void quadratic_test(double a, double b, double c) {
     std::cout << "DONE" << std::endl;
 }
 
+void quadratic_graphviz_test() {
+    std::string p = "test_program";
+
+    add_node(p, 1, DIV);
+    add_node(p, 2, MUL);
+    add_node(p, 3, MUL);
+    add_node(p, 4, ADD);
+    add_node(p, 5, SQR);
+    add_node(p, 6, SUB);
+    add_node(p, 7, MUL);
+    add_node(p, 8, MUL);
+
+    add_operand(p, 9); // a
+    add_operand(p, 10); // b
+    add_operand(p, 11); // c
+    add_operand(p, 12); // 2 for 2 * a
+    add_operand(p, 13); // -1 for -1 * b
+    add_operand(p, 14); // 4 for 4 * a * c
+
+    subscribe(1, 0, 4);
+    subscribe(1, 1, 2);
+    subscribe(2, 0, 9);
+    subscribe(2, 1, 12);
+    subscribe(3, 0, 13);
+    subscribe(3, 1, 10);
+    subscribe(4, 0, 5);
+    subscribe(4, 1, 3);
+    subscribe(5, 0, 6);
+    subscribe(6, 0, 7);
+    subscribe(6, 1, 8);
+    subscribe(7, 0, 10);
+    subscribe(7, 1, 10);
+    subscribe(8, 0, 9);
+    subscribe(8, 1, 11);
+    subscribe(8, 2, 14);
+
+    std::cout << graphviz_representation() << std::endl;
+}
+
 int main() {
     // simple_test();
-    quadratic_test(2, 5, 2);
+    // quadratic_test(2, 5, 2);
+    quadratic_graphviz_test();
 }
