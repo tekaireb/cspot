@@ -12,7 +12,8 @@
     OP(SQR)     \
     OP(LT)      \
     OP(GT)      \
-    OP(EQ)      
+    OP(EQ)      \
+    OP(SEL)     
 
 enum Opcode {
 #define OP(name) name,

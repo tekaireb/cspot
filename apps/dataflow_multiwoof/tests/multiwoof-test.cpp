@@ -191,8 +191,55 @@ void quadratic_graphviz_test() {
     std::cout << graphviz_representation() << std::endl;
 }
 
+void selector_test() {
+    std::string p = "test_program";
+
+    add_node(p, 1, ADD); // (a or b) + 1
+    add_node(p, 2, SEL); // a or b
+
+    add_operand(p, 3); // a
+    add_operand(p, 4); // b
+    add_operand(p, 5); // 1
+    add_operand(p, 6); // Selector (0 or 1)
+
+    subscribe(1, 0, 2); // SEL --> ADD:0
+    subscribe(1, 1, 5); // 1 --> ADD:1
+    subscribe(2, 0, 6); // Selector --> SEL:0
+    subscribe(2, 1, 3); // a --> SEL:1
+    subscribe(2, 2, 4); // b --> SEL:2
+
+    setup(p); sleep(2);
+    std::cout << "Finished setup" << std::endl;
+
+    operand op(10); // a
+    woof_put(p + ".output.3", "output_handler", &op);
+    op.value = 20;  // b
+    woof_put(p + ".output.4", "output_handler", &op);
+    op.value = 1;   // 1
+    woof_put(p + ".output.5", "output_handler", &op);
+    op.value = 1;   // Selector
+    woof_put(p + ".output.6", "output_handler", &op);
+    
+    do {
+        sleep(1);
+    } while (woof_last_seq(p + ".output.1") == 0);
+
+    operand result;
+    // woof_get(p + ".output.1", &result, 1);
+    // std::cout << "result = " << result.value << std::endl;
+    for (int i = 6; i > 0; i--) {
+        woof_get(p + ".output." + std::to_string(i), &result, 1);
+        std::cout << "node #" << i << " result = " << result.value << std::endl;
+    }
+    // Selector = 0 --> a --> result = a + 1 = 11
+    // Selector = 1 --> b --> result = b + 1 = 21
+
+    std::cout << "DONE" << std::endl;
+}
+
 int main() {
     // simple_test();
     // quadratic_test(2, 5, 2);
-    quadratic_graphviz_test();
+    // quadratic_graphviz_test();
+    selector_test();
 }

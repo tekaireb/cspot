@@ -53,6 +53,12 @@ operand perform_operation(const std::vector<operand>& ops, int opcode) {
     case EQ:
         result.value = (double)(ops[0].value == ops[1].value);
         break;
+    
+    case SEL:
+        // Use selector value to index alternatives
+        result.value = ops[(int)ops[0].value + 1].value;
+        break;
+    
     default:
         result.value = 0;
         break;
