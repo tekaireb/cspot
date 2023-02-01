@@ -123,6 +123,7 @@ void simple_test_2() {
         v.push_back(op.value);
     }
 
+    // Expected: 2 4 6 6
     std::cout << "OUTPUTS: ";
     for (auto& i : v) {
         std::cout << i << " ";
@@ -282,10 +283,67 @@ void selector_test() {
     std::cout << "DONE" << std::endl;
 }
 
+void filter_test() {
+    std::string p = "test_program";
+
+    add_node(p, 1, FILTER);
+
+    add_operand(p, 2); // Filter condition
+    add_operand(p, 3); // Value
+
+    subscribe(1, 0, 2);
+    subscribe(1, 1, 3);
+
+    setup(p);
+    sleep(1);
+
+    operand filter(0.0);
+    operand data(1.0);
+    woof_put(p + ".output.2", "output_handler", &filter);
+    woof_put(p + ".output.3", "output_handler", &data);
+
+    filter.value = 1.0;
+    data.value = 2.0;
+    woof_put(p + ".output.2", "output_handler", &filter);
+    woof_put(p + ".output.3", "output_handler", &data);
+
+    filter.value = 1.0;
+    data.value = 3.0;
+    woof_put(p + ".output.2", "output_handler", &filter);
+    woof_put(p + ".output.3", "output_handler", &data);
+
+    filter.value = 0.0;
+    data.value = 4.0;
+    woof_put(p + ".output.2", "output_handler", &filter);
+    woof_put(p + ".output.3", "output_handler", &data);
+
+    filter.value = 1.0;
+    data.value = 5.0;
+    woof_put(p + ".output.2", "output_handler", &filter);
+    woof_put(p + ".output.3", "output_handler", &data);
+
+    sleep(2);
+
+
+    std::vector<double> v;
+    unsigned long last = woof_last_seq(p + ".output.1");
+    for (unsigned long i = 1; i <= last; i++) {
+        woof_get(p + ".output.1", &data, i);
+        v.push_back(data.value);
+    }
+
+    // Expected: 2 3 5
+    std::cout << "OUTPUTS: ";
+    for (auto& i : v) {
+        std::cout << i << " ";
+    }
+}
+
 int main() {
     // simple_test();
-    simple_test_2();
+    // simple_test_2();
     // quadratic_test(2, 5, 2);
     // quadratic_graphviz_test();
     // selector_test();
+    filter_test();
 }

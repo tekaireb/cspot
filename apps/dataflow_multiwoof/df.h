@@ -13,7 +13,8 @@
     OP(LT)      \
     OP(GT)      \
     OP(EQ)      \
-    OP(SEL)     
+    OP(SEL)     \
+    OP(FILTER)
 
 enum Opcode {
 #define OP(name) name,

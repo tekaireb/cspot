@@ -58,6 +58,13 @@ operand perform_operation(const std::vector<operand>& ops, int opcode) {
         // Use selector value to index alternatives
         result.value = ops[(int)ops[0].value + 1].value;
         break;
+
+    case FILTER:
+        result = ops[1];
+        // if (!static_cast<bool>(ops[0].value)) {
+        //     exit(0);
+        // }
+        break;
     
     default:
         result.value = 0;
@@ -189,8 +196,11 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         subscription_event_handler(wf, seqno + 1, static_cast<void*>(subevent));
         return 0;
     }
-    woof_put(program + ".output." + id_str, "output_handler", &result);
-
+    // Write result (unless FILTER should omit result)
+    if (n.opcode != FILTER || op_values[0].value) {
+        woof_put(program + ".output." + id_str, "output_handler", &result);
+    }
+    
     std::cout << "SUBSCRIPTION EVENT HANDLER DONE" << std::endl;
 
     // Call handler for next iter in case all operands were received before this function finished
