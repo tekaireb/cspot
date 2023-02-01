@@ -156,12 +156,23 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     std::cout << "Subscription event handler: firing node" << std::endl;
 
     // Increment consumer pointer
+
+    unsigned long current_seq;
+    woof_get(consumer_ptr_woof, &current_seq, 0);
+    if (current_seq > consumer_seq) {
+        // Exit if this iteration has already been completed
+        return 0;
+    }
+
     consumer_seq++; // TODO: May cause race conditions. Lock-free compare and set?
     std::cout << "Subscription event handler: incr" << std::endl;
     woof_put(consumer_ptr_woof, "", &consumer_seq);
     std::cout << "Subscription event handler: put" << std::endl;
     consumer_seq--;
     std::cout << "Subscription event handler: decr" << std::endl;
+
+    // Increment event (to trigger handler for next iter)
+    subevent->seq++;
 
     // Get opcode
     node n;
@@ -170,9 +181,20 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     operand result = perform_operation(op_values, n.opcode);
     std::cout << "Subscription event handler: result = " << result.value << std::endl;
+    // Do not write result if it already exists
+    if (woof_last_seq(program + ".output." + id_str) > consumer_seq) {
+        std::cout << "Operation already performed, exiting" << std::endl;
+
+        // Call handler for next iter in case all operands were received before this function finished
+        subscription_event_handler(wf, seqno + 1, static_cast<void*>(subevent));
+        return 0;
+    }
     woof_put(program + ".output." + id_str, "output_handler", &result);
 
     std::cout << "SUBSCRIPTION EVENT HANDLER DONE" << std::endl;
+
+    // Call handler for next iter in case all operands were received before this function finished
+    subscription_event_handler(wf, seqno + 1, static_cast<void*>(subevent));
 
     return 0;
 }

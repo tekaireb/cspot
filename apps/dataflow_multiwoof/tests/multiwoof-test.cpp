@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include <unistd.h>
 
@@ -82,6 +83,50 @@ void simple_test() {
     std::cout << "node #2 result = " << result_node2.value << std::endl;
 
     std::cout << "DONE" << std::endl;
+}
+
+void simple_test_2() {
+    std::string p = "test_program";
+
+    add_node(p, 1, ADD);
+
+    add_operand(p, 2);
+    add_operand(p, 3);
+
+    subscribe(1, 0, 2);
+    subscribe(1, 1, 3);
+
+    setup(p);
+    sleep(1);
+
+    operand op(1.0);
+    woof_put(p + ".output.2", "output_handler", &op);
+    woof_put(p + ".output.3", "output_handler", &op);
+
+    op.value = 2.0;
+    woof_put(p + ".output.2", "output_handler", &op);
+    woof_put(p + ".output.3", "output_handler", &op);
+
+    op.value = 3.0;
+    woof_put(p + ".output.2", "output_handler", &op);
+    woof_put(p + ".output.2", "output_handler", &op);
+    woof_put(p + ".output.3", "output_handler", &op);
+    woof_put(p + ".output.3", "output_handler", &op);
+
+    sleep(2);
+
+
+    std::vector<double> v;
+    unsigned long last = woof_last_seq(p + ".output.1");
+    for (unsigned long i = 1; i <= last; i++) {
+        woof_get(p + ".output.1", &op, i);
+        v.push_back(op.value);
+    }
+
+    std::cout << "OUTPUTS: ";
+    for (auto& i : v) {
+        std::cout << i << " ";
+    }
 }
 
 void quadratic_test(double a, double b, double c) {
@@ -239,7 +284,8 @@ void selector_test() {
 
 int main() {
     // simple_test();
+    simple_test_2();
     // quadratic_test(2, 5, 2);
     // quadratic_graphviz_test();
-    selector_test();
+    // selector_test();
 }

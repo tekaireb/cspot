@@ -30,8 +30,9 @@ static const char* OPCODE_STR[OPCODES_N] = {
 
 struct operand {
     double value;
+    unsigned long seq;
 
-    operand(double value=0.0) : value(value) {}
+    operand(double value=0.0, unsigned long seq=0) : value(value), seq(seq) {}
 };
 
 struct subscriber {
