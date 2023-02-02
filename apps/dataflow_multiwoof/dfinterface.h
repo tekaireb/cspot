@@ -13,13 +13,14 @@ unsigned long woof_put(std::string name, std::string handler, const void* elemen
 void woof_get(std::string name, void* element, unsigned long seq_no);
 unsigned long woof_last_seq(std::string name);
 
-void add_node(const std::string& program, int id, int opcode);
+void add_node(int ns, int id, int opcode);
 
-void add_operand(const std::string& program, int id);
+void add_operand(int ns, int id);
 
-void subscribe(int dst_id, int dst_port, int src_id);
+void subscribe(int dst_ns, int dst_id, int dst_port, int src_ns, int src_id);
+void subscribe(std::string dst_addr, std::string src_addr);
 
-void setup(const std::string& program);
+void setup(int ns);
 
 std::string graphviz_representation();
 

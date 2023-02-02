@@ -7,23 +7,26 @@
 
 #include <unistd.h>
 
+
 void simple_test() {
     std::ofstream out("test.txt");
-    std::string p = "test_program";
+    int ns = 1;
+    std::string p = "laminar-" + std::to_string(ns);
 
-    add_node(p, 1, ADD);
-    add_node(p, 2, MUL);
 
-    add_operand(p, 3);
-    add_operand(p, 4);
-    add_operand(p, 5);
+    add_node(ns, 1, ADD);
+    add_node(ns, 2, MUL);
 
-    subscribe(1, 0, 3);
-    subscribe(1, 1, 4);
-    subscribe(2, 0, 1);
-    subscribe(2, 1, 5);
+    add_operand(ns, 3);
+    add_operand(ns, 4);
+    add_operand(ns, 5);
 
-    setup(p);
+    subscribe(ns, 1, 0, ns, 3);
+    subscribe(ns, 1, 1, ns, 4);
+    subscribe(ns, 2, 0, ns, 1);
+    subscribe(ns, 2, 1, ns, 5);
+
+    setup(ns);
 
     sleep(1);
 
@@ -85,18 +88,20 @@ void simple_test() {
     std::cout << "DONE" << std::endl;
 }
 
+
 void simple_test_2() {
-    std::string p = "test_program";
+    int ns = 1;
+    std::string p = "laminar-" + std::to_string(ns);
 
-    add_node(p, 1, ADD);
+    add_node(ns, 1, ADD);
 
-    add_operand(p, 2);
-    add_operand(p, 3);
+    add_operand(ns, 2);
+    add_operand(ns, 3);
 
-    subscribe(1, 0, 2);
-    subscribe(1, 1, 3);
+    subscribe(ns, 1, 0, ns, 2);
+    subscribe(ns, 1, 1, ns, 3);
 
-    setup(p);
+    setup(ns);
     sleep(1);
 
     operand op(1.0);
@@ -130,43 +135,45 @@ void simple_test_2() {
     }
 }
 
+
 void quadratic_test(double a, double b, double c) {
-    std::string p = "test_program";
+    int ns = 1;
+    std::string p = "laminar-" + std::to_string(ns);
 
-    add_node(p, 1, DIV);
-    add_node(p, 2, MUL);
-    add_node(p, 3, MUL);
-    add_node(p, 4, ADD);
-    add_node(p, 5, SQR);
-    add_node(p, 6, SUB);
-    add_node(p, 7, MUL);
-    add_node(p, 8, MUL);
+    add_node(ns, 1, DIV);
+    add_node(ns, 2, MUL);
+    add_node(ns, 3, MUL);
+    add_node(ns, 4, ADD);
+    add_node(ns, 5, SQR);
+    add_node(ns, 6, SUB);
+    add_node(ns, 7, MUL);
+    add_node(ns, 8, MUL);
 
-    add_operand(p, 9); // a
-    add_operand(p, 10); // b
-    add_operand(p, 11); // c
-    add_operand(p, 12); // 2 for 2 * a
-    add_operand(p, 13); // -1 for -1 * b
-    add_operand(p, 14); // 4 for 4 * a * c
+    add_operand(ns, 9); // a
+    add_operand(ns, 10); // b
+    add_operand(ns, 11); // c
+    add_operand(ns, 12); // 2 for 2 * a
+    add_operand(ns, 13); // -1 for -1 * b
+    add_operand(ns, 14); // 4 for 4 * a * c
 
-    subscribe(1, 0, 4);
-    subscribe(1, 1, 2);
-    subscribe(2, 0, 9);
-    subscribe(2, 1, 12);
-    subscribe(3, 0, 13);
-    subscribe(3, 1, 10);
-    subscribe(4, 0, 5);
-    subscribe(4, 1, 3);
-    subscribe(5, 0, 6);
-    subscribe(6, 0, 7);
-    subscribe(6, 1, 8);
-    subscribe(7, 0, 10);
-    subscribe(7, 1, 10);
-    subscribe(8, 0, 9);
-    subscribe(8, 1, 11);
-    subscribe(8, 2, 14);
+    subscribe(ns, 1, 0, ns, 4);
+    subscribe(ns, 1, 1, ns, 2);
+    subscribe(ns, 2, 0, ns, 9);
+    subscribe(ns, 2, 1, ns, 12);
+    subscribe(ns, 3, 0, ns, 13);
+    subscribe(ns, 3, 1, ns, 10);
+    subscribe(ns, 4, 0, ns, 5);
+    subscribe(ns, 4, 1, ns, 3);
+    subscribe(ns, 5, 0, ns, 6);
+    subscribe(ns, 6, 0, ns, 7);
+    subscribe(ns, 6, 1, ns, 8);
+    subscribe(ns, 7, 0, ns, 10);
+    subscribe(ns, 7, 1, ns, 10);
+    subscribe(ns, 8, 0, ns, 9);
+    subscribe(ns, 8, 1, ns, 11);
+    subscribe(ns, 8, 2, ns, 14);
 
-    setup(p);
+    setup(ns);
 
     sleep(2);
 
@@ -199,62 +206,125 @@ void quadratic_test(double a, double b, double c) {
 }
 
 void quadratic_graphviz_test() {
-    std::string p = "test_program";
+    int ns = 1;
 
-    add_node(p, 1, DIV);
-    add_node(p, 2, MUL);
-    add_node(p, 3, MUL);
-    add_node(p, 4, ADD);
-    add_node(p, 5, SQR);
-    add_node(p, 6, SUB);
-    add_node(p, 7, MUL);
-    add_node(p, 8, MUL);
+    add_node(ns, 1, DIV);
+    add_node(ns, 2, MUL);
+    add_node(ns, 3, MUL);
+    add_node(ns, 4, ADD);
+    add_node(ns, 5, SQR);
+    add_node(ns, 6, SUB);
+    add_node(ns, 7, MUL);
+    add_node(ns, 8, MUL);
 
-    add_operand(p, 9); // a
-    add_operand(p, 10); // b
-    add_operand(p, 11); // c
-    add_operand(p, 12); // 2 for 2 * a
-    add_operand(p, 13); // -1 for -1 * b
-    add_operand(p, 14); // 4 for 4 * a * c
+    add_operand(ns, 9); // a
+    add_operand(ns, 10); // b
+    add_operand(ns, 11); // c
+    add_operand(ns, 12); // 2 for 2 * a
+    add_operand(ns, 13); // -1 for -1 * b
+    add_operand(ns, 14); // 4 for 4 * a * c
 
-    subscribe(1, 0, 4);
-    subscribe(1, 1, 2);
-    subscribe(2, 0, 9);
-    subscribe(2, 1, 12);
-    subscribe(3, 0, 13);
-    subscribe(3, 1, 10);
-    subscribe(4, 0, 5);
-    subscribe(4, 1, 3);
-    subscribe(5, 0, 6);
-    subscribe(6, 0, 7);
-    subscribe(6, 1, 8);
-    subscribe(7, 0, 10);
-    subscribe(7, 1, 10);
-    subscribe(8, 0, 9);
-    subscribe(8, 1, 11);
-    subscribe(8, 2, 14);
+    subscribe(ns, 1, 0, ns, 4);
+    subscribe(ns, 1, 1, ns, 2);
+    subscribe(ns, 2, 0, ns, 9);
+    subscribe(ns, 2, 1, ns, 12);
+    subscribe(ns, 3, 0, ns, 13);
+    subscribe(ns, 3, 1, ns, 10);
+    subscribe(ns, 4, 0, ns, 5);
+    subscribe(ns, 4, 1, ns, 3);
+    subscribe(ns, 5, 0, ns, 6);
+    subscribe(ns, 6, 0, ns, 7);
+    subscribe(ns, 6, 1, ns, 8);
+    subscribe(ns, 7, 0, ns, 10);
+    subscribe(ns, 7, 1, ns, 10);
+    subscribe(ns, 8, 0, ns, 9);
+    subscribe(ns, 8, 1, ns, 11);
+    subscribe(ns, 8, 2, ns, 14);
+
+    std::cout << graphviz_representation() << std::endl;
+}
+
+void namespace_graphviz_test() {
+
+    add_operand(1, 1); // a
+    add_operand(1, 2); // b
+
+    add_node(2, 1, ADD);
+    add_node(2, 2, MUL);
+    add_node(2, 3, MUL);
+
+    add_node(3, 1, ADD);
+    add_node(3, 2, MUL);
+    add_node(3, 3, MUL);
+
+    add_node(4, 1, ADD);
+    add_node(4, 2, MUL);
+    add_node(4, 3, MUL);
+
+    // subscribe(1, 1, 0, 4, 1);
+    // subscribe(1, 1, 1, 4, 2);
+    // subscribe(1, 2, 0, 1, 1);
+    // subscribe(1, 2, 1, 1, 1);
+    // subscribe(1, 3, 0, 1, 1);
+    // subscribe(1, 3, 1, 1, 1);
+
+    subscribe("2:1:0", "1:1");
+    subscribe("2:1:1", "1:2");
+    subscribe("2:2:0", "2:1");
+    subscribe("2:2:1", "2:1");
+    subscribe("2:3:0", "2:1");
+    subscribe("2:3:1", "2:1");
+
+    // subscribe(2, 1, 0, 1, 2);
+    // subscribe(2, 1, 1, 1, 3);
+    // subscribe(2, 2, 0, 2, 1);
+    // subscribe(2, 2, 1, 2, 1);
+    // subscribe(2, 3, 0, 2, 1);
+    // subscribe(2, 3, 1, 2, 1);
+
+    subscribe("3:1:0", "2:2");
+    subscribe("3:1:1", "2:3");
+    subscribe("3:2:0", "3:1");
+    subscribe("3:2:1", "3:1");
+    subscribe("3:3:0", "3:1");
+    subscribe("3:3:1", "3:1");
+
+    // subscribe(3, 1, 0, 2, 2);
+    // subscribe(3, 1, 1, 2, 3);
+    // subscribe(3, 2, 0, 3, 1);
+    // subscribe(3, 2, 1, 3, 1);
+    // subscribe(3, 3, 0, 3, 1);
+    // subscribe(3, 3, 1, 3, 1);
+
+    subscribe("4:1:0", "3:2");
+    subscribe("4:1:1", "3:3");
+    subscribe("4:2:0", "4:1");
+    subscribe("4:2:1", "4:1");
+    subscribe("4:3:0", "4:1");
+    subscribe("4:3:1", "4:1");
 
     std::cout << graphviz_representation() << std::endl;
 }
 
 void selector_test() {
-    std::string p = "test_program";
+    int ns = 1;
+    std::string p = "laminar-" + std::to_string(ns);
 
-    add_node(p, 1, ADD); // (a or b) + 1
-    add_node(p, 2, SEL); // a or b
+    add_node(ns, 1, ADD); // (a or b) + 1
+    add_node(ns, 2, SEL); // a or b
 
-    add_operand(p, 3); // a
-    add_operand(p, 4); // b
-    add_operand(p, 5); // 1
-    add_operand(p, 6); // Selector (0 or 1)
+    add_operand(ns, 3); // a
+    add_operand(ns, 4); // b
+    add_operand(ns, 5); // 1
+    add_operand(ns, 6); // Selector (0 or 1)
 
-    subscribe(1, 0, 2); // SEL --> ADD:0
-    subscribe(1, 1, 5); // 1 --> ADD:1
-    subscribe(2, 0, 6); // Selector --> SEL:0
-    subscribe(2, 1, 3); // a --> SEL:1
-    subscribe(2, 2, 4); // b --> SEL:2
+    subscribe(ns, 1, 0, ns, 2); // SEL --> ADD:0
+    subscribe(ns, 1, 1, ns, 5); // 1 --> ADD:1
+    subscribe(ns, 2, 0, ns, 6); // Selector --> SEL:0
+    subscribe(ns, 2, 1, ns, 3); // a --> SEL:1
+    subscribe(ns, 2, 2, ns, 4); // b --> SEL:2
 
-    setup(p); sleep(2);
+    setup(ns); sleep(2);
     std::cout << "Finished setup" << std::endl;
 
     operand op(10); // a
@@ -284,17 +354,18 @@ void selector_test() {
 }
 
 void filter_test() {
-    std::string p = "test_program";
+    int ns = 1;
+    std::string p = "laminar-" + std::to_string(ns);
 
-    add_node(p, 1, FILTER);
+    add_node(ns, 1, FILTER);
 
-    add_operand(p, 2); // Filter condition
-    add_operand(p, 3); // Value
+    add_operand(ns, 2); // Filter condition
+    add_operand(ns, 3); // Value
 
-    subscribe(1, 0, 2);
-    subscribe(1, 1, 3);
+    subscribe(ns, 1, 0, ns, 2);
+    subscribe(ns, 1, 1, ns, 3);
 
-    setup(p);
+    setup(ns);
     sleep(1);
 
     operand filter(0.0);
@@ -339,11 +410,75 @@ void filter_test() {
     }
 }
 
+void namespace_test() {
+    add_operand(1, 1); // a
+    add_operand(1, 2); // b
+
+    add_node(2, 1, ADD);
+    add_node(2, 2, MUL);
+    add_node(2, 3, MUL);
+
+    add_node(3, 1, ADD);
+    add_node(3, 2, MUL);
+    add_node(3, 3, MUL);
+
+    add_node(4, 1, ADD);
+    add_node(4, 2, MUL);
+    add_node(4, 3, MUL);
+
+    subscribe("2:1:0", "1:1");
+    subscribe("2:1:1", "1:2");
+    subscribe("2:2:0", "2:1");
+    subscribe("2:2:1", "2:1");
+    subscribe("2:3:0", "2:1");
+    subscribe("2:3:1", "2:1");
+
+    subscribe("3:1:0", "2:2");
+    subscribe("3:1:1", "2:3");
+    subscribe("3:2:0", "3:1");
+    subscribe("3:2:1", "3:1");
+    subscribe("3:3:0", "3:1");
+    subscribe("3:3:1", "3:1");
+
+    subscribe("4:1:0", "3:2");
+    subscribe("4:1:1", "3:3");
+
+    setup(1);
+    setup(2);
+    setup(3);
+    setup(4);
+
+    sleep(1);
+
+    operand op(1.0);
+    woof_put("laminar-1.output.1", "output_handler", &op);
+    woof_put("laminar-1.output.2", "output_handler", &op);
+
+    sleep(2);
+
+    std::vector<double> v;
+    unsigned long last = woof_last_seq("laminar-4.output.1");
+    for (unsigned long i = 1; i <= last; i++) {
+        woof_get("laminar-4.output.1", &op, i);
+        v.push_back(op.value);
+    }
+
+    // Expected: 128
+    std::cout << "OUTPUTS: ";
+    for (auto& i : v) {
+        std::cout << i << " ";
+    }
+
+
+}
+
 int main() {
     // simple_test();
     // simple_test_2();
     // quadratic_test(2, 5, 2);
     // quadratic_graphviz_test();
+    // namespace_graphviz_test();
     // selector_test();
-    filter_test();
+    // filter_test();
+    namespace_test();
 }

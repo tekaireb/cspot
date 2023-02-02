@@ -37,21 +37,23 @@ struct operand {
 };
 
 struct subscriber {
+    int ns;  // namespace
     int id;
     int port;
 
-    subscriber(int dst_id=0, int dst_port=0) : id(dst_id), port(dst_port) {}
+    subscriber(int dst_ns = 0, int dst_id = 0, int dst_port = 0)
+        : ns(dst_ns), id(dst_id), port(dst_port) {}
 
-    bool operator<(const subscriber& other) const {
-        return id < other.id;
-    }
+    bool operator<(const subscriber& other) const { return id < other.id; }
 };
 
 struct subscription {
+    int ns;
     int id;
     int port;
 
-    subscription(int src_id=0, int dst_port=0) : id(src_id), port(dst_port) {}
+    subscription(int src_ns = 0, int src_id = 0, int dst_port = 0)
+        : ns(src_ns), id(src_id), port(dst_port) {}
 
     bool operator<(const subscription& other) const {
         return port < other.port;
@@ -59,12 +61,13 @@ struct subscription {
 };
 
 struct subscription_event {
+    int ns;
     int id;
     int port;
     unsigned long seq;
 
-    subscription_event(int id=0, int port=0, unsigned long seqno=0)
-        : id(id), port(port), seq(seqno) {}
+    subscription_event(int ns=0, int id=0, int port=0, unsigned long seqno=0)
+        : ns(ns), id(id), port(port), seq(seqno) {}
 };
 
 struct node {

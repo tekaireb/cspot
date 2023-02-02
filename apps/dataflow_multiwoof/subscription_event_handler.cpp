@@ -94,6 +94,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     size_t first_dot = woof_name.find('.');
     std::string program = woof_name.substr(0, first_dot);
 
+    // Extract namespace: program_name = laminar-[namespace]
+    size_t dash = woof_name.find('-');
+    int ns = std::stoi(program.substr(dash + 1));
+
     // Get subscription_event
     subscription_event* subevent = static_cast<subscription_event*>(ptr);
 
@@ -104,6 +108,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > consumer_seq) {
+        std::cout << "event seq: " << subevent->seq << ", consumer seq: " << consumer_seq << std::endl;
         std::cout << "Subscription event handler: event is not for current seq, exiting" << std::endl;
         exit(0);
     }
@@ -134,16 +139,18 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     std::vector<operand> op_values(num_ops);
     subscription sub;
     operand op(0);
-    std::string output_base = program + ".output.";
     std::string output_woof;
     for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get subscription id
         woof_get(subdata, &sub, i);
 
         // Get relevant operand from subscription output (if it exists)
-        output_woof = output_base + std::to_string(sub.id);
-        std::cout << "Subscription event handler: consumer_seq: " \
-            << consumer_seq << ", woof_last_seq: " << woof_last_seq(output_woof) << std::endl;
+        output_woof = "laminar-" + std::to_string(sub.ns) + ".output." +
+                      std::to_string(sub.id);
+        std::cout << "Subscription event handler: consumer_seq: "
+                  << consumer_seq
+                  << ", woof_last_seq: " << woof_last_seq(output_woof)
+                  << std::endl;
         if (woof_last_seq(output_woof) >= consumer_seq) {
             std::cout << "Subscription event handler: getting op" << std::endl;
             woof_get(output_woof, &op, consumer_seq);
