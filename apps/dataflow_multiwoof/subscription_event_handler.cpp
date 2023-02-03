@@ -10,7 +10,7 @@
 operand perform_operation(const std::vector<operand>& ops, int opcode) {
     std::cout << "Perform operation: ops = ";
     for (auto& op : ops) std::cout << op.value << " ";
-    std::cout << "\nopcode: " << opcode << std::endl;
+    std::cout << "\nopcode: " << OPCODE_STR[opcode] << std::endl;
 
     operand result(0);
     switch (opcode) {
@@ -52,6 +52,14 @@ operand perform_operation(const std::vector<operand>& ops, int opcode) {
 
     case EQ:
         result.value = (double)(ops[0].value == ops[1].value);
+        break;
+
+    case ABS:
+        result.value = (ops[0].value < 0 ? -ops[0].value : ops[0].value);
+        break;
+
+    case NOT:
+        result.value = (ops[0].value ? 0 : 1);
         break;
     
     case SEL:

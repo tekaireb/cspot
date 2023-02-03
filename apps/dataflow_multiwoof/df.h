@@ -13,6 +13,8 @@
     OP(LT)      \
     OP(GT)      \
     OP(EQ)      \
+    OP(ABS)     \
+    OP(NOT)     \
     OP(SEL)     \
     OP(FILTER)
 

@@ -472,6 +472,103 @@ void namespace_test() {
 
 }
 
+void sqrt_loop_test() {
+    /* Nodes */
+    
+    // Inputs
+    add_operand(1, 1);      // X
+    add_operand(1, 2);      // Epsilon
+
+    // // Initialization
+    // add_node(2, 1, DIV);    // Root = X / 2.0
+    // add_operand(2, 2);      // 2.0
+    // // TODO: Implement OR node? (init OR feedback)
+
+    // Test
+    add_node(3, 1, MUL);    
+    add_node(3, 2, SUB);
+    add_node(3, 3, ABS);
+    add_node(3, 4, LT);
+    add_node(3, 5, NOT);
+    add_node(3, 6, FILTER); // Repeat body
+    add_node(3, 7, FILTER); // Produce result
+    
+    // Body
+    add_node(4, 1, DIV);
+    add_node(4, 2, ADD);
+    add_node(4, 3, DIV);    // Root
+    add_operand(4, 4);      // 2.0
+
+    /* Edges */
+
+    // // Initialization
+    // subscribe("2:1:0", "1:1");  // Root = X / _
+    // subscribe("2:1:1", "2:2");  // Root = X / 2.0
+
+    // Test
+    subscribe("3:1:0", "4:3");  // 3N1 = Root * _
+    subscribe("3:1:1", "4:3");  // 3N1 = Root * Root
+    subscribe("3:2:0", "1:1");  // 3N2 = X - _
+    subscribe("3:2:1", "3:1");  // 3N2 = X - 3N1
+    subscribe("3:3:0", "3:2");  // 3N3 = ABS(3N2)
+    subscribe("3:4:0", "3:3");  // 3N4 = 3N3 < _
+    subscribe("3:4:1", "1:2");  // 3N4 = 3N3 < Epsilon
+    subscribe("3:5:0", "3:4");  // 3N5 = NOT(3N4)
+    subscribe("3:6:0", "3:5");  // Repeat if !(delta < epsilon)
+    subscribe("3:6:1", "4:3");  // Pass root back to body
+    subscribe("3:7:0", "3:4");  // Result if (delta < epsilon)
+    subscribe("3:7:1", "4:3");  // Pass root to result
+    
+    // Body
+    subscribe("4:1:0", "1:1");  // 4N1 = X / _
+    subscribe("4:1:1", "3:6");  // 4N1 = X / Root
+    subscribe("4:2:0", "4:1");  // 4N2 = 4N1 + _
+    subscribe("4:2:1", "3:6");  // 4N2 = 4N1 + Root
+    subscribe("4:3:0", "4:2");  // 4N3 = 4N2 / _
+    subscribe("4:3:1", "4:4");  // 4N3 = 4N2 / 2.0
+
+    /* Run program */
+
+    setup(1);
+    setup(3);
+    setup(4);
+
+    sleep(1);
+
+    double x = 144.0;
+    double epsilon = 1e3;
+
+    operand op(2.0);
+    woof_put("laminar-4.output.4", "output_handler", &op);
+    op.value = x;
+    woof_put("laminar-1.output.1", "output_handler", &op);
+    op.value = epsilon;
+    woof_put("laminar-1.output.2", "output_handler", &op);
+
+    // Seed body with initialization value (for now...)
+    // TODO: Integrate init subgraph
+    op.value = x / 2.0;
+    woof_put("laminar-3.output.6", "output_handler", &op);
+
+
+    sleep(4);
+
+    std::vector<double> v;
+    unsigned long last = woof_last_seq("laminar-3.output.7");
+    for (unsigned long i = 1; i <= last; i++) {
+        woof_get("laminar-3.output.7", &op, i);
+        v.push_back(op.value);
+    }
+
+    // Expected: 20.4459
+    std::cout << "OUTPUTS: ";
+    for (auto& i : v) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+    
+}
+
 int main() {
     // simple_test();
     // simple_test_2();
@@ -480,5 +577,6 @@ int main() {
     // namespace_graphviz_test();
     // selector_test();
     // filter_test();
-    namespace_test();
+    // namespace_test();
+    sqrt_loop_test();
 }
