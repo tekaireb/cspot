@@ -35,7 +35,7 @@ struct operand {
     double value;
     unsigned long seq;
 
-    operand(double value=0.0, unsigned long seq=0) : value(value), seq(seq) {}
+    operand(double value=0.0, unsigned long seq=1) : value(value), seq(seq) {}
 };
 
 struct subscriber {

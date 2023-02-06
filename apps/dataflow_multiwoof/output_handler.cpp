@@ -8,9 +8,11 @@
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     std::cout << "OUTPUT HANDLER STARTED" << std::endl;
 
+    operand* result = static_cast<operand*>(ptr);
+
     std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
     std::cout << "seqno: " << seqno << std::endl;
-    std::cout << "operand: " << static_cast<operand*>(ptr)->value << std::endl;
+    std::cout << "operand: " << result->value << std::endl;
 
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
@@ -26,6 +28,15 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // Extract namespace
     size_t first_dot = woof_name.find('.');
     std::string program = woof_name.substr(0, first_dot);
+
+    // Exit if double-fired
+    if (seqno > 1) {
+        operand prev;
+        woof_get(woof_name, &prev, seqno - 1);
+        if (prev.seq == result->seq) {
+            return 0;
+        }
+    }
 
     /* Get subscribers */
 
@@ -54,7 +65,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         std::string subscriber_woof = "laminar-" + std::to_string(sub.ns) +
                                       ".subscription_events." +
                                       std::to_string(sub.id);
-        subscription_event subevent(sub.ns, sub.id, sub.port, seqno);
+        subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
         woof_put(subscriber_woof, "subscription_event_handler", &subevent);
 
         std::cout << "{ns=" << sub.ns << "id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;

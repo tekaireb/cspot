@@ -159,15 +159,27 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
                   << consumer_seq
                   << ", woof_last_seq: " << woof_last_seq(output_woof)
                   << std::endl;
-        if (woof_last_seq(output_woof) >= consumer_seq) {
+
+        // Scan backwards from most recent output until finding current seq
+        unsigned long idx = woof_last_seq(output_woof) + 1;
+        std::cout << "idx initial: " << idx << std::endl;
+        do {
+            idx--;
+            woof_get(output_woof, &op, idx);
+            std::cout << "idx, seq, val: " << idx << ", " << op.seq << ", " \
+            << op.value << std::endl;
+        } while (op.seq > consumer_seq && idx > 1);
+
+        if (op.seq == consumer_seq) {
             std::cout << "Subscription event handler: getting op" << std::endl;
-            woof_get(output_woof, &op, consumer_seq);
             std::cout << "Subscription event handler: consumer_seq: " \
             << consumer_seq << ", woof: " << output_woof << ", op: " \
             << op.value << std::endl;
             op_values[i - start_idx] = op;
         } else {
             // At least one input is not ready --> exit handler
+            std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
+            << ", op.seq: " << op.seq << std::endl;
             std::cout << "Subscription event handler: not all operands are present, exiting" << std::endl;
             exit(0);
         }
@@ -193,15 +205,13 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     consumer_seq--;
     std::cout << "Subscription event handler: decr" << std::endl;
 
-    // Increment event (to trigger handler for next iter)
-    subevent->seq++;
-
     // Get opcode
     node n;
     woof_get(program + ".nodes", &n, id);
     std::cout << "Subscription event handler: get node" << std::endl;
 
     operand result = perform_operation(op_values, n.opcode);
+    result.seq = consumer_seq;
     std::cout << "Subscription event handler: result = " << result.value << std::endl;
     // Do not write result if it already exists
     if (woof_last_seq(program + ".output." + id_str) > consumer_seq) {

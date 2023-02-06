@@ -175,7 +175,7 @@ std::string graphviz_representation() {
     // Add nodes
     for (auto& [ns, ns_nodes] : nodes) {
         g += "\n\tsubgraph cluster_" + std::to_string(ns) + " { ";
-        g += "\n\t\tlabel=\"Subgraph #" + std::to_string(ns) + "\";";
+        g += "\n\t\tlabel=\"Namespace #" + std::to_string(ns) + "\";";
 
         auto n = ns_nodes.begin();
         auto s = subscriptions[ns].begin();

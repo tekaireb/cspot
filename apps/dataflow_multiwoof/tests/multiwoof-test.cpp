@@ -104,35 +104,38 @@ void simple_test_2() {
     setup(ns);
     sleep(1);
 
-    operand op(1.0);
-    woof_put(p + ".output.2", "output_handler", &op);
-    woof_put(p + ".output.3", "output_handler", &op);
+    operand op1(1.0, 1);
+    woof_put(p + ".output.2", "output_handler", &op1);
+    woof_put(p + ".output.3", "output_handler", &op1);
 
-    op.value = 2.0;
-    woof_put(p + ".output.2", "output_handler", &op);
-    woof_put(p + ".output.3", "output_handler", &op);
+    operand op2(2.0, 2);
+    woof_put(p + ".output.2", "output_handler", &op2);
+    woof_put(p + ".output.3", "output_handler", &op2);
 
-    op.value = 3.0;
-    woof_put(p + ".output.2", "output_handler", &op);
-    woof_put(p + ".output.2", "output_handler", &op);
-    woof_put(p + ".output.3", "output_handler", &op);
-    woof_put(p + ".output.3", "output_handler", &op);
+    operand op3(3.0, 3);
+    operand op4(3.0, 4);
+    woof_put(p + ".output.2", "output_handler", &op3);
+    woof_put(p + ".output.2", "output_handler", &op4);
 
-    sleep(2);
+    woof_put(p + ".output.3", "output_handler", &op3);
+    woof_put(p + ".output.3", "output_handler", &op4);
+
+    sleep(3);
 
 
-    std::vector<double> v;
+    std::vector<operand> v;
     unsigned long last = woof_last_seq(p + ".output.1");
     for (unsigned long i = 1; i <= last; i++) {
-        woof_get(p + ".output.1", &op, i);
-        v.push_back(op.value);
+        woof_get(p + ".output.1", &op1, i);
+        v.push_back(op1);
     }
 
     // Expected: 2 4 6 6
     std::cout << "OUTPUTS: ";
     for (auto& i : v) {
-        std::cout << i << " ";
+        std::cout << i.seq << ": " << i.value << " | ";
     }
+    std::cout << std::endl;
 }
 
 
@@ -527,6 +530,9 @@ void sqrt_loop_test() {
     subscribe("4:3:0", "4:2");  // 4N3 = 4N2 / _
     subscribe("4:3:1", "4:4");  // 4N3 = 4N2 / 2.0
 
+    std::cout << graphviz_representation() << std::endl;
+    return;
+
     /* Run program */
 
     setup(1);
@@ -571,12 +577,12 @@ void sqrt_loop_test() {
 
 int main() {
     // simple_test();
-    // simple_test_2();
+    simple_test_2();
     // quadratic_test(2, 5, 2);
     // quadratic_graphviz_test();
     // namespace_graphviz_test();
     // selector_test();
     // filter_test();
     // namespace_test();
-    sqrt_loop_test();
+    // sqrt_loop_test();
 }
