@@ -34,6 +34,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         operand prev;
         woof_get(woof_name, &prev, seqno - 1);
         if (prev.seq == result->seq) {
+            std::cout << "[" << woof_name << "] double-fired, exiting" << std::endl;
+            std::cout << "OUTPUT HANDLER DONE (early)" << std::endl;
             return 0;
         }
     }
@@ -68,7 +70,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
         woof_put(subscriber_woof, "subscription_event_handler", &subevent);
 
-        std::cout << "{ns=" << sub.ns << "id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;
+        std::cout << "{ns=" << sub.ns << ", id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;
     }
 
     std::cout << "OUTPUT HANDLER DONE" << std::endl;

@@ -16,7 +16,8 @@
     OP(ABS)     \
     OP(NOT)     \
     OP(SEL)     \
-    OP(FILTER)
+    OP(FILTER)  \
+    OP(OFFSET)
 
 enum Opcode {
 #define OP(name) name,

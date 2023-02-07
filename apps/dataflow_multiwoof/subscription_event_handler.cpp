@@ -7,12 +7,12 @@
 #include <string>
 #include <vector>
 
-operand perform_operation(const std::vector<operand>& ops, int opcode) {
+operand perform_operation(const std::vector<operand>& ops, int opcode, unsigned long consumer_seq) {
     std::cout << "Perform operation: ops = ";
     for (auto& op : ops) std::cout << op.value << " ";
     std::cout << "\nopcode: " << OPCODE_STR[opcode] << std::endl;
 
-    operand result(0);
+    operand result(0, consumer_seq);
     switch (opcode) {
     case ADD:
         result.value = 0;
@@ -33,7 +33,7 @@ operand perform_operation(const std::vector<operand>& ops, int opcode) {
         }
         break;
     case DIV:
-        result = ops[0].value;
+        result.value = ops[0].value;
         for (size_t i = 1; i < ops.size(); i++) {
             result.value /= ops[i].value;
         }
@@ -68,10 +68,15 @@ operand perform_operation(const std::vector<operand>& ops, int opcode) {
         break;
 
     case FILTER:
-        result = ops[1];
+        result.value = ops[1].value;
         // if (!static_cast<bool>(ops[0].value)) {
         //     exit(0);
         // }
+        break;
+
+    case OFFSET:
+        result.value = ops[1].value;
+        result.seq = consumer_seq + static_cast<unsigned long>(ops[0].value);
         break;
     
     default:
@@ -117,7 +122,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > consumer_seq) {
         std::cout << "event seq: " << subevent->seq << ", consumer seq: " << consumer_seq << std::endl;
-        std::cout << "Subscription event handler: event is not for current seq, exiting" << std::endl;
+        std::cout << "[" << woof_name<< "] event is not for current seq, exiting" << std::endl;
         exit(0);
     }
 
@@ -136,26 +141,27 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         woof_get(submap, &end_idx, id + 1);
     }
 
-    std::cout << "Subscription event handler: start_idx: " << start_idx \
+    std::cout << "[" << woof_name<< "] start_idx: " << start_idx \
     << ", end_idx: " << end_idx << std::endl;
 
     int num_ops = static_cast<int>(end_idx - start_idx);
 
     // Scan through subscription outputs and collect operands
     // TODO: Cache last scanned seq and array of found operands
-    std::cout << "Subscription event handler: searching for operands..." << std::endl;
+    std::cout << "[" << woof_name<< "] searching for operands..." << std::endl;
     std::vector<operand> op_values(num_ops);
     subscription sub;
     operand op(0);
     std::string output_woof;
     for (unsigned long i = start_idx; i < end_idx; i++) {
+        std::cout << "subscription port: " << i - start_idx << std::endl;
         // Get subscription id
         woof_get(subdata, &sub, i);
 
         // Get relevant operand from subscription output (if it exists)
         output_woof = "laminar-" + std::to_string(sub.ns) + ".output." +
                       std::to_string(sub.id);
-        std::cout << "Subscription event handler: consumer_seq: "
+        std::cout << "[" << woof_name<< "] consumer_seq: "
                   << consumer_seq
                   << ", woof_last_seq: " << woof_last_seq(output_woof)
                   << std::endl;
@@ -171,8 +177,8 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         } while (op.seq > consumer_seq && idx > 1);
 
         if (op.seq == consumer_seq) {
-            std::cout << "Subscription event handler: getting op" << std::endl;
-            std::cout << "Subscription event handler: consumer_seq: " \
+            std::cout << "[" << woof_name<< "] getting op" << std::endl;
+            std::cout << "[" << woof_name<< "] consumer_seq: " \
             << consumer_seq << ", woof: " << output_woof << ", op: " \
             << op.value << std::endl;
             op_values[i - start_idx] = op;
@@ -180,14 +186,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // At least one input is not ready --> exit handler
             std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
             << ", op.seq: " << op.seq << std::endl;
-            std::cout << "Subscription event handler: not all operands are present, exiting" << std::endl;
+            std::cout << "[" << woof_name<< "] not all operands are present, exiting" << std::endl;
             exit(0);
         }
     }
 
     /* Fire node */
 
-    std::cout << "Subscription event handler: firing node" << std::endl;
+    std::cout << "[" << woof_name<< "] firing node" << std::endl;
 
     // Increment consumer pointer
 
@@ -199,23 +205,22 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
 
     consumer_seq++; // TODO: May cause race conditions. Lock-free compare and set?
-    std::cout << "Subscription event handler: incr" << std::endl;
+    std::cout << "[" << woof_name<< "] incr" << std::endl;
     woof_put(consumer_ptr_woof, "", &consumer_seq);
-    std::cout << "Subscription event handler: put" << std::endl;
+    std::cout << "[" << woof_name<< "] put" << std::endl;
     consumer_seq--;
-    std::cout << "Subscription event handler: decr" << std::endl;
+    std::cout << "[" << woof_name<< "] decr" << std::endl;
 
     // Get opcode
     node n;
     woof_get(program + ".nodes", &n, id);
-    std::cout << "Subscription event handler: get node" << std::endl;
+    std::cout << "[" << woof_name<< "] get node" << std::endl;
 
-    operand result = perform_operation(op_values, n.opcode);
-    result.seq = consumer_seq;
-    std::cout << "Subscription event handler: result = " << result.value << std::endl;
+    operand result = perform_operation(op_values, n.opcode, consumer_seq);
+    std::cout << "[" << woof_name<< "] result = " << result.value << std::endl;
     // Do not write result if it already exists
     if (woof_last_seq(program + ".output." + id_str) > consumer_seq) {
-        std::cout << "Operation already performed, exiting" << std::endl;
+        std::cout << "[" << woof_name<< "] Operation already performed, exiting" << std::endl;
 
         // Call handler for next iter in case all operands were received before this function finished
         subscription_event_handler(wf, seqno + 1, static_cast<void*>(subevent));
