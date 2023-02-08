@@ -548,7 +548,7 @@ void sqrt_loop_test() {
     sleep(1);
 
     double x = 144.0;
-    double epsilon = 1e2;
+    double epsilon = 1e1;
 
     
 
@@ -558,15 +558,19 @@ void sqrt_loop_test() {
     woof_put("laminar-4.output.4", "output_handler", &op2);
     operand op3(2.0, 3);
     woof_put("laminar-4.output.4", "output_handler", &op3);
+    operand op4(2.0, 4);
+    woof_put("laminar-4.output.4", "output_handler", &op4);
 
-    op.value = op2.value = op3.value = x;
+    op.value = op2.value = op3.value = op4.value = x;
     woof_put("laminar-1.output.1", "output_handler", &op);
     woof_put("laminar-1.output.1", "output_handler", &op2);
     woof_put("laminar-1.output.1", "output_handler", &op3);
-    op.value = op2.value = op3.value = epsilon;
+    woof_put("laminar-1.output.1", "output_handler", &op4);
+    op.value = op2.value = op3.value = op4.value = epsilon;
     woof_put("laminar-1.output.2", "output_handler", &op);
     woof_put("laminar-1.output.2", "output_handler", &op2);
     woof_put("laminar-1.output.2", "output_handler", &op3);
+    woof_put("laminar-1.output.2", "output_handler", &op4);
 
     // Initialization
 
@@ -576,19 +580,22 @@ void sqrt_loop_test() {
     // unsigned long consumer_ptr = 2;
     // woof_put("laminar-2.subscription_pointer.3", "", &consumer_ptr);
 
-    op.value = op2.value = op3.value = 2.0;
+    op.value = op2.value = op3.value = op4.value = 2.0;
     woof_put("laminar-2.output.4", "output_handler", &op);
     woof_put("laminar-2.output.4", "output_handler", &op2);
     woof_put("laminar-2.output.4", "output_handler", &op3);
+    woof_put("laminar-2.output.4", "output_handler", &op4);
     op.value = 0;
-    op2.value = op3.value = 1;
+    op2.value = op3.value = op4.value = 1;
     woof_put("laminar-2.output.5", "output_handler", &op);
     woof_put("laminar-2.output.5", "output_handler", &op2);
     woof_put("laminar-2.output.5", "output_handler", &op3);
-    op.value = op2.value = op3.value = 1;
+    woof_put("laminar-2.output.5", "output_handler", &op4);
+    op.value = op2.value = op3.value = op4.value = 1;
     woof_put("laminar-2.output.6", "output_handler", &op);
     woof_put("laminar-2.output.6", "output_handler", &op2);
     woof_put("laminar-2.output.6", "output_handler", &op3);
+    woof_put("laminar-2.output.6", "output_handler", &op4);
 
     sleep(4);
 
@@ -599,12 +606,18 @@ void sqrt_loop_test() {
         v.push_back(op.value);
     }
 
-    // Expected: 20.4459
-    std::cout << "OUTPUTS: ";
+    double result;
+    woof_get("laminar-3.output.7", &op, 0);
+    result = op.value;
+
+    // Expected: 37, 20.4459, ...
+    std::cout << "Intermediate values: ";
     for (auto& i : v) {
-        std::cout << i << " ";
+        std::cout << i << " | ";
     }
     std::cout << std::endl;
+
+    std::cout << "Result: " << result << std::endl;
     
 }
 
