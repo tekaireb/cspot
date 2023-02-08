@@ -548,7 +548,7 @@ void sqrt_loop_test() {
     sleep(1);
 
     double x = 144.0;
-    double epsilon = 1e1;
+    double epsilon = 10;
 
     
 
