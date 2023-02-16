@@ -96,27 +96,17 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     std::string woof_name(WoofGetFileName(wf));
 
     // Extract id
-    // Name format: [program_name].subscription_events.[id]
-    size_t last_dot = woof_name.find_last_of('.');
-    std::string id_str = woof_name.substr(last_dot + 1);
-    std::cout << "woof_name: " << woof_name << std::endl;
-    std::cout << "id_str: " << id_str << std::endl;
-    unsigned long id = std::stoul(id_str);
+    unsigned long id = get_id_from_woof_path(woof_name);
 
-    // Extract program name
-    size_t first_dot = woof_name.find('.');
-    std::string program = woof_name.substr(0, first_dot);
-
-    // Extract namespace: program_name = laminar-[namespace]
-    size_t dash = woof_name.find('-');
-    int ns = std::stoi(program.substr(dash + 1));
+    //Extract namespace
+    int ns = get_ns_from_woof_path(woof_name);
 
     // Get subscription_event
     subscription_event* subevent = static_cast<subscription_event*>(ptr);
 
     // Get current execution iteration
     unsigned long consumer_seq;
-    std::string consumer_ptr_woof = program + ".subscription_pointer." + id_str;
+    std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id);
     woof_get(consumer_ptr_woof, &consumer_seq, 0);
 
     // Only proceed if this event is relevant to the current execution iteration
@@ -128,12 +118,11 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Look up subscriptions to determine required number of operands
     // TODO: Cache this value
-
-    std::string submap = program + ".subscription_map";
-    std::string subdata = program + ".subscription_data";
+    std::string submap = generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns);
+    std::string subdata = generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns);
     unsigned long start_idx, end_idx;
     unsigned long last_seq = woof_last_seq(submap);
-
+    
     woof_get(submap, &start_idx, id);
     if (id == last_seq) {
         end_idx = woof_last_seq(subdata) + 1;
@@ -159,8 +148,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         woof_get(subdata, &sub, i);
 
         // Get relevant operand from subscription output (if it exists)
-        output_woof = "laminar-" + std::to_string(sub.ns) + ".output." +
-                      std::to_string(sub.id);
+        output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, sub.ns, sub.id);
         std::cout << "[" << woof_name<< "] consumer_seq: "
                   << consumer_seq
                   << ", woof_last_seq: " << woof_last_seq(output_woof)
@@ -213,13 +201,15 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Get opcode
     node n;
-    woof_get(program + ".nodes", &n, id);
+    std::string nodes_woof = generate_woof_path(NODES_WOOF_TYPE, ns); 
+    woof_get(nodes_woof, &n, id);
     std::cout << "[" << woof_name<< "] get node" << std::endl;
 
     operand result = perform_operation(op_values, n.opcode, consumer_seq);
     std::cout << "[" << woof_name<< "] result = " << result.value << std::endl;
     // Do not write result if it already exists
-    if (woof_last_seq(program + ".output." + id_str) > consumer_seq) {
+    output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, id); 
+    if (woof_last_seq(output_woof) > consumer_seq) {
         std::cout << "[" << woof_name<< "] Operation already performed, exiting" << std::endl;
 
         // Call handler for next iter in case all operands were received before this function finished
@@ -228,7 +218,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
     // Write result (unless FILTER should omit result)
     if (n.opcode != FILTER || op_values[0].value) {
-        woof_put(program + ".output." + id_str, "output_handler", &result);
+        woof_put(output_woof, "output_handler", &result);
     }
     
     std::cout << "SUBSCRIPTION EVENT HANDLER DONE" << std::endl;

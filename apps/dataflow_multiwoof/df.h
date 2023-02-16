@@ -33,6 +33,28 @@ static const char* OPCODE_STR[OPCODES_N] = {
 #undef OP
 };
 
+enum DFWoofType {
+    OUTPUT_WOOF_TYPE = 0, 
+    SUBSCRIPTION_EVENTS_WOOF_TYPE,
+    SUBSCRIPTION_POINTER_WOOF_TYPE,
+    SUBSCRIBER_MAP_WOOF_TYPE,
+    SUBSCRIBER_DATA_WOOF_TYPE,
+    SUBSCRIPTION_MAP_WOOF_TYPE,
+    SUBSCRIPTION_DATA_WOOF_TYPE,
+    NODES_WOOF_TYPE
+};
+
+static const char* DFWOOFTYPE_STR[] = {
+    "output",
+    "subscription_events",
+    "subscription_pointer",
+    "subscriber_map",
+    "subscriber_data",
+    "subscription_map",
+    "subscription_data",
+    "nodes"
+};
+
 struct operand {
     double value;
     unsigned long seq;
@@ -76,9 +98,10 @@ struct subscription_event {
 
 struct node {
     int id;
+    int host_id;
     int opcode;
 
-    node(int id=0, int opcode=0) : id(id), opcode(opcode) {}
+    node(int id=0, int host_id=0, int opcode=0) : id(id), host_id(host_id), opcode(opcode) {}
 
     bool operator<(const node& other) const {
         return id < other.id;

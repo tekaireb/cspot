@@ -14,6 +14,64 @@ std::map<int, std::map<int, std::set<subscriber>>> subscribers;
 std::map<int, std::map<int, std::set<subscription>>> subscriptions;
 // {namespace --> [nodes...]}
 std::map<int, std::set<node>> nodes;
+// {<ns,nodeid> --> host}
+std::map<std::pair<int, int>, int> node_info;
+// {hostid --> hosturl}
+std::map<int, std::string> host_urls;
+//current host id
+int HOST_ID;
+
+std::string generate_woof_path(DFWoofType woof_type, int ns, int id) {
+
+    int host_id = HOST_ID;
+    if(id != -1){
+        host_id = node_info[std::make_pair(ns, id)];
+    }
+
+    std::string woof_path;
+    std::string host_url = "";
+
+    // assign a host url only if it is not local
+    if(host_id != HOST_ID)
+        host_url = host_urls[host_id];
+    
+    woof_path = host_url + "laminar-" + std::to_string(ns) + 
+                "." + DFWOOFTYPE_STR[woof_type];
+    
+    //assign the nodeid only if it is not a static woof
+    if(id != -1)
+        woof_path = woof_path + "." + std::to_string(id);
+    
+    std::cout << "woof_path " << woof_path << std::endl;
+    std::cout << "woof_type " << DFWOOFTYPE_STR[woof_type] << 
+                " ns " << std::to_string(ns) <<
+                " id " << std::to_string(id) << std::endl;
+    return woof_path;
+}
+
+unsigned long get_id_from_woof_path(std::string woof_path) {
+    
+    size_t last_dot = woof_path.find_last_of('.');
+    std::string id_str = woof_path.substr(last_dot + 1);
+
+    std::cout << "woof_name: " << woof_path << std::endl;
+    std::cout << "id_str: " << id_str << std::endl;
+    
+    return std::stoul(id_str);
+}
+
+int get_ns_from_woof_path(std::string woof_path) {
+
+    size_t dash = woof_path.find('-');
+    std::string ns_str = woof_path.substr(dash + 1);
+    size_t first_dot = ns_str.find('.');
+    ns_str = ns_str.substr(0, first_dot);
+
+    std::cout << "woof_name: " << woof_path << std::endl;
+    std::cout << "ns_str: " << ns_str << std::endl;
+
+    return std::stoi(ns_str);
+}
 
 void woof_create(std::string name, unsigned long element_size,
                  unsigned long history_size) {
@@ -73,40 +131,55 @@ std::vector<std::string> split(std::string s, char delim = ',') {
     return result;
 }
 
-void add_node(int ns, int id, int opcode) {
-    std::string id_str = std::to_string(id);
-    std::string ns_str = std::to_string(ns);
-    std::string program = "laminar-" + ns_str;
+void add_host(int host_id, std::string host_ip, std::string woof_path) {
 
-    // Create output woof
-    woof_create(program + ".output." + id_str, sizeof(operand), 10);
+    std::string host_url = "woof://" + host_ip + woof_path;
+    host_urls[host_id] = host_url;
 
-    // Create subscription_events woof
-    woof_create(program + ".subscription_events." + id_str,
-                sizeof(subscription_event), 25);
-
-    // Create consumer_pointer woof
-    std::string consumer_ptr_woof = program + ".subscription_pointer." + id_str;
-    unsigned long initial_consumer_ptr = 1;
-    // TODO: consumer_ptr_woof should be of size 1, but CSPOT hangs when
-    // writing to full woof (instead of overwriting), so the size has
-    // been increased temporarily as a stop-gap measure while testing
-    woof_create(consumer_ptr_woof, sizeof(unsigned long), 100);
-    woof_put(consumer_ptr_woof, "", &initial_consumer_ptr);
-
-    // Create node
-    nodes[ns].insert(node(id, opcode));
 }
 
-void add_operand(int ns, int id) {
-    std::string id_str = std::to_string(id);
-    std::string ns_str = std::to_string(ns);
-    std::string program = "laminar-" + ns_str;
+void set_host(int host_id) {
+    HOST_ID = host_id;
+}
 
-    // Create output woof
-    woof_create(program + ".output." + id_str, sizeof(operand), 10);
+void add_node(int ns, int host_id, int id, int opcode) {
 
-    nodes[ns].insert(node(id, OPERAND));
+    // global info stored in every host
+    nodes[ns].insert(node(id, host_id, opcode));
+    node_info[std::make_pair(ns, id)] = host_id;
+
+    //create node related info only for current host
+    if(host_id == HOST_ID) {
+        
+        // Create output woof
+        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id), sizeof(operand), 10);
+
+        // Create subscription_events woof
+        woof_create(generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id),
+                    sizeof(subscription_event), 25);
+
+        // Create consumer_pointer woof
+        std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id);
+        unsigned long initial_consumer_ptr = 1;
+        // TODO: consumer_ptr_woof should be of size 1, but CSPOT hangs when
+        // writing to full woof (instead of overwriting), so the size has
+        // been increased temporarily as a stop-gap measure while testing
+        woof_create(consumer_ptr_woof, sizeof(unsigned long), 100);
+        woof_put(consumer_ptr_woof, "", &initial_consumer_ptr);
+    }
+}
+
+void add_operand(int ns, int host_id, int id) {
+    
+
+    //global info stored in every host
+    nodes[ns].insert(node(id, host_id, OPERAND));
+    node_info[std::make_pair(ns, id)] = host_id;
+
+    // Create output woof if the operand belongs to this host only
+    if(host_id == HOST_ID) {
+        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id), sizeof(operand), 10);
+    }
 }
 
 void subscribe(int dst_ns, int dst_id, int dst_port, int src_ns, int src_id) {
@@ -120,58 +193,56 @@ void subscribe(int dst_ns, int dst_id, int dst_port, int src_ns, int src_id) {
 void subscribe(std::string dst_addr, std::string src_addr) {
     std::vector<std::string> dst = split(dst_addr, ':');
     std::vector<std::string> src = split(src_addr, ':');
-
+    
     subscribe(std::stoi(dst[0]), std::stoi(dst[1]), std::stoi(dst[2]),
               std::stoi(src[0]), std::stoi(src[1]));
 }
 
 void setup(int ns) {
-    std::string ns_str = std::to_string(ns);
-    std::string program = "laminar-" + ns_str;
 
     // Create woof hashmaps to hold subscribers
-    woof_create(program + ".subscriber_map", sizeof(unsigned long), nodes[ns].size());
-    woof_create(program + ".subscriber_data", sizeof(subscriber),
+    woof_create(generate_woof_path(SUBSCRIBER_MAP_WOOF_TYPE, ns), sizeof(unsigned long), nodes[ns].size());
+    woof_create(generate_woof_path(SUBSCRIBER_DATA_WOOF_TYPE, ns), sizeof(subscriber),
                 subscribe_entries[ns]);
 
     unsigned long current_data_pos = 1;
     for (size_t i = 1; i <= nodes[ns].size(); i++) {
         // Add entry in map (idx = node id, val = start idx in subscriber_data)
-        woof_put(program + ".subscriber_map", "", &current_data_pos);        
+        woof_put(generate_woof_path(SUBSCRIBER_MAP_WOOF_TYPE, ns), "", &current_data_pos);        
         
         for (auto& sub : subscribers[ns][i]) {
-            woof_put(program + ".subscriber_data", "", &sub);
+            woof_put(generate_woof_path(SUBSCRIBER_DATA_WOOF_TYPE, ns), "", &sub);
             current_data_pos++;
         }
     }
 
     // Create woof hashmaps to hold subscriptions
-    woof_create(program + ".subscription_map", sizeof(unsigned long), nodes[ns].size());
-    woof_create(program + ".subscription_data", sizeof(subscription),
+    woof_create(generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns), sizeof(unsigned long), nodes[ns].size());
+    woof_create(generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns), sizeof(subscription),
                 subscribe_entries[ns]);
 
     current_data_pos = 1;
     for (size_t i = 1; i <= nodes[ns].size(); i++) {
         // Add entry in map (idx = node id, val = start idx in subscription_data)
-        woof_put(program + ".subscription_map", "", &current_data_pos);
+        woof_put(generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns), "", &current_data_pos);
         
         for (auto& sub : subscriptions[ns][i]) {
-            woof_put(program + ".subscription_data", "", &sub);
+            woof_put(generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns), "", &sub);
             current_data_pos++;
         }
     }
 
     // Create woof to hold node data
-    woof_create(program + ".nodes", sizeof(node), nodes[ns].size());
+    woof_create(generate_woof_path(NODES_WOOF_TYPE, ns), sizeof(node), nodes[ns].size());
 
     for (auto& node : nodes[ns]) {
-        woof_put(program + ".nodes", "", &node);
+        woof_put(generate_woof_path(NODES_WOOF_TYPE, ns), "", &node);
     }
 }
 
 std::string graphviz_representation() {
     std::string g = "digraph G {\n\tnode [shape=\"record\", style=\"rounded\"];";
-
+ 
     // Add nodes
     for (auto& [ns, ns_nodes] : nodes) {
         g += "\n\tsubgraph cluster_" + std::to_string(ns) + " { ";
@@ -221,36 +292,3 @@ std::string graphviz_representation() {
 
     return g;
 }
-
-
-
-// void add_node(char* prog, int id) {
-//     char woof_name_base[4096] = ""; // [prog].[id]
-//     char woof_name[4096] = "";
-//     char id_str[100] = "";
-
-//     // Convert id to string
-//     snprintf(id_str, sizeof(id_str), "%d", id);
-    
-//     // woof_name_base = "[prog].[id]"
-//     strncpy(woof_name_base, prog, sizeof(woof_name_base));
-//     strncat(woof_name_base, id_str,
-//             sizeof(woof_name_base) - strlen(woof_name_base) - 1);
-
-//     // Create output woof
-//     strncpy(woof_name, woof_name_base, sizeof(woof_name));
-//     strncat(woof_name, ".output", sizeof(woof_name) - strlen(woof_name) - 1);
-//     woof_create(woof_name, sizeof(operand), 10);
-
-//     // Create subscription_events woof
-//     strncpy(woof_name, woof_name_base, sizeof(woof_name));
-//     strncat(woof_name, ".subscription_events", 
-//             sizeof(woof_name) - strlen(woof_name) - 1);
-//     woof_create(woof_name, sizeof(subscription_event), 25);
-
-//     // Create consumer_pointer woof
-//     strncpy(woof_name, woof_name_base, sizeof(woof_name));
-//     strncat(woof_name, ".subscription_pointer",
-//             sizeof(woof_name) - strlen(woof_name) - 1);
-//     woof_create(woof_name, sizeof(unsigned long), 1);
-// }

@@ -18,16 +18,10 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     std::string woof_name(WoofGetFileName(wf));
     
     // Extract id
-    // Name format: [namespace].output.[id]
-    size_t last_dot = woof_name.find_last_of('.');
-    std::string id_str = woof_name.substr(last_dot + 1);
-    std::cout << "woof_name: " << woof_name << std::endl;
-    std::cout << "id_str: " << id_str << std::endl;
-    unsigned long id = std::stoul(id_str);
+    unsigned long id = get_id_from_woof_path(woof_name);
 
-    // Extract namespace
-    size_t first_dot = woof_name.find('.');
-    std::string program = woof_name.substr(0, first_dot);
+    //Extract namespace
+    int ns = get_ns_from_woof_path(woof_name);
 
     // Exit if double-fired
     if (seqno > 1) {
@@ -42,17 +36,17 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
     /* Get subscribers */
 
-    std::string submap = program + ".subscriber_map";
-    std::string subdata = program + ".subscriber_data";
+    std::string submap_woof = generate_woof_path(SUBSCRIBER_MAP_WOOF_TYPE, ns);
+    std::string subdata_woof = generate_woof_path(SUBSCRIBER_DATA_WOOF_TYPE, ns);
     unsigned long start_idx, end_idx;
-    unsigned long last_seq = woof_last_seq(submap);
+    unsigned long last_seq = woof_last_seq(submap_woof);
 
     // Get data range (TODO: factor out into function for woofmap)
-    woof_get(submap, &start_idx, id);
+    woof_get(submap_woof, &start_idx, id);
     if (id == last_seq) {
-        end_idx = woof_last_seq(subdata) + 1;
+        end_idx = woof_last_seq(subdata_woof) + 1;
     } else {
-        woof_get(submap, &end_idx, id + 1);
+        woof_get(submap_woof, &end_idx, id + 1);
     }
 
     std::cout << "start_idx: " << start_idx << ", end_idx: " << end_idx << std::endl;
@@ -61,12 +55,9 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get subscriber data
         subscriber sub;
-        woof_get(subdata, &sub, i);
+        woof_get(subdata_woof, &sub, i);
 
-        // Push event to subscription_event woof of subscriber
-        std::string subscriber_woof = "laminar-" + std::to_string(sub.ns) +
-                                      ".subscription_events." +
-                                      std::to_string(sub.id);
+        std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, sub.ns, sub.id);
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
         woof_put(subscriber_woof, "subscription_event_handler", &subevent);
 
