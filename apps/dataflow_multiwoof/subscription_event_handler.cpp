@@ -6,10 +6,19 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <queue>
 
-operand perform_operation(const std::vector<operand>& ops, int opcode, unsigned long consumer_seq) {
+#include <unistd.h>
+
+// Helper function to calculate Euclidean distance between two points
+double dist(Point& a, Point& b) {
+    return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
+}
+
+operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsigned long consumer_seq) {
     std::cout << "Perform operation: ops = ";
     for (auto& op : ops) std::cout << op.value << " ";
+    int opcode = n.opcode;
     std::cout << "\nopcode: " << OPCODE_STR[opcode] << std::endl;
 
     operand result(0, consumer_seq);
@@ -77,6 +86,50 @@ operand perform_operation(const std::vector<operand>& ops, int opcode, unsigned 
     case OFFSET:
         result.value = ops[1].value;
         result.seq = consumer_seq + static_cast<unsigned long>(ops[0].value);
+        break;
+
+    case KNN: {
+        size_t k = static_cast<size_t>(ops[0].value);
+        Point p = Point(ops[1].value, ops[2].value);
+        std::string data_woof = "laminar-" + std::to_string(ns) + ".knn_data." +
+                                std::to_string(n.id);
+        
+        using distPair = std::pair<double, int>; // (distance, label)
+        std::priority_queue<distPair, std::vector<distPair>, std::greater<distPair>> pq;
+
+        // Iterate over points data and add to priority queue
+        unsigned long last_seq = woof_last_seq(data_woof);
+        Point p_i;
+        for (unsigned long s = 0; s <= last_seq; s++) {
+            woof_get(data_woof, &p_i, s);
+            double d = dist(p, p_i);
+            pq.push(std::make_pair(d, p_i.label));
+        }
+
+        // Pop top k elements and find most common label
+        int num_pops = std::min(k, pq.size());
+        int most_common_label = pq.top().second;
+        int count = 1;
+        pq.pop();
+        for (int i = 1; i < num_pops; i++) {
+            if (pq.top().second == most_common_label)
+                count++;
+            else
+                count--;
+                
+            if (count == 0) {
+                most_common_label = pq.top().second;
+                count = 1;
+            }
+            pq.pop();
+        }
+
+        // Add result to data woof
+        p.label = most_common_label;
+        woof_put(data_woof, "", &p);
+
+        result.value = most_common_label;
+    }
         break;
     
     default:
@@ -216,7 +269,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     woof_get(program + ".nodes", &n, id);
     std::cout << "[" << woof_name<< "] get node" << std::endl;
 
-    operand result = perform_operation(op_values, n.opcode, consumer_seq);
+    operand result = perform_operation(op_values, ns, n, consumer_seq);
     std::cout << "[" << woof_name<< "] result = " << result.value << std::endl;
     // Do not write result if it already exists
     if (woof_last_seq(program + ".output." + id_str) > consumer_seq) {

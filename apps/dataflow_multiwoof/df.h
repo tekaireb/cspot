@@ -18,7 +18,7 @@
     OP(SEL)     \
     OP(FILTER)  \
     OP(OFFSET)  \
-    OP(FUNC)
+    OP(KNN)
 
 enum Opcode {
 #define OP(name) name,
@@ -85,5 +85,13 @@ struct node {
     }
 };
 
+// Struct to hold each data point. Includes coordinates (x, y) and class (label)
+struct Point {
+  double x;
+  double y;
+  int label;
+  
+  Point(double x = 0.0, double y = 0.0, int label = -1) : x(x), y(y), label(label) {}
+};
 
 #endif
