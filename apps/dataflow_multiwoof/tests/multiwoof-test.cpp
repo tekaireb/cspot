@@ -765,6 +765,24 @@ void knn_test() {
     std::cout << "LABEL: " << result << std::endl;
 }
 
+void add_benchmark_1() {
+    add_node(1, 1, ADD);
+    add_operand(1, 2);
+
+    subscribe("1:1:0", "1:2");
+    subscribe("1:1:1", "1:2");
+
+    std::vector<operand> values;
+
+    for (int i = 1; i <= 100; i++) {
+        values.push_back(operand(1, i));
+    }
+
+    for (int i = 1; i <= 100; i++) {
+        woof_put("laminar-1.output.2", "output_handler", &values[i]);
+    }
+}
+
 int main() {
     // simple_test();
     // simple_test_2();
@@ -798,5 +816,6 @@ int main() {
     // };
     // mat_test(a, b);
 
-    knn_test();
+    // knn_test();
+    add_benchmark_1();
 }

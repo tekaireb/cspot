@@ -5,14 +5,17 @@
 #include <iostream>
 #include <fstream>
 
+#include <chrono>
+#include <ctime>
+
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
-    std::cout << "OUTPUT HANDLER STARTED" << std::endl;
+    // std::cout << "OUTPUT HANDLER STARTED" << std::endl;
 
     operand* result = static_cast<operand*>(ptr);
 
-    std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
-    std::cout << "seqno: " << seqno << std::endl;
-    std::cout << "operand: " << result->value << std::endl;
+    // std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
+    // std::cout << "seqno: " << seqno << std::endl;
+    // std::cout << "operand: " << result->value << std::endl;
 
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
@@ -21,8 +24,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // Name format: [namespace].output.[id]
     size_t last_dot = woof_name.find_last_of('.');
     std::string id_str = woof_name.substr(last_dot + 1);
-    std::cout << "woof_name: " << woof_name << std::endl;
-    std::cout << "id_str: " << id_str << std::endl;
+    // std::cout << "woof_name: " << woof_name << std::endl;
+    // std::cout << "id_str: " << id_str << std::endl;
     unsigned long id = std::stoul(id_str);
 
     // Extract namespace
@@ -34,8 +37,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         operand prev;
         woof_get(woof_name, &prev, seqno - 1);
         if (prev.seq == result->seq) {
-            std::cout << "[" << woof_name << "] double-fired, exiting" << std::endl;
-            std::cout << "OUTPUT HANDLER DONE (early)" << std::endl;
+            // std::cout << "[" << woof_name << "] double-fired, exiting" << std::endl;
+            // std::cout << "OUTPUT HANDLER DONE (early)" << std::endl;
             return 0;
         }
     }
@@ -55,7 +58,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         woof_get(submap, &end_idx, id + 1);
     }
 
-    std::cout << "start_idx: " << start_idx << ", end_idx: " << end_idx << std::endl;
+    // std::cout << "start_idx: " << start_idx << ", end_idx: " << end_idx << std::endl;
 
     // Iterate over subscribers and push to respective woofs
     for (unsigned long i = start_idx; i < end_idx; i++) {
@@ -70,10 +73,16 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
         woof_put(subscriber_woof, "subscription_event_handler", &subevent);
 
-        std::cout << "{ns=" << sub.ns << ", id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;
+        // std::cout << "{ns=" << sub.ns << ", id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;
     }
 
-    std::cout << "OUTPUT HANDLER DONE" << std::endl;
+    // std::cout << "OUTPUT HANDLER DONE" << std::endl;
+    auto end = std::chrono::system_clock::now();
+    std::cout << woof_name << ": "
+              << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                     end.time_since_epoch())
+                     .count()
+              << "ns" << std::endl;
     
     return 0;
 }
