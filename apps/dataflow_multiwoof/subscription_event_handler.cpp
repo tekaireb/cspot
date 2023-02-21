@@ -132,6 +132,20 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
     }
         break;
     
+    case LINREG: {
+        std::string data_woof = "laminar-" + std::to_string(ns) +
+                                ".linreg_data." + std::to_string(n.id);
+
+        Regression r;
+        if (woof_last_seq(data_woof)) {
+            woof_get(data_woof, &r, 0);
+        }
+        r.update(ops[0].value, ops[1].value);
+        woof_put(data_woof, "", &r);
+        result.value = r.slope;
+    }
+        break;
+
     default:
         result.value = 0;
         break;
