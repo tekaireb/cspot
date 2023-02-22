@@ -77,12 +77,12 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     }
 
     // std::cout << "OUTPUT HANDLER DONE" << std::endl;
-    auto end = std::chrono::system_clock::now();
-    std::cout << woof_name << ": "
-              << std::chrono::duration_cast<std::chrono::nanoseconds>(
-                     end.time_since_epoch())
-                     .count()
-              << "ns" << std::endl;
+    // auto end = std::chrono::system_clock::now();
+    // std::cout << woof_name << ": "
+    //           << std::chrono::duration_cast<std::chrono::nanoseconds>(
+    //                  end.time_since_epoch())
+    //                  .count()
+    //           << "ns" << std::endl;
     
     return 0;
 }
