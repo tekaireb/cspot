@@ -6,7 +6,7 @@
 #include <fstream>
 
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
-    std::cout << "OUTPUT HANDLER STARTED" << std::endl;
+    std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
 
     operand* result = static_cast<operand*>(ptr);
 
@@ -60,11 +60,11 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, sub.ns, sub.id);
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
         woof_put(subscriber_woof, "subscription_event_handler", &subevent);
-
+        
         std::cout << "{ns=" << sub.ns << ", id=" << sub.id << ", port=" << sub.port << ", seqno=" << seqno << "}" << std::endl;
     }
 
-    std::cout << "OUTPUT HANDLER DONE" << std::endl;
+    std::cout << "OUTPUT HANDLER DONE" <<  WoofGetFileName(wf) <<  std::endl;
     
     return 0;
 }

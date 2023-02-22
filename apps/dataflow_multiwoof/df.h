@@ -1,6 +1,7 @@
 #ifndef DF_H
 #define DF_H
 
+#include <cstring>
 // opcodes
 
 #define OPCODES \
@@ -41,7 +42,9 @@ enum DFWoofType {
     SUBSCRIBER_DATA_WOOF_TYPE,
     SUBSCRIPTION_MAP_WOOF_TYPE,
     SUBSCRIPTION_DATA_WOOF_TYPE,
-    NODES_WOOF_TYPE
+    NODES_WOOF_TYPE, 
+    HOST_ID_WOOF_TYPE,
+    HOSTS_WOOF_TYPE
 };
 
 static const char* DFWOOFTYPE_STR[] = {
@@ -52,7 +55,9 @@ static const char* DFWOOFTYPE_STR[] = {
     "subscriber_data",
     "subscription_map",
     "subscription_data",
-    "nodes"
+    "nodes",
+    "host_id",
+    "hosts"
 };
 
 struct operand {
@@ -108,5 +113,18 @@ struct node {
     }
 };
 
+struct host {
+    int host_id;
+    char host_url[200];
+
+    host(int host_id_=0, char host_url_[200]=""){
+        host_id = host_id_;
+        strcpy(host_url, host_url_);
+    }
+
+    bool operator<(const host& other) const {
+        return host_id < other.host_id;
+    }
+};
 
 #endif
