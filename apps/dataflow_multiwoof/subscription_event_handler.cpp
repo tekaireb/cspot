@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <chrono>
 
 #include <unistd.h>
 
@@ -154,6 +155,7 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
 }
 
 extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* ptr) {
+    auto start = std::chrono::high_resolution_clock::now();
     // std::cout << "SUBSCRIPTION EVENT HANDLER STARTED" << std::endl;
 
     // std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
@@ -269,6 +271,19 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     if (current_seq > consumer_seq) {
         // Exit if this iteration has already been completed
         return 0;
+    }
+
+    // // linreg_multinode
+    // if (id == 8 && woof_name == "laminar-1.subscription_events.8") {
+
+    // linreg_uninode
+    if (id == 1 && woof_name == "laminar-1.subscription_events.1") {
+
+        std::cout << "start: "
+                << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        start.time_since_epoch())
+                        .count()
+                << "ns" << std::endl;
     }
 
     consumer_seq++; // TODO: May cause race conditions. Lock-free compare and set?

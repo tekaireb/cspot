@@ -777,11 +777,12 @@ void online_linreg_test() {
 
     // Linear Regression Initialization
 
+    int iters = 50;
+
     std::string data_woof = "laminar-1.linreg_data.1";
     woof_create(data_woof, sizeof(Regression), 100);
 
     setup(1);
-    sleep(1);
 
     std::random_device rd;
     std::default_random_engine eng(rd());
@@ -790,19 +791,22 @@ void online_linreg_test() {
     std::vector<operand> x_values;
     std::vector<operand> y_values;
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < iters; i++) {
         double x = i + distr(eng);
         double y = 3 + 2 * i + distr(eng);
         x_values.push_back(operand(x, i + 1));
         y_values.push_back(operand(y, i + 1));
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < iters; i++) {
         woof_put("laminar-1.output.2", "output_handler", &x_values[i]);
         woof_put("laminar-1.output.3", "output_handler", &y_values[i]);
+        usleep(10000);
     }
-
-    sleep(3);
+df_benchmark_data/linreg_uninode_results_2_10kus.txt
+    while (woof_last_seq("laminar-1.output.1") < iters) {
+        sleep(1);
+    }
 
     operand op;
     double result;
@@ -970,24 +974,22 @@ void online_linreg_multinode() {
         setup(i);
     }
 
-    sleep(1);
-
     // Initialization
 
-    int iters = 5;
+    int iters = 2;
 
     std::cout << "Initializing constants" << std::endl;
 
     // Const (3:1) = 1
     for (int i = 1; i <= iters; i++) {
         operand op(1.0, i);
-        woof_put("laminar-3.output.1", "output_handler", &op);
+        woof_put("laminar-3.output.1", "", &op);
     }
 
     // Const (3:2) = 0
     for (int i = 1; i <= iters; i++) {
         operand op(0.0, i);
-        woof_put("laminar-3.output.2", "output_handler", &op);
+        woof_put("laminar-3.output.2", "", &op);
     }
 
     // Const (3:3) = exp(-dt/T)  [decay_rate]
@@ -996,20 +998,20 @@ void online_linreg_multinode() {
     double decay_rate = exp(-dt / T);
     for (int i = 1; i <= iters; i++) {
         operand op(decay_rate, i);
-        woof_put("laminar-3.output.3", "output_handler", &op);
+        woof_put("laminar-3.output.3", "", &op);
     }
 
     // Const (3:4) = 0, 1, 1, ..., 1
     for (int i = 1; i <= iters; i++) {
         int val = (i == 1 ? 0 : 1);
         operand op(val, i);
-        woof_put("laminar-3.output.4", "output_handler", &op);
+        woof_put("laminar-3.output.4", "", &op);
     }
 
     // Const (3:5) = 1e-10
     for (int i = 1; i <= iters; i++) {
         operand op(1e-10, i);
-        woof_put("laminar-3.output.5", "output_handler", &op);
+        woof_put("laminar-3.output.5", "", &op);
     }
 
     // Seed offset nodes with initial value
@@ -1018,7 +1020,9 @@ void online_linreg_multinode() {
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
     }
 
-    sleep(1);
+    while (woof_last_seq("laminar-1.output.6") < 1) {
+        sleep(1);
+    }
 
     // Run program
 
@@ -1038,9 +1042,9 @@ void online_linreg_multinode() {
         y_values.push_back(operand(y, i + 1));
     }
 
-    for (int i = 0; i < iters; i++) {
-        woof_put("laminar-4.output.1", "output_handler", &x_values[i]);
-        woof_put("laminar-4.output.2", "output_handler", &y_values[i]);
+    for (int i = 1; i <= iters; i++) {
+        woof_put("laminar-4.output.1", "output_handler", &x_values[i - 1]);
+        woof_put("laminar-4.output.2", "output_handler", &y_values[i - 1]);
     }
 
     std::cout << "Waiting for program to finish" << std::endl;
@@ -1049,22 +1053,22 @@ void online_linreg_multinode() {
         sleep(1);
     }
 
-    std::vector<double> intercepts;
-    std::vector<double> slopes;
+    // std::vector<double> intercepts;
+    // std::vector<double> slopes;
 
-    for (int i = 1; i <= iters; i++) {
-        operand op1;
-        woof_get("laminar-5.output.1", &op1, i);
-        intercepts.push_back(op1.value);
+    // for (int i = 1; i <= iters; i++) {
+    //     operand op1;
+    //     woof_get("laminar-5.output.1", &op1, i);
+    //     intercepts.push_back(op1.value);
 
-        operand op2;
-        woof_get("laminar-5.output.2", &op2, i);
-        slopes.push_back(op2.value);
-    }
+    //     operand op2;
+    //     woof_get("laminar-5.output.2", &op2, i);
+    //     slopes.push_back(op2.value);
+    // }
 
-    for (int i = 0; i < iters; i++) {
-        std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
-    }
+    // for (int i = 0; i < iters; i++) {
+    //     std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
+    // }
 }
 
 void add_benchmark_1() {
@@ -1086,31 +1090,6 @@ void add_benchmark_1() {
 }
 
 int main() {
-    // add_node(1, 1, ADD);
-    // add_node(1, 2, SUB);
-    // add_node(1, 3, NOT);
-    // add_node(1, 4, FILTER);
-    // add_node(1, 5, FILTER);
-
-    // add_operand(1, 6);
-    // add_operand(1, 7);
-    // add_operand(1, 8);
-
-    // subscribe("1:3:0", "1:6");
-    // subscribe("1:4:0", "1:6");
-    // subscribe("1:4:1", "1:7");
-    // subscribe("1:5:0", "1:3");
-    // subscribe("1:5:1", "1:7");
-    // subscribe("1:1:0", "1:8");
-    // subscribe("1:1:1", "1:4");
-    // subscribe("1:2:0", "1:8");
-    // subscribe("1:2:1", "1:5");
-
-    // std::cout << graphviz_representation();
-    // return 0;
-
-
-
     // simple_test();
     // simple_test_2();
     // quadratic_test(2, 5, 2);
@@ -1144,8 +1123,8 @@ int main() {
     // mat_test(a, b);
 
     // knn_test();
-    // online_linreg_test();
-    online_linreg_multinode();
+    online_linreg_test();
+    // online_linreg_multinode();
 
     // add_benchmark_1();
 }

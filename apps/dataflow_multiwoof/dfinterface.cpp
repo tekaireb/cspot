@@ -79,11 +79,11 @@ void add_node(int ns, int id, int opcode) {
     std::string program = "laminar-" + ns_str;
 
     // Create output woof
-    woof_create(program + ".output." + id_str, sizeof(operand), 10);
+    woof_create(program + ".output." + id_str, sizeof(operand), 100);
 
     // Create subscription_events woof
     woof_create(program + ".subscription_events." + id_str,
-                sizeof(subscription_event), 25);
+                sizeof(subscription_event), 100);
 
     // Create consumer_pointer woof
     std::string consumer_ptr_woof = program + ".subscription_pointer." + id_str;
@@ -104,7 +104,7 @@ void add_operand(int ns, int id) {
     std::string program = "laminar-" + ns_str;
 
     // Create output woof
-    woof_create(program + ".output." + id_str, sizeof(operand), 10);
+    woof_create(program + ".output." + id_str, sizeof(operand), 100);
 
     nodes[ns].insert(node(id, OPERAND));
 }
@@ -175,7 +175,7 @@ std::string graphviz_representation() {
     // Add nodes
     for (auto& [ns, ns_nodes] : nodes) {
         g += "\n\tsubgraph cluster_" + std::to_string(ns) + " { ";
-        g += "\n\t\tlabel=\"Namespace #" + std::to_string(ns) + "\";";
+        g += "\n\t\tlabel=\"Subgraph #" + std::to_string(ns) + "\";";
 
         auto n = ns_nodes.begin();
         auto s = subscriptions[ns].begin();
