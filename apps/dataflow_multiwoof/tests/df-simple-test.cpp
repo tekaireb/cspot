@@ -11,10 +11,10 @@ void simple_test() {
     std::ofstream out("test.txt");
     int ns = 1;
 
-    add_node(ns, 0, 1, ADD);
+    add_node(ns, 1, 1, ADD);
 
-    add_operand(ns, 0, 2);
-    add_operand(ns, 0, 3);
+    add_operand(ns, 1, 2);
+    add_operand(ns, 1, 3);
 
     subscribe(ns, 1, 0, ns, 2);
     subscribe(ns, 1, 1, ns, 3);
@@ -58,9 +58,9 @@ void simple_test() {
 
 int main() {
 
-    set_host(0);
+    set_host(1);
     
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     simple_test();
 

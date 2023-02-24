@@ -11,15 +11,15 @@ void static_maps_test() {
     int ns = 1;
 
     out << "Adding Nodes " << std::endl;
-    add_node(ns, 0, 1, ADD);
-    add_node(ns, 0, 2, ADD);
-    add_node(ns, 0, 3, MUL);
+    add_node(ns, 1, 1, ADD);
+    add_node(ns, 1, 2, ADD);
+    add_node(ns, 1, 3, MUL);
 
     out << "Adding Operands " << std::endl;
-    add_operand(ns, 0, 4);
-    add_operand(ns, 0, 5);
-    add_operand(ns, 0, 6);
-    add_operand(ns, 0, 7);
+    add_operand(ns, 1, 4);
+    add_operand(ns, 1, 5);
+    add_operand(ns, 1, 6);
+    add_operand(ns, 1, 7);
 
     out << "Adding subscriptions " << std::endl;
     subscribe(ns, 1, 0, ns, 4);
@@ -117,9 +117,9 @@ void static_maps_test() {
 
 int main() {
 
-    set_host(0);
+    set_host(1);
     
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     static_maps_test();
 

@@ -63,7 +63,7 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
 
     woof_path = host_url + "laminar-" + std::to_string(ns) + 
                 "." + DFWOOFTYPE_STR[woof_type] + "." + std::to_string(id);
-
+                 
     return woof_path;
 }
 
@@ -71,9 +71,6 @@ unsigned long get_id_from_woof_path(std::string woof_path) {
     
     size_t last_dot = woof_path.find_last_of('.');
     std::string id_str = woof_path.substr(last_dot + 1);
-
-    std::cout << "woof_name: " << woof_path << std::endl;
-    std::cout << "id_str: " << id_str << std::endl;
     
     return std::stoul(id_str);
 }
@@ -84,9 +81,6 @@ int get_ns_from_woof_path(std::string woof_path) {
     std::string ns_str = woof_path.substr(dash + 1);
     size_t first_dot = ns_str.find('.');
     ns_str = ns_str.substr(0, first_dot);
-
-    std::cout << "woof_name: " << woof_path << std::endl;
-    std::cout << "ns_str: " << ns_str << std::endl;
 
     return std::stoi(ns_str);
 }

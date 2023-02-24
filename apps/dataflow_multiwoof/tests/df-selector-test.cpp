@@ -12,13 +12,13 @@ void selector_test() {
     std::ofstream out("test.txt");
     int ns = 1;
 
-    add_node(ns, 0, 1, ADD); // (a or b) + 1
-    add_node(ns, 0, 2, SEL); // a or b
+    add_node(ns, 1, 1, ADD); // (a or b) + 1
+    add_node(ns, 1, 2, SEL); // a or b
 
-    add_operand(ns, 0, 3); // a
-    add_operand(ns, 0, 4); // b
-    add_operand(ns, 0, 5); // 1
-    add_operand(ns, 0, 6); // Selector (0 or 1)
+    add_operand(ns, 1, 3); // a
+    add_operand(ns, 1, 4); // b
+    add_operand(ns, 1, 5); // 1
+    add_operand(ns, 1, 6); // Selector (0 or 1)
 
     subscribe(ns, 1, 0, ns, 2); // SEL --> ADD:0
     subscribe(ns, 1, 1, ns, 5); // 1 --> ADD:1
@@ -57,8 +57,8 @@ void selector_test() {
 
 int main() {
 
-    set_host(0);
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    set_host(1);
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     selector_test();
 

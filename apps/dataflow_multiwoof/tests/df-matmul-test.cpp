@@ -24,13 +24,13 @@ void mat_test(const std::vector<std::vector<double>>& a,
     // Create operands
     for (int i = 0; i < rows_a; i++) {
         for (int j = 0; j < cols_a; j++) {
-            add_operand(1, 0, i * cols_a + j + 1);
+            add_operand(1, 1, i * cols_a + j + 1);
         }
     }
 
     for (int i = 0; i < rows_b; i++) {
         for (int j = 0; j < cols_b; j++) {
-            add_operand(2, 0, i * cols_b + j + 1);
+            add_operand(2, 1, i * cols_b + j + 1);
         }
     }
 
@@ -38,12 +38,12 @@ void mat_test(const std::vector<std::vector<double>>& a,
     for (int r = 0; r < rows_r; r++) {
         for (int c = 0; c < cols_r; c++) {
             // Create addition node for intermediate products
-            add_node(4, 0, r * cols_r + c + 1, ADD);
+            add_node(4, 1, r * cols_r + c + 1, ADD);
 
             // Create all multiplication nodes for one output cell
             for (int i = 0; i < cols_a; i++) {
                 id = r * (cols_r * cols_a) + c * cols_a + i + 1;
-                add_node(3, 0, id, MUL);
+                add_node(3, 1, id, MUL);
                 subscribe(3, id, 0, 1, r * cols_a + i + 1);
                 subscribe(3, id, 1, 2, i * cols_b + c + 1);
 
@@ -100,9 +100,9 @@ void mat_test(const std::vector<std::vector<double>>& a,
 
 int main() {
 
-    set_host(0);
+    set_host(1);
     
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     std::vector<std::vector<double>> a = {
         {1, 2, 3},

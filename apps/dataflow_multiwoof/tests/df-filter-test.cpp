@@ -11,10 +11,10 @@ void filter_test() {
     std::ofstream out("test.txt");
     int ns = 1;
 
-    add_node(ns, 0, 1, FILTER);
+    add_node(ns, 1, 1, FILTER);
 
-    add_operand(ns, 0, 2); // Filter condition
-    add_operand(ns, 0, 3); // Value
+    add_operand(ns, 1, 2); // Filter condition
+    add_operand(ns, 1, 3); // Value
 
     subscribe(ns, 1, 0, ns, 2);
     subscribe(ns, 1, 1, ns, 3);
@@ -66,8 +66,8 @@ void filter_test() {
 
 int main() {
 
-    set_host(0);
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    set_host(1);
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     filter_test();
 

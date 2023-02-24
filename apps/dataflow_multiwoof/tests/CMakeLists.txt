@@ -37,3 +37,7 @@ target_include_directories(df-static-maps-test PUBLIC "./include")
 add_executable(df-quadratic-test df-quadratic-test.cpp ../dfinterface.cpp)
 target_link_libraries(df-quadratic-test PUBLIC woof)
 target_include_directories(df-quadratic-test PUBLIC "./include")
+
+add_executable(df-quadratic-multi-machine-test df-quadratic-multi-machine-test.cpp ../dfinterface.cpp)
+target_link_libraries(df-quadratic-multi-machine-test PUBLIC woof)
+target_include_directories(df-quadratic-multi-machine-test PUBLIC "./include")

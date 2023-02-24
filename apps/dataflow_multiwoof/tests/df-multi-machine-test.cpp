@@ -11,12 +11,12 @@ void multi_machine_test(int curr_host_id) {
     std::ofstream out("test.txt");
     int ns = 1;
 
-    add_node(ns, 0, 1, ADD);
-    add_node(ns, 1, 2, MUL); // second machine
+    add_node(ns, 1, 1, ADD);
+    add_node(ns, 2, 2, MUL); // second machine
 
-    add_operand(ns, 0, 3);
-    add_operand(ns, 0, 4);
-    add_operand(ns, 1, 5); // second machine
+    add_operand(ns, 1, 3);
+    add_operand(ns, 1, 4);
+    add_operand(ns, 2, 5); // second machine
 
     subscribe(ns, 1, 0, ns, 3);
     subscribe(ns, 1, 1, ns, 4);
@@ -31,12 +31,12 @@ void multi_machine_test(int curr_host_id) {
     operand op2(2.0);
     
     //trigger the operands in the machine they exist logically.
-    if(curr_host_id == 0) {
+    if(curr_host_id == 1) {
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op1);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 4), OUTPUT_HANDLER, &op1);
     }
 
-    if (curr_host_id == 1) {
+    if (curr_host_id == 2) {
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 5), OUTPUT_HANDLER, &op2);
     }
 
@@ -63,14 +63,13 @@ void multi_machine_test(int curr_host_id) {
 
 int main() {
 
-    int CURR_HOST_ID = 0;
+    int CURR_HOST_ID = 1;
     set_host(CURR_HOST_ID);
     
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
     add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(2, "169.231.234.248", "/home/centos/cspot/build/bin/");
 
     multi_machine_test(CURR_HOST_ID);
 
-    // quadratic_graphviz_test();
     return 0;
 }

@@ -11,20 +11,20 @@ void namespace_graphviz_test() {
 
     std::ofstream out("test.txt");
     int ns = 1;
-    add_operand(1, 0, 1); // a
-    add_operand(1, 0, 2); // b
+    add_operand(1, 1, 1); // a
+    add_operand(1, 1, 2); // b
 
-    add_node(2, 0, 1, ADD);
-    add_node(2, 0, 2, MUL);
-    add_node(2, 0, 3, MUL);
+    add_node(2, 1, 1, ADD);
+    add_node(2, 1, 2, MUL);
+    add_node(2, 1, 3, MUL);
 
-    add_node(3, 0, 1, ADD);
-    add_node(3, 0, 2, MUL);
-    add_node(3, 0, 3, MUL);
+    add_node(3, 1, 1, ADD);
+    add_node(3, 1, 2, MUL);
+    add_node(3, 1, 3, MUL);
 
-    add_node(4, 0, 1, ADD);
-    add_node(4, 0, 2, MUL);
-    add_node(4, 0, 3, MUL);
+    add_node(4, 1, 1, ADD);
+    add_node(4, 1, 2, MUL);
+    add_node(4, 1, 3, MUL);
 
 
     subscribe("2:1:0", "1:1");
@@ -55,9 +55,9 @@ void namespace_graphviz_test() {
 
 int main() {
 
-    set_host(0);
+    set_host(1);
     
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     namespace_graphviz_test();
 }

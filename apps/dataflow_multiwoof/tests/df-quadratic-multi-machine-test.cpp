@@ -7,7 +7,7 @@
 
 #include <unistd.h>
 
-void quadratic_test() {
+void quadratic_test(int curr_host_id) {
     
     std::ofstream out("test.txt");
     int ns = 1;
@@ -22,8 +22,8 @@ void quadratic_test() {
     add_node(ns, 1, 4, ADD);
     add_node(ns, 1, 5, SQR);
     add_node(ns, 1, 6, SUB);
-    add_node(ns, 1, 7, MUL);
-    add_node(ns, 1, 8, MUL);
+    add_node(ns, 2, 7, MUL);
+    add_node(ns, 2, 8, MUL);
 
     add_operand(ns, 1, 9); // a
     add_operand(ns, 1, 10); // b
@@ -51,23 +51,25 @@ void quadratic_test() {
 
     setup();
 
-    sleep(2);
+    sleep(6);
 
     std::cout << "Finished setup" << std::endl;
 
-    operand op(a);
-    woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 9), OUTPUT_HANDLER, &op);
-    op.value = b;
-    woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 10), OUTPUT_HANDLER, &op);
-    op.value = c;
-    woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 11), OUTPUT_HANDLER, &op);
-    op.value = 2;
-    woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 12), OUTPUT_HANDLER, &op);
-    op.value = -1;
-    woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 13), OUTPUT_HANDLER, &op);
-    op.value = 4;
-    woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 14), OUTPUT_HANDLER, &op);
-    
+    if(curr_host_id == 1) {
+        operand op(a);
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 9), OUTPUT_HANDLER, &op);
+        op.value = b;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 10), OUTPUT_HANDLER, &op);
+        op.value = c;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 11), OUTPUT_HANDLER, &op);
+        op.value = 2;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 12), OUTPUT_HANDLER, &op);
+        op.value = -1;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 13), OUTPUT_HANDLER, &op);
+        op.value = 4;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 14), OUTPUT_HANDLER, &op);
+    }
+
     do {
         sleep(1);
     } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) == 0);
@@ -83,12 +85,13 @@ void quadratic_test() {
 
 int main() {
 
-    set_host(1);
+    int CURR_HOST_ID = 1;
+    set_host(CURR_HOST_ID);
     
     add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(2, "169.231.234.248", "/home/centos/cspot/build/bin/");
 
-    quadratic_test();
+    quadratic_test(CURR_HOST_ID);
 
-    // quadratic_graphviz_test();
     return 0;
 }

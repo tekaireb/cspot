@@ -12,31 +12,31 @@ void sqrt_loop_test() {
     std::ofstream out("test.txt");
 
     // Inputs
-    add_operand(1, 0, 1);      // X
-    add_operand(1, 0, 2);      // Epsilon
+    add_operand(1, 1, 1);      // X
+    add_operand(1, 1, 2);      // Epsilon
 
     // // Initialization
-    add_node(2, 0, 1, DIV);    // Root = X / 2.0
-    add_node(2, 0, 2, SEL);    // Initial root or body output?
-    add_node(2, 0, 3, OFFSET); // Account for no body output before first iter
-    add_operand(2, 0, 4);      // 2.0
-    add_operand(2, 0, 5);      // SEL: root, body, body, ...
-    add_operand(2, 0, 6);      // Offset = 1
+    add_node(2, 1, 1, DIV);    // Root = X / 2.0
+    add_node(2, 1, 2, SEL);    // Initial root or body output?
+    add_node(2, 1, 3, OFFSET); // Account for no body output before first iter
+    add_operand(2, 1, 4);      // 2.0
+    add_operand(2, 1, 5);      // SEL: root, body, body, ...
+    add_operand(2, 1, 6);      // Offset = 1
     
     // Test
-    add_node(3, 0, 1, MUL);    
-    add_node(3, 0, 2, SUB);
-    add_node(3, 0, 3, ABS);
-    add_node(3, 0, 4, LT);
-    add_node(3, 0, 5, NOT);
-    add_node(3, 0, 6, FILTER); // Repeat body
-    add_node(3, 0, 7, FILTER); // Produce result
+    add_node(3, 1, 1, MUL);    
+    add_node(3, 1, 2, SUB);
+    add_node(3, 1, 3, ABS);
+    add_node(3, 1, 4, LT);
+    add_node(3, 1, 5, NOT);
+    add_node(3, 1, 6, FILTER); // Repeat body
+    add_node(3, 1, 7, FILTER); // Produce result
     
     // Body
-    add_node(4, 0, 1, DIV);
-    add_node(4, 0, 2, ADD);
-    add_node(4, 0, 3, DIV);    // Root
-    add_operand(4, 0, 4);      // 2.0
+    add_node(4, 1, 1, DIV);
+    add_node(4, 1, 2, ADD);
+    add_node(4, 1, 3, DIV);    // Root
+    add_operand(4, 1, 4);      // 2.0
 
     //Edges
 
@@ -154,9 +154,9 @@ void sqrt_loop_test() {
 
 int main() {
 
-    set_host(0);
+    set_host(1);
     
-    add_host(0, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
 
     sqrt_loop_test();
 
