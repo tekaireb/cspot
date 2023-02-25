@@ -20,8 +20,11 @@ std::set<host> hosts;
 int get_curr_host() {
 
     int curr_host_id;
-    woof_get(generate_woof_path(HOST_ID_WOOF_TYPE), &curr_host_id, 0);
-    
+    int err = woof_get(generate_woof_path(HOST_ID_WOOF_TYPE), &curr_host_id, 0);
+    if(err < 0) {
+        std::cout << "Error obtaining current host id " << std::endl;
+        exit(1);
+    }
     return curr_host_id;
 }
 
@@ -50,20 +53,29 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
         // get the host of the node from the node level woofs
         nodes_woof_path = host_url + "laminar-" + std::to_string(ns) 
                             + "." + DFWOOFTYPE_STR[NODES_WOOF_TYPE];
-        woof_get(nodes_woof_path, &n, id);
+        int err = woof_get(nodes_woof_path, &n, id);
+        if(err < 0) {
+            std::cout << "Error reading the node info for node id: " << std::to_string(id) 
+            << "node ns : " << std::to_string(ns) << std::endl;
+            exit(1);
+        }
         host_id = n.host_id;
     }
 
     // assign a host url only if it is not local; extract from HOSTS_WOOF
     if(host_id != curr_host_id) {
         host h;
-        woof_get(generate_woof_path(HOSTS_WOOF_TYPE), &h, host_id);
+        int err = woof_get(generate_woof_path(HOSTS_WOOF_TYPE), &h, host_id);
+        if(err < 0) {
+            std::cout << "Error reading the host info for host id: " << std::to_string(host_id) << std::endl;
+            exit(1);
+        }
         host_url.assign(h.host_url);
     }
 
     woof_path = host_url + "laminar-" + std::to_string(ns) + 
                 "." + DFWOOFTYPE_STR[woof_type] + "." + std::to_string(id);
-                 
+
     return woof_path;
 }
 
@@ -107,18 +119,17 @@ unsigned long woof_put(std::string name, std::string handler,
 
     if (WooFInvalid(seqno)) {
         std::cerr << "ERROR -- put to " << name << " failed\n";
-        exit(1);
     }
 
     return seqno;
 }
 
-void woof_get(std::string name, void* element, unsigned long seq_no) {
+int woof_get(std::string name, void* element, unsigned long seq_no) {
     int err = WooFGet(name.c_str(), element, seq_no);
     if (err < 0) {
         std::cerr << "ERROR -- get [" << seq_no << "] from " << name << " failed\n";
-        exit(1);
     }
+    return err;
 }
 
 unsigned long woof_last_seq(std::string name) {

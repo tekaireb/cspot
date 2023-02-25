@@ -57,8 +57,8 @@ void multi_machine_test(int curr_host_id) {
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), &result_node2, 1);
 
     out << "node #2 result = " << result_node2.value << std::endl;
-
     out << "DONE" << std::endl;
+    
 }
 
 int main() {

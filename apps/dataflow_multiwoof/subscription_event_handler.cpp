@@ -87,10 +87,9 @@ operand perform_operation(const std::vector<operand>& ops, int opcode, unsigned 
 }
 
 extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* ptr) {
-    std::cout << "SUBSCRIPTION EVENT HANDLER STARTED" << std::endl;
+    std::cout << "SUBSCRIPTION EVENT HANDLER STARTED " << WoofGetFileName(wf) << std::endl;
 
-    std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
-    std::cout << "seqno: " << seqno << std::endl;
+    int err;
 
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
@@ -107,7 +106,11 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Get current execution iteration
     unsigned long consumer_seq;
     std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id);
-    woof_get(consumer_ptr_woof, &consumer_seq, 0);
+    err = woof_get(consumer_ptr_woof, &consumer_seq, 0);
+    if(err < 0) {
+        std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
+        return err;
+    }
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > consumer_seq) {
@@ -123,15 +126,21 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     unsigned long start_idx, end_idx;
     unsigned long last_seq = woof_last_seq(submap);
     
-    woof_get(submap, &start_idx, id);
+    err = woof_get(submap, &start_idx, id);
+    if(err < 0) {
+        std::cout << "Error reading submap woof: " << submap << std::endl;
+        return err;
+    }
+
     if (id == last_seq) {
         end_idx = woof_last_seq(subdata) + 1;
     } else {
-        woof_get(submap, &end_idx, id + 1);
+        err = woof_get(submap, &end_idx, id + 1);
+        if(err < 0) {
+            std::cout << "Error reading submap woof: " << submap << std::endl;
+            return err;
+        }
     }
-
-    std::cout << "[" << woof_name<< "] start_idx: " << start_idx \
-    << ", end_idx: " << end_idx << std::endl;
 
     int num_ops = static_cast<int>(end_idx - start_idx);
 
@@ -145,9 +154,13 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     for (unsigned long i = start_idx; i < end_idx; i++) {
         std::cout << "subscription port: " << i - start_idx << std::endl;
         // Get subscription id
-        woof_get(subdata, &sub, i);
+        err = woof_get(subdata, &sub, i);
+        if(err < 0) {
+            std::cout << "Error reading subdata woof: " << subdata << std::endl;
+            return err;
+        }
 
-        // Get relevant operand from subscription output (if it exists)
+        // Get relevant operand from output woof (if it exists)
         output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, sub.ns, sub.id);
         std::cout << "[" << woof_name<< "] consumer_seq: "
                   << consumer_seq
@@ -159,7 +172,11 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         std::cout << "idx initial: " << idx << std::endl;
         do {
             idx--;
-            woof_get(output_woof, &op, idx);
+            err = woof_get(output_woof, &op, idx);
+            if(err < 0) {
+                std::cout << "Error reading output woof: " << output_woof << std::endl;
+                return err;
+            }
             std::cout << "idx, seq, val: " << idx << ", " << op.seq << ", " \
             << op.value << std::endl;
         } while (op.seq > consumer_seq && idx > 1);
@@ -186,23 +203,29 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Increment consumer pointer
 
     unsigned long current_seq;
-    woof_get(consumer_ptr_woof, &current_seq, 0);
+    err = woof_get(consumer_ptr_woof, &current_seq, 0);
+    if(err < 0) {
+        std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
+        return err;
+    }
+
     if (current_seq > consumer_seq) {
         // Exit if this iteration has already been completed
         return 0;
     }
 
     consumer_seq++; // TODO: May cause race conditions. Lock-free compare and set?
-    std::cout << "[" << woof_name<< "] incr" << std::endl;
     woof_put(consumer_ptr_woof, "", &consumer_seq);
-    std::cout << "[" << woof_name<< "] put" << std::endl;
     consumer_seq--;
-    std::cout << "[" << woof_name<< "] decr" << std::endl;
 
     // Get opcode
     node n;
     std::string nodes_woof = generate_woof_path(NODES_WOOF_TYPE, ns); 
-    woof_get(nodes_woof, &n, id);
+    err = woof_get(nodes_woof, &n, id);
+    if(err < 0) {
+        std::cout << "Error reading nodes woof: " << nodes_woof << std::endl;
+        return err;
+    }
     std::cout << "[" << woof_name<< "] get node" << std::endl;
 
     operand result = perform_operation(op_values, n.opcode, consumer_seq);
@@ -218,10 +241,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
     // Write result (unless FILTER should omit result)
     if (n.opcode != FILTER || op_values[0].value) {
-        woof_put(output_woof, "output_handler", &result);
+        woof_put(output_woof, OUTPUT_HANDLER, &result);   
     }
     
-    std::cout << "SUBSCRIPTION EVENT HANDLER DONE" << std::endl;
+    std::cout << "SUBSCRIPTION EVENT HANDLER DONE " << WoofGetFileName(wf) << std::endl;
 
     // Call handler for next iter in case all operands were received before this function finished
     subscription_event_handler(wf, seqno + 1, static_cast<void*>(subevent));
