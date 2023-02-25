@@ -184,11 +184,11 @@ void add_node(int ns, int host_id, int id, int opcode) {
     //create node related info only for current host
     if(host_id == curr_host_id) {
         
-        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 10);
+        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 100);
 
         // Create subscription_events woof
         woof_create(generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id, host_id),
-                    sizeof(subscription_event), 25);
+                    sizeof(subscription_event), 100);
 
         // Create consumer_pointer woof
         std::string consumer_ptr_woof = 
@@ -211,7 +211,7 @@ void add_operand(int ns, int host_id, int id) {
     int curr_host_id = get_curr_host();
     // Create output woof if the operand belongs to this host only
     if(host_id == curr_host_id) {
-        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 10);
+        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 100);
     }
 }
 
@@ -292,7 +292,7 @@ std::string graphviz_representation() {
     // Add nodes
     for (auto& [ns, ns_nodes] : nodes) {
         g += "\n\tsubgraph cluster_" + std::to_string(ns) + " { ";
-        g += "\n\t\tlabel=\"Namespace #" + std::to_string(ns) + "\";";
+        g += "\n\t\tlabel=\"Subgraph #" + std::to_string(ns) + "\";";
 
         auto n = ns_nodes.begin();
         auto s = subscriptions[ns].begin();
