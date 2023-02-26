@@ -777,7 +777,7 @@ void online_linreg_test() {
 
     // Linear Regression Initialization
 
-    int iters = 50;
+    int iters = 2;
 
     std::string data_woof = "laminar-1.linreg_data.1";
     woof_create(data_woof, sizeof(Regression), 100);
@@ -801,9 +801,8 @@ void online_linreg_test() {
     for (int i = 0; i < iters; i++) {
         woof_put("laminar-1.output.2", "output_handler", &x_values[i]);
         woof_put("laminar-1.output.3", "output_handler", &y_values[i]);
-        usleep(10000);
     }
-df_benchmark_data/linreg_uninode_results_2_10kus.txt
+
     while (woof_last_seq("laminar-1.output.1") < iters) {
         sleep(1);
     }
@@ -976,7 +975,7 @@ void online_linreg_multinode() {
 
     // Initialization
 
-    int iters = 2;
+    int iters = 1;
 
     std::cout << "Initializing constants" << std::endl;
 
@@ -1123,8 +1122,8 @@ int main() {
     // mat_test(a, b);
 
     // knn_test();
-    online_linreg_test();
-    // online_linreg_multinode();
+    // online_linreg_test();
+    online_linreg_multinode();
 
     // add_benchmark_1();
 }

@@ -81,15 +81,15 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // // linreg_multinode
     // if (id == 1 && woof_name == "laminar-5.output.1") {
 
-    // linreg_uninode
-    if (id == 1 && woof_name == "laminar-1.output.1") {
+    // // linreg_uninode
+    // if (id == 1 && woof_name == "laminar-1.output.1") {
 
-        auto end = std::chrono::high_resolution_clock::now();
-        std::cout << "end" << ": "
-                << std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        end.time_since_epoch())
-                        .count()
-                << "ns" << std::endl;
-    }
+    //     auto end = std::chrono::high_resolution_clock::now();
+    //     std::cout << "end" << ": "
+    //             << std::chrono::duration_cast<std::chrono::nanoseconds>(
+    //                     end.time_since_epoch())
+    //                     .count()
+    //             << "ns" << std::endl;
+    // }
     return 0;
 }
