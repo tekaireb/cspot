@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <random>
 
 #include <unistd.h>
 
@@ -22,7 +23,7 @@ void online_linreg_test() {
     std::string data_woof = "laminar-1.linreg_data.1";
     woof_create(data_woof, sizeof(Regression), 100);
 
-    setup(1);
+    setup();
 
     std::random_device rd;
     std::default_random_engine eng(rd());

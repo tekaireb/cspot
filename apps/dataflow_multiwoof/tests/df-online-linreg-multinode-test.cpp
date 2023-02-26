@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <random>
 
 #include <unistd.h>
 
@@ -65,8 +66,8 @@ void online_linreg_multinode() {
 
     // Outputs
 
-    add_node(5, 1, 1, SEL);         // intercept = intercept or 0
-    add_node(5, 1, 2, SEL);         // slope = slope or 0
+    add_node(5, 2, 1, SEL);         // intercept = intercept or 0
+    add_node(5, 2, 2, SEL);         // slope = slope or 0
 
     // Edges
 
@@ -162,9 +163,7 @@ void online_linreg_multinode() {
     // std::cout << graphviz_representation();
     // return;
 
-    for (int i = 1; i <= 5; i++) {
-        setup(i);
-    }
+    setup();
 
     // Initialization
 
@@ -245,22 +244,23 @@ void online_linreg_multinode() {
         sleep(1);
     }
 
-    // std::vector<double> intercepts;
-    // std::vector<double> slopes;
+    std::vector<double> intercepts;
+    std::vector<double> slopes;
 
-    // for (int i = 1; i <= iters; i++) {
-    //     operand op1;
-    //     woof_get("laminar-5.output.1", &op1, i);
-    //     intercepts.push_back(op1.value);
+    for (int i = 1; i <= iters; i++) {
+        operand op1;
+        woof_get("laminar-5.output.1", &op1, i);
+        intercepts.push_back(op1.value);
 
-    //     operand op2;
-    //     woof_get("laminar-5.output.2", &op2, i);
-    //     slopes.push_back(op2.value);
-    // }
+        operand op2;
+        woof_get("laminar-5.output.2", &op2, i);
+        slopes.push_back(op2.value);
+    }
 
-    // for (int i = 0; i < iters; i++) {
-    //     std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
-    // }
+    for (int i = 0; i < iters; i++) {
+        std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
+    }
+
 }
 
 int main() {
@@ -268,7 +268,8 @@ int main() {
     set_host(1);
     
     add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
-
+    add_host(2, "169.231.234.248", "/home/centos/cspot/build/bin/");
+    
     online_linreg_multinode();
 
     return 0;

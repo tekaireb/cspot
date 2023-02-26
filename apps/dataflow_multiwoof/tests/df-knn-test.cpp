@@ -1,5 +1,6 @@
 #include "../dfinterface.h"
 
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -32,8 +33,7 @@ void knn_test() {
         woof_put(knn_data_woof, "", &p);
     }
 
-    setup(1);
-    setup(2);
+    setup();
     sleep(1);
 
     int k = 3;

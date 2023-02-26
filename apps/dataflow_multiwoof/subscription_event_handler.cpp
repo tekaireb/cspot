@@ -155,7 +155,7 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node &n, unsi
 
 extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // std::cout << "SUBSCRIPTION EVENT HANDLER STARTED " << WoofGetFileName(wf) << std::endl;
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::system_clock::now();
 
     int err;
 
@@ -282,11 +282,8 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         return 0;
     }
 
-    // // linreg_multinode
-    // if (id == 8 && woof_name == "laminar-1.subscription_events.8") {
-
     // linreg_uninode
-    if (id == 1 && woof_name == "laminar-1.subscription_events.1") {
+    if (id == 8 && woof_name == "laminar-1.subscription_events.8") {
 
         std::cout << "start: "
                 << std::chrono::duration_cast<std::chrono::nanoseconds>(

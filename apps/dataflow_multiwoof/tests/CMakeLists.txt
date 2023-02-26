@@ -41,3 +41,15 @@ target_include_directories(df-quadratic-test PUBLIC "./include")
 add_executable(df-quadratic-multi-machine-test df-quadratic-multi-machine-test.cpp ../dfinterface.cpp)
 target_link_libraries(df-quadratic-multi-machine-test PUBLIC woof)
 target_include_directories(df-quadratic-multi-machine-test PUBLIC "./include")
+
+add_executable(df-knn-test df-knn-test.cpp ../dfinterface.cpp)
+target_link_libraries(df-knn-test PUBLIC woof)
+target_include_directories(df-knn-test PUBLIC "./include")
+
+add_executable(df-online-linreg-multinode-test df-online-linreg-multinode-test.cpp ../dfinterface.cpp)
+target_link_libraries(df-online-linreg-multinode-test PUBLIC woof)
+target_include_directories(df-online-linreg-multinode-test PUBLIC "./include")
+
+add_executable(df-online-linreg-test df-online-linreg-test.cpp ../dfinterface.cpp)
+target_link_libraries(df-online-linreg-test PUBLIC woof)
+target_include_directories(df-online-linreg-test PUBLIC "./include")
