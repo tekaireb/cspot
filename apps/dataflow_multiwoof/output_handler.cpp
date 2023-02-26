@@ -35,6 +35,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
         if (prev.seq == result->seq) {
             //std::cout << "OUTPUT HANDLER DONE (early) "  << woof_name << std::endl;
+            //std::cout << "OUTPUT HANDLER DONE (early) "  << woof_name << std::endl;
             return 0;
         }
     }
@@ -80,15 +81,19 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
 
         /* add to the buffer if it is a remote woof which could not be put */
-        if (res == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
-            std::cout << "Adding subevent as could not push ns:  " << subevent.ns 
-            << " port: " << subevent.port << " seq: " << subevent.seq << std::endl;
-            event_buffer.push_back(subevent);
+        if (WooFInvalid(res)) {
+            std::cout << "WoofPut failed for " << subscriber_woof << " " 
+            << std::to_string(subscriber_woof.rfind("woof://", 0)) << std::endl;
+            if(subscriber_woof.rfind("woof://", 0) == 0) {
+                std::cout << "Adding subevent as could not push ns:  " << subevent.ns 
+                << " port: " << subevent.port << " seq: " << subevent.seq << std::endl;
+                event_buffer.push_back(subevent);
+            }
         }
     }
  
     // keep retrying to send the subscription events in the buffer until empty
-    while(event_buffer.size()) {
+    while(!event_buffer.empty()) {
 
         subscription_event subevent = event_buffer.front();
         event_buffer.pop_front();
@@ -97,9 +102,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
 
         /* add back the buffer if it is a remote woof which could not be put */
-        if (err == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
-            std::cout << "Adding subevent BACK as could not push ns:  " << subevent.ns 
-            << " port: " << subevent.port << " seq: " << subevent.seq << std::endl;
+        if (WooFInvalid(res)) {
             event_buffer.push_back(subevent);
         }
     }
