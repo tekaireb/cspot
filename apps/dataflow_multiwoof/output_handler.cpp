@@ -34,7 +34,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         }
 
         if (prev.seq == result->seq) {
-            std::cout << "OUTPUT HANDLER DONE (early) "  << woof_name << std::endl;
+            //std::cout << "OUTPUT HANDLER DONE (early) "  << woof_name << std::endl;
             return 0;
         }
     }
@@ -81,6 +81,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
         /* add to the buffer if it is a remote woof which could not be put */
         if (res == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
+            std::cout << "Adding subevent as could not push ns:  " << subevent.ns 
+            << " port: " << subevent.port << " seq: " << subevent.seq << std::endl;
             event_buffer.push_back(subevent);
         }
     }
@@ -96,13 +98,15 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
         /* add back the buffer if it is a remote woof which could not be put */
         if (err == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
+            std::cout << "Adding subevent BACK as could not push ns:  " << subevent.ns 
+            << " port: " << subevent.port << " seq: " << subevent.seq << std::endl;
             event_buffer.push_back(subevent);
         }
     }
 
     // std::cout << "OUTPUT HANDLER DONE " <<  WoofGetFileName(wf) <<  std::endl;
 
-
+    /*
     // linreg_multinode
     if (id == 1 && woof_name == "laminar-5.output.1") {
 
@@ -113,6 +117,6 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
                         .count()
                 << "ns" << std::endl;
     }
-
+    */
     return 0;
 }

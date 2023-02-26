@@ -8,7 +8,7 @@
 
 #include <unistd.h>
 
-void online_linreg_multinode() {
+void online_linreg_multinode(int curr_host_id) {
     // Update variables (num, x, y, xx, xy)
 
     add_node(1, 1, 1, MUL);    // num *= decay_rate
@@ -165,10 +165,11 @@ void online_linreg_multinode() {
 
     setup();
 
+    sleep(2);
     // Initialization
 
     int iters = 2;
-
+    if(curr_host_id == 1) {
     std::cout << "Initializing constants" << std::endl;
 
     // Const (3:1) = 1
@@ -240,7 +241,9 @@ void online_linreg_multinode() {
 
     std::cout << "Waiting for program to finish" << std::endl;
 
-    while (woof_last_seq("laminar-5.output.1") < iters) {
+    }
+
+    while (woof_last_seq("woof://169.231.234.248/home/centos/cspot/build/bin/laminar-5.output.1") < iters) {
         sleep(1);
     }
 
@@ -249,11 +252,11 @@ void online_linreg_multinode() {
 
     for (int i = 1; i <= iters; i++) {
         operand op1;
-        woof_get("laminar-5.output.1", &op1, i);
+        woof_get("woof://169.231.234.248/home/centos/cspot/build/bin/laminar-5.output.1", &op1, i);
         intercepts.push_back(op1.value);
 
         operand op2;
-        woof_get("laminar-5.output.2", &op2, i);
+        woof_get("woof://169.231.234.248/home/centos/cspot/build/bin/laminar-5.output.2", &op2, i);
         slopes.push_back(op2.value);
     }
 
@@ -269,8 +272,8 @@ int main() {
     
     add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
     add_host(2, "169.231.234.248", "/home/centos/cspot/build/bin/");
-    
-    online_linreg_multinode();
+
+    online_linreg_multinode(1);
 
     return 0;
 }

@@ -266,7 +266,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     /* Fire node */
 
-    std::cout << "[" << woof_name<< "] firing node" << std::endl;
+    // std::cout << "[" << woof_name<< "] firing node" << std::endl;
 
     // Increment consumer pointer
 

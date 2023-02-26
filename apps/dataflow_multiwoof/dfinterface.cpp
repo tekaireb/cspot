@@ -277,7 +277,7 @@ void setup() {
 
     // setup the host related info
     // TODO: setup check for host_url size
-    std::cout << "Sizeof host : " << sizeof(host) << "Hosts size : " << hosts.size() << std::endl;
+    //std::cout << "Sizeof host : " << sizeof(host) << "Hosts size : " << hosts.size() << std::endl;
     woof_create(generate_woof_path(HOSTS_WOOF_TYPE), sizeof(host), hosts.size());
 
     for (auto& host : hosts) {

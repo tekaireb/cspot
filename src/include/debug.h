@@ -9,8 +9,8 @@ void cspot_print_debug(const char* format, ...);
 void cspot_print_fatal(const char* format, ...) __attribute__((noreturn));
 void cspot_print_fatal_if(bool val, const char* format, ...);
 
-//#define DEBUG
-#undef DEBUG
+#define DEBUG
+//#undef DEBUG
 #ifdef DEBUG
 #define DEBUG_LOG(...) cspot_print_debug(__VA_ARGS__)
 #define DEBUG_WARN(...) cspot_print_debug(__VA_ARGS__)
