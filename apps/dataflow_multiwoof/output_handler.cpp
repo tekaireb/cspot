@@ -82,11 +82,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
         /* add to the buffer if it is a remote woof which could not be put */
         if (WooFInvalid(res)) {
-            std::cout << "WoofPut failed for " << subscriber_woof << " " 
-            << std::to_string(subscriber_woof.rfind("woof://", 0)) << std::endl;
             if(subscriber_woof.rfind("woof://", 0) == 0) {
-                std::cout << "Adding subevent as could not push ns:  " << subevent.ns 
-                << " port: " << subevent.port << " seq: " << subevent.seq << std::endl;
                 event_buffer.push_back(subevent);
             }
         }

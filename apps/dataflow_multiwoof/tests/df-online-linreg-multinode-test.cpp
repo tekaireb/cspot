@@ -168,7 +168,7 @@ void online_linreg_multinode(int curr_host_id) {
     // Initialization
     sleep(2);
 
-    int iters = 2;
+    int iters = 50;
     if(curr_host_id == 1) {
     std::cout << "Initializing constants" << std::endl;
 
@@ -242,7 +242,7 @@ void online_linreg_multinode(int curr_host_id) {
     std::cout << "Waiting for program to finish" << std::endl;
     }
 
-    while (woof_last_seq("laminar-5.output.1") < iters) {
+    while (woof_last_seq("woof://169.231.234.248/home/centos/cspot/build/bin/laminar-5.output.1") < iters) {
         sleep(1);
     }
 
