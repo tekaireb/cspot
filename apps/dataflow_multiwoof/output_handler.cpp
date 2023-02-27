@@ -7,6 +7,7 @@
 #include <deque>
 #include <chrono>
 #include <ctime>
+#include <thread>
 
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
@@ -93,7 +94,9 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     }
  
     // keep retrying to send the subscription events in the buffer until empty
+    int itr = 0;
     while(!event_buffer.empty()) {
+        itr++;
 
         subscription_event subevent = event_buffer.front();
         event_buffer.pop_front();
@@ -105,11 +108,14 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         if (WooFInvalid(res)) {
             event_buffer.push_back(subevent);
         }
+        
+        int ms = std::max(itr * 1000 + rand() % 1000, 10);
+        std::this_thread::sleep_for(std::chrono::milliseconds());
     }
 
     // std::cout << "OUTPUT HANDLER DONE " <<  WoofGetFileName(wf) <<  std::endl;
 
-    /*
+    
     // linreg_multinode
     if (id == 1 && woof_name == "laminar-5.output.1") {
 
@@ -120,6 +126,6 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
                         .count()
                 << "ns" << std::endl;
     }
-    */
+    
     return 0;
 }

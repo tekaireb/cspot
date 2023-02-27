@@ -1,6 +1,6 @@
 import statistics
 
-filename = 'linreg-multimachine-multinode.txt'
+filename = 'linreg_multinode_regular.txt'
 
 start = []
 end = []
@@ -16,7 +16,7 @@ with open(filename, 'r') as f:
         start_or_end, value = line.split(' ')
         if start_or_end.startswith('start'):
             start.append(int(value.rstrip()[:-2]) * 1e-6)
-        else:
+        elif start_or_end.startswith('end'):
             end.append(int(value.rstrip()[:-2]) * 1e-6)
 
 print(f'start: {len(start)}, end: {len(end)}')
@@ -24,8 +24,7 @@ print(f'{len(start)} runs')
 
 # Calculate latency
 for s, e in zip(start, end):
-    if(e-s < 300):
-        latency.append(e - s)
+    latency.append(e - s)
 
 # Calculate throughput
 for i in range(len(end) - 1):
@@ -36,12 +35,10 @@ for i in range(len(end) - 1):
 #    if(1 / ((end[i + 1] - end[i]) * 1e-3) < 300):
 #        throughput.append(1 / ((end[i + 1] - end[i]) * 1e-3))
 
-latency.sort()
-throughput.sort()
-
 print('\nLatency:')
 for l in latency:
     print(f'{l} ms')
+latency.sort()
 print(f'Average: {sum(latency) / len(latency)} ms')
 print(f'Median: {statistics.median(latency)} ms')
 print(f'Min: {min(latency)} ms')
@@ -53,6 +50,7 @@ print(f'Quartile3: {statistics.median(latency[median_index:])}')
 print('\nThroughput:')
 for t in throughput:
     print(f'{t} outputs/s')
+throughput.sort()
 print(f'Average: {sum(throughput) / len(throughput)} outputs/s')
 print(f'Median: {statistics.median(throughput)} outputs/s')
 print(f'Min: {min(throughput)} outputs/s')
