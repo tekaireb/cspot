@@ -1,6 +1,6 @@
 import statistics
 
-filename = 'linreg_multinode_regular.txt'
+filename = 'linreg_multinode_partition_new_exp_backoff.txt'
 
 start = []
 end = []
@@ -12,13 +12,16 @@ with open(filename, 'r') as f:
     for line in f:
         if line == 'stop\n':
             break
-        # Format: [start|end]: [timestamp]ns 
-        start_or_end, value = line.split(' ')
-        if start_or_end.startswith('start'):
-            start.append(int(value.rstrip()[:-2]) * 1e-6)
-        elif start_or_end.startswith('end'):
-            end.append(int(value.rstrip()[:-2]) * 1e-6)
+        if line.startswith('start') or line.startswith('end'):
 
+        # Format: [start|end]: [timestamp]ns 
+            start_or_end, value = line.split(' ')
+            if start_or_end.startswith('start'):
+                start.append(int(value.rstrip()[:-2]) * 1e-6)
+            elif start_or_end.startswith('end'):
+                end.append(int(value.rstrip()[:-2]) * 1e-6)
+
+start = start[200:]
 print(f'start: {len(start)}, end: {len(end)}')
 print(f'{len(start)} runs')
 
@@ -36,8 +39,8 @@ for i in range(len(end) - 1):
 #        throughput.append(1 / ((end[i + 1] - end[i]) * 1e-3))
 
 print('\nLatency:')
-for l in latency:
-    print(f'{l} ms')
+for i, l in enumerate(latency):
+    print(f'{l}')
 latency.sort()
 print(f'Average: {sum(latency) / len(latency)} ms')
 print(f'Median: {statistics.median(latency)} ms')

@@ -9,6 +9,7 @@
 #include <ctime>
 #include <thread>
 
+#include <math.h> 
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
 
@@ -84,6 +85,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         /* add to the buffer if it is a remote woof which could not be put */
         if (WooFInvalid(res)) {
             if(subscriber_woof.rfind("woof://", 0) == 0) {
+                std::cout << "Failed : " << subscriber_woof << std::endl;
                 event_buffer.push_back(subevent);
             }
         }
@@ -91,28 +93,44 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
  
     // keep retrying to send the subscription events in the buffer until empty
     int itr = 0;
-    while(!event_buffer.empty()) {
-        itr++;
-
-        subscription_event subevent = event_buffer.front();
-        event_buffer.pop_front();
-
-        std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, subevent.ns, subevent.id);
-        res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
-
-        /* add back the buffer if it is a remote woof which could not be put */
-        if (WooFInvalid(res)) {
-            event_buffer.push_back(subevent);
-        }
+    int MAX_RETRIES = 100;
+    while(itr <= MAX_RETRIES) {
         
-        int ms = std::max(itr * 1000 + rand() % 1000, 10);
-        std::this_thread::sleep_for(std::chrono::milliseconds());
+        while(!event_buffer.empty()) {
+            subscription_event subevent = event_buffer.front();
+            event_buffer.pop_front();
+
+            std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, subevent.ns, subevent.id);
+            res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
+
+            /* add back the buffer if it is a remote woof which could not be put */
+            if (WooFInvalid(res)) {
+                std::cout << "Retry Failed : " << subscriber_woof << std::endl;
+                event_buffer.push_back(subevent);
+            }
+            else {
+                //duplicate event sent randomly
+                if(rand()%2) {
+                    woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
+                }
+                std::cout << "Retry Success : " << subscriber_woof << std::endl;
+            }
+        }
+
+        if(event_buffer.empty()) {
+            break;
+        }
+
+        int ms = std::min((int(pow(2,itr)) * 1000) + (rand() % 100), 32000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+        itr++;
     }
 
     // std::cout << "OUTPUT HANDLER DONE " <<  WoofGetFileName(wf) <<  std::endl;
 
     
     // linreg_multinode
+    /*
     if (id == 1 && woof_name == "laminar-5.output.1") {
 
         auto end = std::chrono::system_clock::now();
@@ -122,6 +140,6 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
                         .count()
                 << "ns" << std::endl;
     }
-    
+    */
     return 0;
 }

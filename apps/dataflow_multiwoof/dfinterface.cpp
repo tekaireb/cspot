@@ -65,7 +65,7 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
     // assign a host url only if it is not local; extract from HOSTS_WOOF
     if(host_id != curr_host_id) {
         host h;
-        int err = woof_get(generate_woof_path(HOSTS_WOOF_TYPE), &h, host_id);
+        int err = woof_get(generate_woof_path(HOSTS_WOOF_TYPE), &h, 0);
         if(err < 0) {
             std::cout << "Error reading the host info for host id: " << std::to_string(host_id) << std::endl;
             exit(1);
@@ -184,11 +184,11 @@ void add_node(int ns, int host_id, int id, int opcode) {
     //create node related info only for current host
     if(host_id == curr_host_id) {
         
-        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 100);
+        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 1000000);
 
         // Create subscription_events woof
         woof_create(generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id, host_id),
-                    sizeof(subscription_event), 100);
+                    sizeof(subscription_event), 1000000);
 
         // Create consumer_pointer woof
         std::string consumer_ptr_woof = 
@@ -197,7 +197,7 @@ void add_node(int ns, int host_id, int id, int opcode) {
         // TODO: consumer_ptr_woof should be of size 1, but CSPOT hangs when
         // writing to full woof (instead of overwriting), so the size has
         // been increased temporarily as a stop-gap measure while testing
-        woof_create(consumer_ptr_woof, sizeof(unsigned long), 100);
+        woof_create(consumer_ptr_woof, sizeof(unsigned long), 10000);
         woof_put(consumer_ptr_woof, "", &initial_consumer_ptr);
     }
 }
@@ -211,7 +211,7 @@ void add_operand(int ns, int host_id, int id) {
     int curr_host_id = get_curr_host();
     // Create output woof if the operand belongs to this host only
     if(host_id == curr_host_id) {
-        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 100);
+        woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 10000);
     }
 }
 

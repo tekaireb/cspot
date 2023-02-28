@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 #include <random>
-
+#include <chrono>
+#include <thread>
 #include <unistd.h>
 
 void online_linreg_multinode(int curr_host_id) {
@@ -168,7 +169,7 @@ void online_linreg_multinode(int curr_host_id) {
     // Initialization
     sleep(2);
 
-    int iters = 11;
+    int iters = 100;
     if(curr_host_id == 1) {
     std::cout << "Initializing constants" << std::endl;
 
@@ -234,35 +235,62 @@ void online_linreg_multinode(int curr_host_id) {
         y_values.push_back(operand(y, i + 1));
     }
 
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::vector<host> hosts;
+    hosts.push_back(host(0, "woof://169.231.235.188/home/centos/cspot/build/bin/"));
+    hosts.push_back(host(0, "woof://169.231.235.212/home/centos/cspot/build/bin/"));
+
     for (int i = 1; i <= iters; i++) {
+        // sleeps randomly for 0-0.5 seconds
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "Adding inputs " << std::to_string(i) << std::endl;
         woof_put("laminar-4.output.1", "output_handler", &x_values[i - 1]);
         woof_put("laminar-4.output.2", "output_handler", &y_values[i - 1]);
+        
+        if(i == 5 || i == 20 || i == 50 || i == 90) {
+            woof_put(generate_woof_path(HOSTS_WOOF_TYPE), "", &hosts[0]);         
+            start = std::chrono::system_clock::now();
+        }
+        
+        if(i == 7 || i == 23 || i == 54 || i == 95) {
+
+            woof_put(generate_woof_path(HOSTS_WOOF_TYPE), "", &hosts[1]);  
+            end = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsed_seconds = end - start;
+
+            std::cout << "Network partition time : "  << elapsed_seconds.count() << std::endl;
+        }
+        *
     }
 
     std::cout << "Waiting for program to finish" << std::endl;
+    sleep(100);
     }
 
-    while (woof_last_seq("woof://169.231.235.212/home/centos/cspot/build/bin/laminar-5.output.1") < iters) {
-        sleep(1);
-    }
-
+    /*
     std::vector<double> intercepts;
     std::vector<double> slopes;
 
     for (int i = 1; i <= iters; i++) {
+
+        while(woof_last_seq("woof://169.231.235.212/home/centos/cspot/build/bin/laminar-5.output.1") < i){
+            sleep(1);
+        }
         operand op1;
         woof_get("woof://169.231.235.212/home/centos/cspot/build/bin/laminar-5.output.1", &op1, i);
         intercepts.push_back(op1.value);
-
+        std::cout <<  std::to_string(i) << " Intercept " << std::to_string(op1.value) << std::endl;
+        
+        while(woof_last_seq("woof://169.231.235.212/home/centos/cspot/build/bin/laminar-5.output.2") < i){
+            sleep(1);
+        }
         operand op2;
         woof_get("woof://169.231.235.212/home/centos/cspot/build/bin/laminar-5.output.2", &op2, i);
         slopes.push_back(op2.value);
+        std::cout <<  std::to_string(i) << " Slope " << 
+        std::to_string(op2.value) << std::endl;
     }
-
-    for (int i = 0; i < iters; i++) {
-        std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
-    }
-
+    */
 }
 
 int main() {
