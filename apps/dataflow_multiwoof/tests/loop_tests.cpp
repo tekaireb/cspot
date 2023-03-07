@@ -157,7 +157,7 @@ void sqrt_loop_test() {
     ASSERT_EQ(round(v[2] * 1e4) / 1e4, 13.7445, "Third iteration");
     ASSERT_EQ(round(result * 1e4) / 1e4, 12.1107, "Final result");
 
-    END_TEST();   
+    END_TEST();
 }
 
 void loop_tests() {
