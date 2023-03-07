@@ -21,6 +21,7 @@ void subscribe(int dst_ns, int dst_id, int dst_port, int src_ns, int src_id);
 void subscribe(std::string dst_addr, std::string src_addr);
 
 void setup(int ns);
+void reset();
 
 std::string graphviz_representation();
 

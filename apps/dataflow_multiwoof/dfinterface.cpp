@@ -169,6 +169,17 @@ void setup(int ns) {
     }
 }
 
+void reset() {
+    // {namspace --> entries}
+    subscribe_entries = std::map<int, int>();
+    // {namespace --> {id --> [subscribers...]}}
+    subscribers = std::map<int, std::map<int, std::set<subscriber>>>();
+    // {namespace --> {id --> [subscriptions...]}}
+    subscriptions = std::map<int, std::map<int, std::set<subscription>>>();
+    // {namespace --> [nodes...]}
+    nodes = std::map<int, std::set<node>>();
+}
+
 std::string graphviz_representation() {
     std::string g = "digraph G {\n\tnode [shape=\"record\", style=\"rounded\"];";
 
