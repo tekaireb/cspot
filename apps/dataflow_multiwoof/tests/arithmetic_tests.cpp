@@ -28,6 +28,7 @@ void simple_arithmetic() {
     // 1 + 1 == 2
     operand op1(1.0, 1);
     woof_put(p + ".output.2", "output_handler", &op1);
+    sleep(2);
     woof_put(p + ".output.3", "output_handler", &op1);
 
     do {
@@ -222,7 +223,7 @@ void stream_quadratic_test() {
 
     setup(ns);
 
-    unsigned long iters = 5;
+    unsigned long iters = 2;
 
     for (unsigned long i = 1; i <= iters; i++) {
         operand op(a, i);
@@ -408,9 +409,10 @@ void mat_test_2() {
 
 void arithmetic_tests() {
     simple_arithmetic();
+    // exit(0);
     stream_arithmetic();
     quadratic_test();
-    // stream_quadratic_test();
+    stream_quadratic_test();
     mat_test_1();
     mat_test_2();
 }

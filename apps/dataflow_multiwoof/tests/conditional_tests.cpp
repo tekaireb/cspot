@@ -29,10 +29,10 @@ void selector_test() {
     for (int i = 1; i <= 2; i++) {
         operand op(i - 1, i);   // Selector
         woof_put(p + ".output.2", "output_handler", &op);
-        op.value = 10;          // a
-        woof_put(p + ".output.3", "output_handler", &op);
-        op.value = 20;          // b
-        woof_put(p + ".output.4", "output_handler", &op);
+        operand a(10, i);       // a
+        woof_put(p + ".output.3", "output_handler", &a);
+        operand b(20, i);       // b
+        woof_put(p + ".output.4", "output_handler", &b);
     }
     
     do {

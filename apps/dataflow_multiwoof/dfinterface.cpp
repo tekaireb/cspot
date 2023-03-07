@@ -139,6 +139,7 @@ void setup(int ns) {
         // Add entry in map (idx = node id, val = start idx in subscriber_data)
         woof_put(program + ".subscriber_map", "", &current_data_pos);        
         
+        // Populate subscriber map with data
         for (auto& sub : subscribers[ns][i]) {
             woof_put(program + ".subscriber_data", "", &sub);
             current_data_pos++;
@@ -158,6 +159,15 @@ void setup(int ns) {
         for (auto& sub : subscriptions[ns][i]) {
             woof_put(program + ".subscription_data", "", &sub);
             current_data_pos++;
+        }
+
+        // Add woofs to hold last used seq in subscription output woof
+        for (int port = 0; port < subscriptions[ns][i].size(); port++) {
+            // std::cout << program + ".subscription_pos." + std::to_string(i) +\
+                            "." + std::to_string(port) << std::endl;
+            woof_create(program + ".subscription_pos." + std::to_string(i) +
+                            "." + std::to_string(port),
+                        sizeof(cached_output), 2);
         }
     }
 

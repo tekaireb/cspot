@@ -43,6 +43,14 @@ struct operand {
     operand(double value=0.0, unsigned long seq=1) : value(value), seq(seq) {}
 };
 
+struct cached_output {
+    operand op;
+    unsigned long seq; // CSPOT seq in output woof
+
+    // Defaults execution iteration and seq to 0 so initial access is thrown out and updated
+    cached_output(operand op=operand(0.0, 0), unsigned long seq=0) : op(op), seq(seq) {}
+};
+
 struct subscriber {
     int ns;  // namespace
     int id;

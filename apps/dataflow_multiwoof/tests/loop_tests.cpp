@@ -143,14 +143,14 @@ void sqrt_loop_test() {
     woof_get("laminar-3.output.7", &op, 0);
     double result = op.value;
 
-    // // Expected: 37, 20.4459, ...
-    // std::cout << "Intermediate values: ";
-    // for (auto& i : v) {
-    //     std::cout << i << " | ";
-    // }
-    // std::cout << std::endl;
+    // Expected: 37, 20.4459, ...
+    std::cout << "Intermediate values: ";
+    for (auto& i : v) {
+        std::cout << i << " | ";
+    }
+    std::cout << std::endl;
 
-    // std::cout << "Result: " << result << std::endl;
+    std::cout << "Result: " << result << std::endl;
 
     ASSERT_EQ(v[0], 37, "First iteration");
     ASSERT_EQ(round(v[1] * 1e4) / 1e4, 20.4459, "Second iteration");

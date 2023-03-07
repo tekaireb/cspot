@@ -215,14 +215,78 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     int num_ops = static_cast<int>(end_idx - start_idx);
 
+    // // Scan through subscription outputs and collect operands
+    // // TODO: Cache last scanned seq and array of found operands
+    // // std::cout << "[" << woof_name<< "] searching for operands..." << std::endl;
+    // std::vector<operand> op_values(num_ops);
+    // subscription sub;
+    // operand op(0);
+    // std::string output_woof;
+    // for (unsigned long i = start_idx; i < end_idx; i++) {
+    //     // std::cout << "subscription port: " << i - start_idx << std::endl;
+    //     // Get subscription id
+    //     woof_get(subdata, &sub, i);
+
+    //     // Get relevant operand from subscription output (if it exists)
+    //     output_woof = "laminar-" + std::to_string(sub.ns) + ".output." +
+    //                   std::to_string(sub.id);
+    //     // std::cout << "[" << woof_name<< "] consumer_seq: "
+    //     //           << consumer_seq
+    //     //           << ", woof_last_seq: " << woof_last_seq(output_woof)
+    //     //           << std::endl;
+
+    //     // Scan backwards from most recent output until finding current seq
+    //     unsigned long idx = woof_last_seq(output_woof) + 1;
+    //     // std::cout << "idx initial: " << idx << std::endl;
+    //     do {
+    //         idx--;
+    //         woof_get(output_woof, &op, idx);
+    //         // std::cout << "idx, seq, val: " << idx << ", " << op.seq << ", " \
+    //         << op.value << std::endl;
+    //     } while (op.seq > consumer_seq && idx > 1);
+
+    //     if (op.seq == consumer_seq) {
+    //         // std::cout << "[" << woof_name<< "] getting op" << std::endl;
+    //         // std::cout << "[" << woof_name<< "] consumer_seq: " \
+    //         << consumer_seq << ", woof: " << output_woof << ", op: " \
+    //         << op.value << std::endl;
+    //         op_values[i - start_idx] = op;
+    //     } else {
+    //         // At least one input is not ready --> exit handler
+    //         // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
+    //         << ", op.seq: " << op.seq << std::endl;
+    //         // std::cout << "[" << woof_name<< "] not all operands are present, exiting" << std::endl;
+    //         exit(0);
+    //     }
+    // }
+
     // Scan through subscription outputs and collect operands
-    // TODO: Cache last scanned seq and array of found operands
-    // std::cout << "[" << woof_name<< "] searching for operands..." << std::endl;
+
     std::vector<operand> op_values(num_ops);
     subscription sub;
     operand op(0);
     std::string output_woof;
     for (unsigned long i = start_idx; i < end_idx; i++) {
+        // Get last used output and seqno for this port
+        cached_output last_output;
+        std::string last_used_sub_pos_woof =
+            "laminar-" + std::to_string(ns) + ".subscription_pos." + id_str +
+            "." + std::to_string(i - start_idx);
+        // std::cout << "last seq: " << woof_last_seq(last_used_sub_pos_woof) << std::endl;
+        if (woof_last_seq(last_used_sub_pos_woof) > 0) {
+            std::cout << "Loading last_used_subscription_positions" << std::endl;
+            woof_get(last_used_sub_pos_woof, &last_output, 0);
+        }
+
+        // std::cout << "input #" << (i - start_idx) << ": last_output_seq: " << last_output.op.seq << ", consumer_seq: " << consumer_seq << std::endl;
+        if (last_output.op.seq == consumer_seq) {
+            // Operand for this seq has already been found and cached
+            // Retrieve from cache and proceed
+            // std::cout << "already retrieved input #" << i - start_idx << ", proceeding" << std::endl;
+            op_values[i - start_idx] = last_output.op;
+            continue;
+        }
+        
         // std::cout << "subscription port: " << i - start_idx << std::endl;
         // Get subscription id
         woof_get(subdata, &sub, i);
@@ -235,15 +299,28 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         //           << ", woof_last_seq: " << woof_last_seq(output_woof)
         //           << std::endl;
 
-        // Scan backwards from most recent output until finding current seq
-        unsigned long idx = woof_last_seq(output_woof) + 1;
-        // std::cout << "idx initial: " << idx << std::endl;
+        // Scan from last used output until finding current seq
+        unsigned long idx = last_output.seq;
+        unsigned long last_idx = woof_last_seq(output_woof);
+        
+        if (idx >= last_idx) {
+            std::cout << "idx: " << idx << ", last_idx: " << last_idx << std::endl;
+            std::cout << "no new outputs to check" << std::endl;
+            exit(0);
+        }
+
+        // Increment sequence number (idx) until finding current execution iteration
         do {
-            idx--;
+            idx++;
             woof_get(output_woof, &op, idx);
             // std::cout << "idx, seq, val: " << idx << ", " << op.seq << ", " \
             << op.value << std::endl;
-        } while (op.seq > consumer_seq && idx > 1);
+        } while (op.seq < consumer_seq && idx < last_idx);
+
+        // Write latest idx back to `last used subscription position` woof
+        std::cout << "Writing back: " << "op = " << op.value << ", seq=" << idx << std::endl;
+        last_output = cached_output(op, idx);
+        woof_put(last_used_sub_pos_woof, "", &last_output);
 
         if (op.seq == consumer_seq) {
             // std::cout << "[" << woof_name<< "] getting op" << std::endl;
