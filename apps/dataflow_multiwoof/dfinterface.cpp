@@ -28,7 +28,7 @@ int get_curr_host() {
     return curr_host_id;
 }
 
-std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id) {
+std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id, int port_id) {
     node n;
     int curr_host_id;
     std::string host_url = "";
@@ -75,6 +75,10 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
 
     woof_path = host_url + "laminar-" + std::to_string(ns) + 
                 "." + DFWOOFTYPE_STR[woof_type] + "." + std::to_string(id);
+
+    if(woof_type == SUBSCRIPTION_POS_WOOF_TYPE) {
+        woof_path = woof_path + "." + std::to_string(port_id);
+    }
 
     return woof_path;
 }
@@ -185,10 +189,11 @@ void add_node(int ns, int host_id, int id, int opcode) {
     if(host_id == curr_host_id) {
         
         woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 10);
-
+        
         // Create subscription_events woof
         woof_create(generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id, host_id),
                     sizeof(subscription_event), 25);
+
 
         // Create consumer_pointer woof
         std::string consumer_ptr_woof = 
@@ -235,13 +240,21 @@ void setup() {
 
     //setup all the namespaces
     for(const auto&[ns, value]: nodes) {
+
+        // Create woof to hold node data
+        woof_create(generate_woof_path(NODES_WOOF_TYPE, ns), sizeof(node), nodes[ns].size());
+
+        for (auto& node : nodes[ns]) {
+            woof_put(generate_woof_path(NODES_WOOF_TYPE, ns), "", &node);
+        }
+
         // Create woof hashmaps to hold subscribers
         woof_create(generate_woof_path(SUBSCRIBER_MAP_WOOF_TYPE, ns), sizeof(unsigned long), nodes[ns].size());
         woof_create(generate_woof_path(SUBSCRIBER_DATA_WOOF_TYPE, ns), sizeof(subscriber),
                     subscribe_entries[ns]);
 
         unsigned long current_data_pos = 1;
-        for (size_t i = 1; i <= nodes[ns].size(); i++) {
+        for (int i = 1; i <= nodes[ns].size(); i++) {
             // Add entry in map (idx = node id, val = start idx in subscriber_data)
             woof_put(generate_woof_path(SUBSCRIBER_MAP_WOOF_TYPE, ns), "", &current_data_pos);        
             
@@ -257,7 +270,7 @@ void setup() {
                     subscribe_entries[ns]);
 
         current_data_pos = 1;
-        for (size_t i = 1; i <= nodes[ns].size(); i++) {
+        for (int i = 1; i <= nodes[ns].size(); i++) {
             // Add entry in map (idx = node id, val = start idx in subscription_data)
             woof_put(generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns), "", &current_data_pos);
             
@@ -265,13 +278,12 @@ void setup() {
                 woof_put(generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns), "", &sub);
                 current_data_pos++;
             }
-        }
 
-        // Create woof to hold node data
-        woof_create(generate_woof_path(NODES_WOOF_TYPE, ns), sizeof(node), nodes[ns].size());
-
-        for (auto& node : nodes[ns]) {
-            woof_put(generate_woof_path(NODES_WOOF_TYPE, ns), "", &node);
+            // Add woofs to hold last used seq in subscription output woof
+            for (int port = 0; port < subscriptions[ns][i].size(); port++) {
+                woof_create(generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, i, -1, port),
+                            sizeof(cached_output), 2);
+            }
         }
     }
 
@@ -286,13 +298,26 @@ void setup() {
 
 }
 
+void reset() {
+    // {namspace --> entries}
+    subscribe_entries = std::map<int, int>();
+    // {namespace --> {id --> [subscribers...]}}
+    subscribers = std::map<int, std::map<int, std::set<subscriber>>>();
+    // {namespace --> {id --> [subscriptions...]}}
+    subscriptions = std::map<int, std::map<int, std::set<subscription>>>();
+    // {namespace --> [nodes...]}
+    nodes = std::map<int, std::set<node>>();
+    // set of host structs for url extraction
+    hosts = std::set<host>();
+}
+
 std::string graphviz_representation() {
     std::string g = "digraph G {\n\tnode [shape=\"record\", style=\"rounded\"];";
  
     // Add nodes
     for (auto& [ns, ns_nodes] : nodes) {
         g += "\n\tsubgraph cluster_" + std::to_string(ns) + " { ";
-        g += "\n\t\tlabel=\"Namespace #" + std::to_string(ns) + "\";";
+        g += "\n\t\tlabel=\"Subgraph #" + std::to_string(ns) + "\";";
 
         auto n = ns_nodes.begin();
         auto s = subscriptions[ns].begin();

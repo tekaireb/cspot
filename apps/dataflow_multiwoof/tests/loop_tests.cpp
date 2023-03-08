@@ -1,16 +1,19 @@
 #include "../dfinterface.h"
+#include "test_utils.h"
+#include "tests.h"
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include <unistd.h>
 
 void sqrt_loop_test() {
-    
-    std::ofstream out("test.txt");
+    TEST("Square root loop test");
 
+    /* Nodes */
+    
     // Inputs
     add_operand(1, 1, 1);      // X
     add_operand(1, 1, 2);      // Epsilon
@@ -38,7 +41,7 @@ void sqrt_loop_test() {
     add_node(4, 1, 3, DIV);    // Root
     add_operand(4, 1, 4);      // 2.0
 
-    //Edges
+    /* Edges */
 
     // Initialization
     subscribe("2:1:0", "1:1");  // Root = X / _
@@ -71,16 +74,12 @@ void sqrt_loop_test() {
     subscribe("4:3:0", "4:2");  // 4N3 = 4N2 / _
     subscribe("4:3:1", "4:4");  // 4N3 = 4N2 / 2.0
 
-    // Run Program 
+    /* Run program */
 
     setup();
 
-    sleep(1);
-
     double x = 144.0;
     double epsilon = 10;
-
-    
 
     operand op(2.0, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op);
@@ -127,7 +126,9 @@ void sqrt_loop_test() {
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 6), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 6), OUTPUT_HANDLER, &op4);
 
-    sleep(4);
+    do {
+        usleep(5e5);
+    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 7)) == 0);
 
     std::vector<double> v;
     unsigned long last = woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 6));
@@ -136,29 +137,30 @@ void sqrt_loop_test() {
         v.push_back(op.value);
     }
 
-    double result;
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 7), &op, 0);
-    result = op.value;
+    double result = op.value;
 
-    // Expected: 37, 20.4459, 13.7445
+    // Expected: 37, 20.4459, ...
     std::cout << "Intermediate values: ";
     for (auto& i : v) {
         std::cout << i << " | ";
     }
     std::cout << std::endl;
 
-    // result 12.1107
     std::cout << "Result: " << result << std::endl;
-    
+
+    ASSERT_EQ(v[0], 37, "First iteration");
+    ASSERT_EQ(round(v[1] * 1e4) / 1e4, 20.4459, "Second iteration");
+    ASSERT_EQ(round(v[2] * 1e4) / 1e4, 13.7445, "Third iteration");
+    ASSERT_EQ(round(result * 1e4) / 1e4, 12.1107, "Final result");
+
+    END_TEST();
 }
 
-int main() {
+void loop_tests() {
 
     set_host(1);
-    
-    add_host(1, "169.231.235.168", "/home/centos/cspot/build/bin/");
+    add_host(1, "localhost", "/home/centos/cspot/build/bin/");
 
     sqrt_loop_test();
-
-    return 0;
 }

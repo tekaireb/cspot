@@ -5,6 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <deque>
+#include <chrono>
+#include <ctime>
+#include <thread>
+#include <math.h> 
 
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
@@ -12,6 +16,10 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     int err;
     operand* result = static_cast<operand*>(ptr);
     std::deque<subscription_event> event_buffer;
+
+    // std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
+    // std::cout << "seqno: " << seqno << std::endl;
+    // std::cout << "operand: " << result->value << std::endl;
 
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
@@ -83,22 +91,56 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         }
     }
  
+
     // keep retrying to send the subscription events in the buffer until empty
-    while(event_buffer.size()) {
+    int itr = 0;
+    int MAX_RETRIES = 100;
+    while(itr <= MAX_RETRIES) {
+        
+        while(!event_buffer.empty()) {
+            subscription_event subevent = event_buffer.front();
+            event_buffer.pop_front();
 
-        subscription_event subevent = event_buffer.front();
-        event_buffer.pop_front();
+            std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, subevent.ns, subevent.id);
+            res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
 
-        std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, subevent.ns, subevent.id);
-        res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
-
-        /* add back the buffer if it is a remote woof which could not be put */
-        if (err == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
-            event_buffer.push_back(subevent);
+            /* add back the buffer if it is a remote woof which could not be put */
+            if (WooFInvalid(res)) {
+                std::cout << "Retry Failed : " << subscriber_woof << std::endl;
+                event_buffer.push_back(subevent);
+            }
+            else {
+                //duplicate event sent randomly
+                if(rand()%2) {
+                    woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
+                }
+                std::cout << "Retry Success : " << subscriber_woof << std::endl;
+            }
         }
+
+        if(event_buffer.empty()) {
+            break;
+        }
+
+        int ms = std::min((int(pow(2,itr)) * 1000) + (rand() % 100), 32000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+        itr++;
     }
 
-    std::cout << "OUTPUT HANDLER DONE " <<  WoofGetFileName(wf) <<  std::endl;
-    
+    // std::cout << "OUTPUT HANDLER DONE" << std::endl;
+
+    // // linreg_multinode
+    // if (id == 1 && woof_name == "laminar-5.output.1") {
+
+    // // linreg_uninode
+    // if (id == 1 && woof_name == "laminar-1.output.1") {
+
+    //     auto end = std::chrono::high_resolution_clock::now();
+    //     std::cout << "end" << ": "
+    //             << std::chrono::duration_cast<std::chrono::nanoseconds>(
+    //                     end.time_since_epoch())
+    //                     .count()
+    //             << "ns" << std::endl;
+    // }
     return 0;
 }
