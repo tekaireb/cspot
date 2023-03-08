@@ -11,7 +11,7 @@
 #include <math.h> 
 
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
-    std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
+    // std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
 
     int err;
     operand* result = static_cast<operand*>(ptr);
@@ -40,7 +40,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         }
 
         if (prev.seq == result->seq) {
-            std::cout << "OUTPUT HANDLER DONE (early) "  << woof_name << std::endl;
+            // std::cout << "OUTPUT HANDLER DONE (early) "  << woof_name << std::endl;
             return 0;
         }
     }

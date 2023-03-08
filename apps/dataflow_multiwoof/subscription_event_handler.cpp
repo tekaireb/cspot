@@ -272,7 +272,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         std::string last_used_sub_pos_woof = generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, id, -1, i-start_idx);
         // std::cout << "last seq: " << woof_last_seq(last_used_sub_pos_woof) << std::endl;
         if (woof_last_seq(last_used_sub_pos_woof) > 0) {
-            std::cout << "Loading last_used_subscription_positions" << std::endl;
+            // std::cout << "Loading last_used_subscription_positions" << std::endl;
             woof_get(last_used_sub_pos_woof, &last_output, 0);
         }
 
@@ -305,8 +305,8 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         unsigned long last_idx = woof_last_seq(output_woof);
         
         if (idx >= last_idx) {
-            std::cout << "idx: " << idx << ", last_idx: " << last_idx << std::endl;
-            std::cout << "no new outputs to check" << std::endl;
+            // std::cout << "idx: " << idx << ", last_idx: " << last_idx << std::endl;
+            // std::cout << "no new outputs to check" << std::endl;
             exit(0);
         }
 
@@ -323,7 +323,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         } while (op.seq < consumer_seq && idx < last_idx);
 
         // Write latest idx back to `last used subscription position` woof
-        std::cout << "Writing back: " << "op = " << op.value << ", seq=" << idx << std::endl;
+        // std::cout << "Writing back: " << "op = " << op.value << ", seq=" << idx << std::endl;
         last_output = cached_output(op, idx);
         woof_put(last_used_sub_pos_woof, "", &last_output);
 
@@ -372,14 +372,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         std::cout << "Error reading nodes woof: " << nodes_woof << std::endl;
         return err;
     }
-    std::cout << "[" << woof_name<< "] get node" << std::endl;
+    // std::cout << "[" << woof_name<< "] get node" << std::endl;
 
     operand result = perform_operation(op_values, ns, n, consumer_seq);
     // std::cout << "[" << woof_name<< "] result = " << result.value << std::endl;
     // Do not write result if it already exists
     output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, id); 
     if (woof_last_seq(output_woof) > consumer_seq) {
-        std::cout << "[" << woof_name<< "] Operation already performed, exiting" << std::endl;
+        // std::2cout << "[" << woof_name<< "] Operation already performed, exiting" << std::endl;
 
         // Call handler for next iter in case all operands were received before this function finished
         subscription_event_handler(wf, seqno + 1, static_cast<void*>(subevent));
