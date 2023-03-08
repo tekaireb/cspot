@@ -219,7 +219,7 @@ void stream_quadratic_test() {
 
     setup();
 
-    unsigned long iters = 2;
+    unsigned long iters = 5;
 
     for (unsigned long i = 1; i <= iters; i++) {
         operand op(a, i);
