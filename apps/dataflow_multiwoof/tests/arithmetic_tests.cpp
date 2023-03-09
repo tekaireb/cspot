@@ -41,8 +41,8 @@ void simple_arithmetic() {
     END_TEST();
 }
 
-void stream_arithmetic() {
-    TEST("Stream arithmetic");
+void complex_arithmetic() {
+    TEST("Complex arithmetic");
 
     int ns = 1;
 
@@ -102,6 +102,69 @@ void stream_arithmetic() {
         ASSERT_EQ(op.value, expected[op.seq], "Ensure value is correct for each sequence number");
         prev_seq = op.seq;
     }
+
+    END_TEST();
+}
+
+void stream_arithmetic() {
+    TEST("Stream arithmetic");
+
+    int ns = 1;
+
+    add_node(ns, 1, 1, ADD);
+
+    add_operand(ns, 1, 2);
+    add_operand(ns, 1, 3);
+    add_operand(ns, 1, 4);
+    add_operand(ns, 1, 5);
+
+    subscribe(ns, 1, 0, ns, 2);
+    subscribe(ns, 1, 1, ns, 3);
+    subscribe(ns, 1, 2, ns, 4);
+    subscribe(ns, 1, 3, ns, 5);
+
+    setup();
+
+    unsigned long iters = 15;
+    double a = 1.0;
+    double b = 2.0;
+    double c = 3.0;
+    double d = 4.0;
+
+    for (unsigned long i = 1; i <= iters; i++) {
+        operand op(a, i);
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op);
+        op.value = b;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op);
+        op.value = c;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 4), OUTPUT_HANDLER, &op);
+        op.value = d;
+        woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 5), OUTPUT_HANDLER, &op);
+    }
+    
+    do {
+        usleep(1e5);
+    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < iters);
+
+    
+
+    operand result;
+    woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &result, iters);
+    ASSERT_EQ(result.value, a + b, "Final result should be a + b");
+
+    std::vector<operand> v;
+    operand op;
+    unsigned long last = woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1));
+    for (unsigned long i = 1; i <= last; i++) {
+        woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &op, i);
+        v.push_back(op);
+    }
+
+    std::cout << "OUTPUTS: ";
+    for (auto& i : v) {
+        std::cout << i.seq << ": " << i.value << " | ";
+    }
+    std::cout << std::endl;
 
     END_TEST();
 }
@@ -402,7 +465,9 @@ void arithmetic_tests() {
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
     
     // simple_arithmetic();
-    // stream_arithmetic();
+    // complex_arithmetic();
+    stream_arithmetic();
+    exit(0);
     // quadratic_test();
     stream_quadratic_test();
     exit(0);
