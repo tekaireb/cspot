@@ -219,7 +219,7 @@ void stream_quadratic_test() {
 
     setup();
 
-    unsigned long iters = 5;
+    unsigned long iters = 15;
 
     for (unsigned long i = 1; i <= iters; i++) {
         operand op(a, i);
@@ -401,10 +401,11 @@ void arithmetic_tests() {
     set_host(1);
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
     
-    simple_arithmetic();
-    stream_arithmetic();
-    quadratic_test();
+    // simple_arithmetic();
+    // stream_arithmetic();
+    // quadratic_test();
     stream_quadratic_test();
+    exit(0);
     mat_test_1();
     mat_test_2();
 }

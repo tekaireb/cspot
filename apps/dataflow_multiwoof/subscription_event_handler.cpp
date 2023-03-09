@@ -168,6 +168,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Extract id
     unsigned long id = get_id_from_woof_path(woof_name);
 
+    if (id == 6) {
+        std::cout << "6: subscription_event_handler" << std::endl;
+    }
+
     //Extract namespace
     int ns = get_ns_from_woof_path(woof_name);
 

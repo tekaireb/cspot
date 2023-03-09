@@ -27,6 +27,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // Extract id
     unsigned long id = get_id_from_woof_path(woof_name);
 
+    std::cout << id << ": " << seqno << std::endl;
+
     //Extract namespace
     int ns = get_ns_from_woof_path(woof_name);
 
@@ -91,11 +93,13 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         }
     }
  
-
     // keep retrying to send the subscription events in the buffer until empty
     int itr = 0;
     int MAX_RETRIES = 100;
     while(itr <= MAX_RETRIES) {
+        if (itr > 0) {
+            std::cout << "retrying" << std::endl;
+        }
         
         while(!event_buffer.empty()) {
             subscription_event subevent = event_buffer.front();
