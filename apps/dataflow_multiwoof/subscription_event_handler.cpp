@@ -191,7 +191,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     if (subevent->seq > consumer_seq) {
         // std::cout << "event seq: " << subevent->seq << ", consumer seq: " << consumer_seq << std::endl;
         // std::cout << "[" << woof_name<< "] event is not for current seq, exiting" << std::endl;
-        exit(0);
+        return 0;
     }
 
     // Look up subscriptions to determine required number of operands
@@ -260,7 +260,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     //         // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
     //         << ", op.seq: " << op.seq << std::endl;
     //         // std::cout << "[" << woof_name<< "] not all operands are present, exiting" << std::endl;
-    //         exit(0);
+    //         return 0;
     //     }
     // }
 
@@ -311,7 +311,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         if (idx >= last_idx) {
             // std::cout << "idx: " << idx << ", last_idx: " << last_idx << std::endl;
             // std::cout << "no new outputs to check" << std::endl;
-            exit(0);
+            return 0;
         }
 
         // Increment sequence number (idx) until finding current execution iteration
@@ -342,7 +342,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
             << ", op.seq: " << op.seq << std::endl;
             // std::cout << "[" << woof_name<< "] not all operands are present, exiting" << std::endl;
-            exit(0);
+            return 0;
         }
     }
 
