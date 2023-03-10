@@ -150,7 +150,7 @@ void stream_arithmetic() {
 
     operand result;
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &result, iters);
-    ASSERT_EQ(result.value, a + b, "Final result should be a + b");
+    ASSERT_EQ(result.value, a + b + c + d, "Final result should be a + b + c + d");
 
     std::vector<operand> v;
     operand op;
