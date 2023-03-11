@@ -548,10 +548,12 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     woof_put(consumer_ptr_woof, "", &exec_iter_lk);
 
     // Call handler for next iter in case all operands were received before this function finished
-    if (woof_last_seq(woof_name) > seqno) {
-        subevent->seq++;
-        subscription_event_handler(wf, seqno + 1, subevent);
-    }
+    // if (woof_last_seq(woof_name) > seqno) {
+    //     subevent->seq++;
+    //     subscription_event_handler(wf, seqno + 1, subevent);
+    // }
+    subevent->seq++;
+    subscription_event_handler(wf, seqno + 1, subevent);
 
     return 0;
 }
