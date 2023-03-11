@@ -79,6 +79,13 @@ struct cached_output {
     cached_output(operand op=operand(0.0, 0), unsigned long seq=0) : op(op), seq(seq) {}
 };
 
+struct execution_iteration_lock {
+    unsigned long iter; // Current execution iteration
+    bool lock;          // True if a handler has claimed this iteration
+
+    execution_iteration_lock(unsigned long iter=1, bool lock=false) : iter(iter), lock(lock) {}
+};
+
 struct subscriber {
     int ns;  // namespace
     int id;
