@@ -125,7 +125,7 @@ void stream_arithmetic() {
 
     setup();
 
-    unsigned long iters = 15;
+    unsigned long iters = 20;
     double a = 1.0;
     double b = 2.0;
     double c = 3.0;
@@ -382,16 +382,17 @@ std::vector<std::vector<double>> mat_test(
         }
     }    
 
-    do {
-        usleep(2e5);
-    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 1)) == 0);
-
     operand op;
     std::vector<std::vector<double>> v;
     for (int r = 0; r < rows_r; r++) {
         v.push_back({});
         for (int c = 0; c < cols_r; c++) {
             id = r * cols_r + c + 1;
+
+            do {
+                usleep(2e5);
+            } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 4, id)) == 0);
+
             woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 4, id), &op, 1);
             v[r].push_back(op.value);
         }
@@ -468,9 +469,9 @@ void arithmetic_tests() {
     // complex_arithmetic();
     stream_arithmetic();
     exit(0);
-    // quadratic_test();
-    stream_quadratic_test();
-    exit(0);
+    quadratic_test();
+    // stream_quadratic_test();
+    // exit(0);
     mat_test_1();
     mat_test_2();
 }

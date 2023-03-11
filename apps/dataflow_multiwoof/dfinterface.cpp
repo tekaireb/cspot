@@ -198,11 +198,11 @@ void add_node(int ns, int host_id, int id, int opcode) {
         // Create consumer_pointer woof
         std::string consumer_ptr_woof = 
             generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id, host_id);
-        unsigned long initial_consumer_ptr = 1;
+        execution_iteration_lock initial_consumer_ptr;
         // TODO: consumer_ptr_woof should be of size 1, but CSPOT hangs when
         // writing to full woof (instead of overwriting), so the size has
         // been increased temporarily as a stop-gap measure while testing
-        woof_create(consumer_ptr_woof, sizeof(unsigned long), 100);
+        woof_create(consumer_ptr_woof, sizeof(execution_iteration_lock), 100);
         woof_put(consumer_ptr_woof, "", &initial_consumer_ptr);
     }
 }
