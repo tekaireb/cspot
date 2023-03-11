@@ -11,6 +11,14 @@
 
 #include <unistd.h>
 
+// #define DEBUG
+
+#ifdef DEBUG
+#define DEBUG_PRINT(str) { std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] " << str << std::endl; }
+#else
+#define DEBUG_PRINT(str) { }
+#endif
+
 // Helper function to calculate Euclidean distance between two points
 double dist(Point& a, Point& b) {
     return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
@@ -178,7 +186,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     execution_iteration_lock exec_iter_lk;
     std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id);
     err = woof_get(consumer_ptr_woof, &exec_iter_lk, 0);
-    if(err < 0) {
+    if (err < 0) {
         std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
         return err;
     }
@@ -187,16 +195,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > consumer_seq) {
-        #ifdef DEBUG
-        std::cout << "event seq: " << subevent->seq << ", consumer seq: " << consumer_seq << std::endl;
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] event is not for current seq, exiting" << std::endl;
-        #endif
+        DEBUG_PRINT("event seq: " << subevent->seq << ", consumer seq: " << consumer_seq);
+        DEBUG_PRINT("Event is not for current seq, exiting");
         return 0;
     }
 
     // Only proceed if this event is not already being handled
     if (exec_iter_lk.lock) {
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] another handler already locked, exiting" << std::endl;
+       DEBUG_PRINT("Another handler already locked, exiting");
     }
 
     // Look up subscriptions to determine required number of operands
@@ -207,7 +213,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     unsigned long last_seq = woof_last_seq(submap);
     
     err = woof_get(submap, &start_idx, id);
-    if(err < 0) {
+    if (err < 0) {
         std::cout << "Error reading submap woof: " << submap << std::endl;
         return err;
     }
@@ -216,7 +222,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         end_idx = woof_last_seq(subdata) + 1;
     } else {
         err = woof_get(submap, &end_idx, id + 1);
-        if(err < 0) {
+        if (err < 0) {
             std::cout << "Error reading submap woof: " << submap << std::endl;
             return err;
         }
@@ -282,7 +288,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         if (woof_last_seq(last_used_sub_pos_woof) == 0) {
             // On first read, check if output woof is empty
             if (woof_last_seq(output_woof) == 0) {
-                std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] no outputs yet, exiting" << std::endl;
+                DEBUG_PRINT("No outputs yet, exiting");
                 return 0;
             }
         } else {
@@ -301,14 +307,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // Another handler has already cached an operand from a later
             // execution iteration, thus this execution iteration has already
             // been completed, exit
-            std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] Cached operand exceeds current excecution iteration, exiting" << std::endl;
+            DEBUG_PRINT("Cached operand exceeds current excecution iteration, exiting");
             return 0;
         }
         
         // std::cout << "subscription port: " << i - start_idx << std::endl;
         // Get subscription id
         err = woof_get(subdata, &sub, i);
-        if(err < 0) {
+        if (err < 0) {
             std::cout << "Error reading subdata woof: " << subdata << std::endl;
             return err;
         }
@@ -326,25 +332,23 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         
         if (idx >= last_idx) {
             // std::cout << "idx: " << idx << ", last_idx: " << last_idx << std::endl;
-            std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] no new outputs to check" << std::endl;
+            DEBUG_PRINT("No new outputs to check");
             return 0;
         }
 
         // Increment sequence number (idx) until finding current execution iteration
         do {
-            std::cout << "IDX:" << idx << ", LST_IDX: " << last_idx << std::endl;
             idx++;
             err = woof_get(output_woof, &op, idx);
-            if(err < 0) {
+            if (err < 0) {
                 std::cout << "Error reading output woof: " << output_woof << std::endl;
                 return err;
             }
-            // std::cout << "idx, seq, val: " << idx << ", " << op.seq << ", " \
-            << op.value << std::endl;
         } while (op.seq < consumer_seq && idx < last_idx);
 
+        #ifdef DEBUG
         if (op.seq != consumer_seq) {
-            std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] ERROR: UNEXPECTED BEHAVIOR (SKIPPED EXECUTION ITER)" << std::endl;
+            DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (SKIPPED EXECUTION ITER)");
             std::vector<operand> v;
             for (int j = 1; j <= idx; j++) {
                 operand tmp;
@@ -358,6 +362,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
                 std::cout << output_woof << " @ " << o.seq << ": " << o.value << std::endl;
             }
         }
+        #endif
 
         // Write latest idx back to `last used subscription position` woof
         // std::cout << "Writing back: " << "op = " << op.value << ", seq=" << idx << std::endl;
@@ -374,7 +379,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // At least one input is not ready --> exit handler
             std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
             << ", op.seq: " << op.seq << std::endl;
-            std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] not all operands are present, exiting" << std::endl;
+            DEBUG_PRINT("Not all operands are present, exiting");
             
             // // Relinquish lock
             // exec_iter_lk.lock = false;
@@ -391,7 +396,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     /* Fire node */
 
-    std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] firing node" << std::endl;
+    DEBUG_PRINT("Firing node");
 
     // Increment consumer pointer
 
@@ -436,21 +441,21 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // TODO: Factor out into function [
     // Get current execution iteration
     err = woof_get(consumer_ptr_woof, &exec_iter_lk, 0);
-    if(err < 0) {
+    if (err < 0) {
         std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
         return err;
     }
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > exec_iter_lk.iter) {
-        std::cout << "event seq: " << subevent->seq << ", consumer seq: " << exec_iter_lk.iter << std::endl;
-        std::cout << "[" << woof_name << "] " << "[" << exec_iter_lk.iter << "] event is not for current seq, exiting" << std::endl;
+        DEBUG_PRINT("event seq: " << subevent->seq << ", consumer seq: " << exec_iter_lk.iter);
+        DEBUG_PRINT("Event is not for current seq, exiting");
         return 0;
     }
 
     // Only proceed if this event is not already being handled
     if (exec_iter_lk.lock) {
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] another handler already locked, exiting" << std::endl;
+        DEBUG_PRINT("Another handler already locked, exiting");
     }
     // TODO: Factor out into function ]
 
@@ -461,10 +466,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     execution_iteration_lock prev_exec_iter_lk;
     woof_get(consumer_ptr_woof, &prev_exec_iter_lk, lk_seq - 1);
     if (prev_exec_iter_lk.iter > exec_iter_lk.iter) {
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] ERROR: UNEXPECTED BEHAVIOR (LOCKS OUT OF ORDER)" << std::endl;
+        DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (LOCKS OUT OF ORDER)");
         
-        std::cout << "\tprev: " << prev_exec_iter_lk.iter << ", " << prev_exec_iter_lk.lock << std::endl;
-        std::cout << "\tthis: " << exec_iter_lk.iter << ", " << exec_iter_lk.lock << std::endl;
+        DEBUG_PRINT("\tprev: " << prev_exec_iter_lk.iter << ", " << prev_exec_iter_lk.lock);
+        DEBUG_PRINT("\tthis: " << exec_iter_lk.iter << ", " << exec_iter_lk.lock);
         
         // Put previous entry back and trigger subscription handler manually (if not locked)
         woof_put(consumer_ptr_woof, "", &prev_exec_iter_lk);
@@ -476,9 +481,9 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         return 0;
     }
     if (prev_exec_iter_lk.lock) {
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] failed to acquire lock, exiting" << std::endl;
+        DEBUG_PRINT("Failed to acquire lock, exiting");
     } else {
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] lock acquired" << std::endl;
+        DEBUG_PRINT("Lock acquired");
     }
     // TODO: Factor out into function ]
 
@@ -486,7 +491,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     node n;
     std::string nodes_woof = generate_woof_path(NODES_WOOF_TYPE, ns); 
     err = woof_get(nodes_woof, &n, id);
-    if(err < 0) {
+    if (err < 0) {
         std::cout << "Error reading nodes woof: " << nodes_woof << std::endl;
         return err;
     }
@@ -501,7 +506,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     operand last_result;
     woof_get(output_woof, &last_result, 0);
     if (last_result.seq >= consumer_seq) {
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] Operation already performed, exiting" << std::endl;
+        DEBUG_PRINT("Operation already performed, exiting");
         // // Relinquish lock and increment execution iteration
         // exec_iter_lk.lock = false;
         // exec_iter_lk.iter++;
@@ -519,7 +524,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Write result (unless FILTER should omit result)
     if (n.opcode != FILTER || op_values[0].value) {
         woof_put(output_woof, OUTPUT_HANDLER, &result);
-        std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] Wrote result #" << consumer_seq << std::endl;
+        DEBUG_PRINT("Wrote result #" << consumer_seq);
     }
     
     // // linreg_multinode
