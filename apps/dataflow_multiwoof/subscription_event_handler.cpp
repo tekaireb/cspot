@@ -505,20 +505,26 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     operand last_result;
     woof_get(output_woof, &last_result, 0);
-    if (last_result.seq >= consumer_seq) {
-        DEBUG_PRINT("Operation already performed, exiting");
-        // // Relinquish lock and increment execution iteration
-        // exec_iter_lk.lock = false;
-        // exec_iter_lk.iter++;
-        // woof_put(consumer_ptr_woof, "", &exec_iter_lk);
+    if (n.opcode != OFFSET) {
+        // Fix for offset: the following code prevents duplicates with most
+        // nodes, but renders the offset node useless. For now, this feature
+        // will be disabled for offset nodes. TODO: account for offset node's
+        // `offset` to check for duplicates.
+        if (last_result.seq >= consumer_seq) {
+            DEBUG_PRINT("Operation already performed, exiting");
+            // // Relinquish lock and increment execution iteration
+            // exec_iter_lk.lock = false;
+            // exec_iter_lk.iter++;
+            // woof_put(consumer_ptr_woof, "", &exec_iter_lk);
 
-        // // Call handler for next iter in case all operands were received before this function finished
-        // if (woof_last_seq(woof_name) > seqno) {
-        //     subevent->seq++;
-        //     subscription_event_handler(wf, seqno + 1, subevent);
-        // }
-        
-        return 0;
+            // // Call handler for next iter in case all operands were received before this function finished
+            // if (woof_last_seq(woof_name) > seqno) {
+            //     subevent->seq++;
+            //     subscription_event_handler(wf, seqno + 1, subevent);
+            // }
+            
+            return 0;
+        }
     }
 
     // Write result (unless FILTER should omit result)

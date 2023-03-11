@@ -85,9 +85,9 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, sub.ns, sub.id);
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
 
-        std::cout << ns << "." << woof_name << ": P" << std::endl;
+        std::cout << woof_name << ": P" << std::endl;
         res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
-        std::cout << ns << "." << woof_name << ": V" << std::endl;
+        std::cout << woof_name << ": V" << std::endl;
 
         /* add to the buffer if it is a remote woof which could not be put */
         if (res == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
