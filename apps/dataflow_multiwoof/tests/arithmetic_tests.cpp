@@ -465,13 +465,13 @@ void arithmetic_tests() {
     set_host(1);
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
     
-    // simple_arithmetic();
-    // complex_arithmetic();
+    simple_arithmetic();
+    complex_arithmetic();
     // stream_arithmetic();
     // exit(0);
-    // quadratic_test();
-    stream_quadratic_test();
-    exit(0);
+    quadratic_test();
+    // stream_quadratic_test();
+    // exit(0);
     mat_test_1();
     mat_test_2();
 }
