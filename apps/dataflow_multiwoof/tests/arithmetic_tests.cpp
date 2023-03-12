@@ -160,11 +160,13 @@ void stream_arithmetic() {
         v.push_back(op);
     }
 
-    std::cout << "OUTPUTS: ";
-    for (auto& i : v) {
-        std::cout << i.seq << ": " << i.value << " | ";
-    }
-    std::cout << std::endl;
+    // TODO: Additional checks for correctness (monotonicity, etc.)
+
+    // std::cout << "OUTPUTS: ";
+    // for (auto& i : v) {
+    //     std::cout << i.seq << ": " << i.value << " | ";
+    // }
+    // std::cout << std::endl;
 
     END_TEST();
 }
@@ -467,10 +469,10 @@ void arithmetic_tests() {
     
     simple_arithmetic();
     complex_arithmetic();
-    // stream_arithmetic();
+    stream_arithmetic();
     // exit(0);
     quadratic_test();
-    // stream_quadratic_test();
+    stream_quadratic_test();
     // exit(0);
     mat_test_1();
     mat_test_2();
