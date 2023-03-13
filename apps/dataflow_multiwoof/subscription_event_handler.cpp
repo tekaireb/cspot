@@ -187,7 +187,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id);
     err = woof_get(consumer_ptr_woof, &exec_iter_lk, 0);
     if (err < 0) {
-        std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
+        std::cout << "Error reading woof (s1): " << consumer_ptr_woof << std::endl;
         return err;
     }
 
@@ -442,7 +442,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Get current execution iteration
     err = woof_get(consumer_ptr_woof, &exec_iter_lk, 0);
     if (err < 0) {
-        std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
+        std::cout << "Error reading woof (s2): " << consumer_ptr_woof << std::endl;
         return err;
     }
 

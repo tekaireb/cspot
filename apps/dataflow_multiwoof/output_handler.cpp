@@ -36,8 +36,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     if (seqno > 1) {
         operand prev;
         err = woof_get(woof_name, &prev, seqno - 1);
-        if(err < 0) {
-            std::cout << "Error reading woof: " << woof_name << std::endl;
+        if (err < 0) {
+            std::cout << "Error reading woof (o): " << woof_name << std::endl;
             return 0;
         }
 
@@ -55,7 +55,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
     // Get data range (TODO: factor out into function for woofmap)
     err = woof_get(submap_woof, &start_idx, id);
-    if(err < 0) {
+    if (err < 0) {
         std::cout << "Error reading submap woof: " << submap_woof << std::endl;
         return 0;
     }
@@ -103,7 +103,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
             std::cout << "retrying" << std::endl;
         }
         
-        while(!event_buffer.empty()) {
+        while (!event_buffer.empty()) {
             subscription_event subevent = event_buffer.front();
             event_buffer.pop_front();
 
@@ -124,7 +124,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
             }
         }
 
-        if(event_buffer.empty()) {
+        if (event_buffer.empty()) {
             break;
         }
 
