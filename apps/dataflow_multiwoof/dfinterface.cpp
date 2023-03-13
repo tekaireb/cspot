@@ -282,7 +282,7 @@ void setup() {
             // Add woofs to hold last used seq in subscription output woof
             for (int port = 0; port < subscriptions[ns][i].size(); port++) {
                 woof_create(generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, i, -1, port),
-                            sizeof(cached_output), 2);
+                            sizeof(cached_output), 10);
             }
         }
     }

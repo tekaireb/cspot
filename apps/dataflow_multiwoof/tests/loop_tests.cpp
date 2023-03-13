@@ -158,6 +158,8 @@ void sqrt_loop_test() {
 }
 
 void multinode_regression() {
+    TEST("Multinode regression test");
+
     // Update variables (num, x, y, xx, xy)
 
     add_node(1, 1, 1, MUL);      // num *= decay_rate
@@ -395,20 +397,36 @@ void multinode_regression() {
     std::vector<double> intercepts;
     std::vector<double> slopes;
 
+    unsigned long prev_intercept_seq = 1;
+    unsigned long prev_slope_seq = 1;
+
     for (int i = 1; i <= iters; i++) {
         operand op1;
         woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 5, 1), &op1, i);
         intercepts.push_back(op1.value);
 
+        ASSERT(op1.seq == prev_intercept_seq || op1.seq == prev_intercept_seq + 1, "Sequence increases monotonically");
+        prev_intercept_seq = op1.seq;
+
         operand op2;
         woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 5, 2), &op2, i);
         slopes.push_back(op2.value);
+
+        ASSERT(op2.seq == prev_slope_seq || op2.seq == prev_slope_seq + 1, "Sequence increases monotonically");
+        prev_slope_seq = op2.seq;
     }
 
     for (int i = 0; i < iters; i++) {
         std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
     }
 
+    ASSERT(intercepts.size() >= iters, "Finish all iterations");
+
+    ASSERT(slopes.back() >= 1.5 && slopes.back() <= 2.5, "Slope is within expected range (~2)");
+    ASSERT(intercepts.back() >= 2.5 && intercepts.back() <= 3.5, "Intercept is within expected range (~3)");
+
+
+    END_TEST();
 }
 
 void loop_tests() {

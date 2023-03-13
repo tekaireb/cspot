@@ -470,10 +470,8 @@ void arithmetic_tests() {
     simple_arithmetic();
     complex_arithmetic();
     stream_arithmetic();
-    // exit(0);
     quadratic_test();
     stream_quadratic_test();
-    // exit(0);
     mat_test_1();
     mat_test_2();
 }
