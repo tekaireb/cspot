@@ -166,8 +166,6 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // auto start = std::chrono::high_resolution_clock::now();
     // std::cout << "SUBSCRIPTION EVENT HANDLER STARTED" << std::endl;
 
-    // std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
-    // std::cout << "seqno: " << seqno << std::endl;
     int err;
 
     // Get name of this woof
@@ -206,7 +204,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
 
     // Look up subscriptions to determine required number of operands
-    // TODO: Cache this value
+    // TODO: Replace woofmap with single entry read-only woof for better performance
     std::string submap = generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns);
     std::string subdata = generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns);
     unsigned long start_idx, end_idx;
@@ -229,51 +227,6 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
 
     int num_ops = static_cast<int>(end_idx - start_idx);
-
-    // // Scan through subscription outputs and collect operands
-    // // TODO: Cache last scanned seq and array of found operands
-    // // std::cout << "[" << woof_name<< "] searching for operands..." << std::endl;
-    // std::vector<operand> op_values(num_ops);
-    // subscription sub;
-    // operand op(0);
-    // std::string output_woof;
-    // for (unsigned long i = start_idx; i < end_idx; i++) {
-    //     // std::cout << "subscription port: " << i - start_idx << std::endl;
-    //     // Get subscription id
-    //     woof_get(subdata, &sub, i);
-
-    //     // Get relevant operand from subscription output (if it exists)
-    //     output_woof = "laminar-" + std::to_string(sub.ns) + ".output." +
-    //                   std::to_string(sub.id);
-    //     // std::cout << "[" << woof_name<< "] consumer_seq: "
-    //     //           << consumer_seq
-    //     //           << ", woof_last_seq: " << woof_last_seq(output_woof)
-    //     //           << std::endl;
-
-    //     // Scan backwards from most recent output until finding current seq
-    //     unsigned long idx = woof_last_seq(output_woof) + 1;
-    //     // std::cout << "idx initial: " << idx << std::endl;
-    //     do {
-    //         idx--;
-    //         woof_get(output_woof, &op, idx);
-    //         // std::cout << "idx, seq, val: " << idx << ", " << op.seq << ", " \
-    //         << op.value << std::endl;
-    //     } while (op.seq > consumer_seq && idx > 1);
-
-    //     if (op.seq == consumer_seq) {
-    //         // std::cout << "[" << woof_name<< "] getting op" << std::endl;
-    //         // std::cout << "[" << woof_name<< "] consumer_seq: " \
-    //         << consumer_seq << ", woof: " << output_woof << ", op: " \
-    //         << op.value << std::endl;
-    //         op_values[i - start_idx] = op;
-    //     } else {
-    //         // At least one input is not ready --> exit handler
-    //         // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
-    //         << ", op.seq: " << op.seq << std::endl;
-    //         // std::cout << "[" << woof_name<< "] not all operands are present, exiting" << std::endl;
-    //         return 0;
-    //     }
-    // }
 
     // Scan through subscription outputs and collect operands
 
@@ -321,17 +274,12 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
         // Get relevant operand from subscription output (if it exists)
         output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, sub.ns, sub.id);
-        // std::cout << "[" << woof_name<< "] consumer_seq: "
-        //           << consumer_seq
-        //           << ", woof_last_seq: " << woof_last_seq(output_woof)
-        //           << std::endl;
 
         // Scan from last used output until finding current seq
         unsigned long idx = last_output.seq;
         unsigned long last_idx = woof_last_seq(output_woof);
         
         if (idx >= last_idx) {
-            // std::cout << "idx: " << idx << ", last_idx: " << last_idx << std::endl;
             DEBUG_PRINT("No new outputs to check");
             return 0;
         }
@@ -370,6 +318,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         woof_put(last_used_sub_pos_woof, "", &last_output);
 
         if (op.seq == consumer_seq) {
+            // Relevant operand found, save and continue
             // std::cout << "[" << woof_name<< "] getting op" << std::endl;
             // std::cout << "[" << woof_name<< "] consumer_seq: " \
             << consumer_seq << ", woof: " << output_woof << ", op: " \
@@ -379,17 +328,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // At least one input is not ready --> exit handler
             // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
             << ", op.seq: " << op.seq << std::endl;
-            DEBUG_PRINT("Not all operands are present, exiting");
-            
-            // // Relinquish lock
-            // exec_iter_lk.lock = false;
-            // woof_put(consumer_ptr_woof, "", &exec_iter_lk);
-
-            // // Trigger handler if there are new events
-            // if (woof_last_seq(woof_name) > seqno) {
-            //     subscription_event_handler(wf, seqno, ptr);
-            // }
-            
+            DEBUG_PRINT("Not all operands are present, exiting");            
             return 0;
         }
     }
@@ -397,46 +336,6 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     /* Fire node */
 
     DEBUG_PRINT("Firing node");
-
-    // Increment consumer pointer
-
-    // unsigned long current_seq;
-    // err = woof_get(consumer_ptr_woof, &current_seq, 0);
-    // if(err < 0) {
-    //     std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
-    //     return err;
-    // }
-
-    // if (current_seq > consumer_seq) {
-    //     // Exit if this iteration has already been completed
-    //     return 0;
-    // }
-
-    // consumer_seq++; // TODO: May cause race conditions. Lock-free compare and set?
-    // woof_put(consumer_ptr_woof, "", &consumer_seq);
-    // consumer_seq--;
-
-    // ---
-
-    // // Attempt to increment current execution iteration
-    // consumer_seq++;
-    // unsigned long incremented_seq = woof_put(consumer_ptr_woof, "", &consumer_seq);
-    // consumer_seq--;
-
-    // // Check if other handler incremented first
-    // unsigned long current_seq;
-    // err = woof_get(consumer_ptr_woof, &current_seq, incremented_seq - 1);
-    // if (err < 0) {
-    //     std::cout << "Error reading woof: " << consumer_ptr_woof << std::endl;
-    //     return err;
-    // }
-    // if (current_seq > consumer_seq) {
-    //     // Exit, as other handler has already incremented execution iteration
-    //     std::cout << "Other handler incremented execution iteration first" << std::endl;
-    //     return 0;
-    // }
-
-    // ---
 
     // TODO: Factor out into function [
     // Get current execution iteration
