@@ -377,7 +377,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             op_values[i - start_idx] = op;
         } else {
             // At least one input is not ready --> exit handler
-            std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
+            // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
             << ", op.seq: " << op.seq << std::endl;
             DEBUG_PRINT("Not all operands are present, exiting");
             
