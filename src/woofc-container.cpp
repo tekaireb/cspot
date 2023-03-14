@@ -25,7 +25,7 @@
 #define ARGS "M"
 
 namespace {
-constexpr auto WOOF_CONTAINER_FORKERS = 15;
+constexpr auto WOOF_CONTAINER_FORKERS = 30;
 std::atomic<bool> should_exit;
 
 sema ForkerThrottle;
