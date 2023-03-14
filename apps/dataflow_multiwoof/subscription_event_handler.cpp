@@ -11,14 +11,6 @@
 
 #include <unistd.h>
 
-// #define DEBUG
-
-#ifdef DEBUG
-#define DEBUG_PRINT(str) { std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] " << str << std::endl; }
-#else
-#define DEBUG_PRINT(str) { }
-#endif
-
 // Helper function to calculate Euclidean distance between two points
 double dist(Point& a, Point& b) {
     return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
@@ -212,7 +204,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     
     err = woof_get(submap, &start_idx, id);
     if (err < 0) {
-        std::cout << "Error reading submap woof: " << submap << std::endl;
+        std::cout << "Error reading submap woof (s1): " << submap << std::endl;
         return err;
     }
 
@@ -221,7 +213,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     } else {
         err = woof_get(submap, &end_idx, id + 1);
         if (err < 0) {
-            std::cout << "Error reading submap woof: " << submap << std::endl;
+            std::cout << "Error reading submap woof (s2): " << submap << std::endl;
             return err;
         }
     }
