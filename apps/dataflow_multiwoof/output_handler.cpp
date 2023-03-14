@@ -23,7 +23,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
-    std::cout << woof_name << " @ " << seqno << std::endl;
+    // std::cout << woof_name << " @ " << seqno << std::endl;
     
     // Extract id
     unsigned long id = get_id_from_woof_path(woof_name);
@@ -57,7 +57,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // Get data range (TODO: factor out into function for woofmap)
     err = woof_get(submap_woof, &start_idx, id);
     if (err < 0) {
-        std::cout << "Error reading submap woof: " << submap_woof << std::endl;
+        std::cout << "Error reading submap woof (o1): " << submap_woof << std::endl;
         return 0;
     }
 
@@ -66,7 +66,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     } else {
         err = woof_get(submap_woof, &end_idx, id + 1);
         if(err < 0) {
-            std::cout << "Error reading submap woof: " << submap_woof << std::endl;
+            std::cout << "Error reading submap woof (o2): " << submap_woof << std::endl;
             return 0;
         }
     }
@@ -86,12 +86,13 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, sub.ns, sub.id);
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
 
-        // std::cout << woof_name << ": P" << std::endl;
+        // std::cout << woof_name << "[" << result->seq << "]: P" << std::endl << std::flush;
         res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
-        // std::cout << woof_name << ": V" << std::endl;
+        // std::cout << woof_name << "[" << result->seq << "]: V" << std::endl << std::flush;
 
         /* add to the buffer if it is a remote woof which could not be put */
         if (res == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
+            DEBUG_PRINT("Buffer for remote put");
             event_buffer.push_back(subevent);
         }
     }
