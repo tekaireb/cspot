@@ -144,13 +144,13 @@ void stream_arithmetic() {
     
     do {
         usleep(1e5);
-    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < iters);
-
-    
+    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < iters);    
 
     operand result;
-    woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &result, iters);
+    std::string woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1);
+    woof_get(woof, &result, woof_last_seq(woof));
     ASSERT_EQ(result.value, a + b + c + d, "Final result should be a + b + c + d");
+    ASSERT_EQ(result.seq, iters, "Final seq should be last iteration");
 
     std::vector<operand> v;
     operand op;

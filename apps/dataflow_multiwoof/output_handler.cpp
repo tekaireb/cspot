@@ -15,6 +15,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
 
     int err;
     operand* result = static_cast<operand*>(ptr);
+    unsigned long consumer_seq = result->seq;
     std::deque<subscription_event> event_buffer;
 
     // std::cout << "wf: " << WoofGetFileName(wf) << std::endl;
@@ -86,9 +87,9 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         std::string subscriber_woof = generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, sub.ns, sub.id);
         subscription_event subevent(sub.ns, sub.id, sub.port, result->seq);
 
-        // std::cout << woof_name << "[" << result->seq << "]: P" << std::endl << std::flush;
+        // std::cout << woof_name << "[" << result->seq << "]: P\t-> " << subscriber_woof << std::endl << std::flush;
         res = woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
-        // std::cout << woof_name << "[" << result->seq << "]: V" << std::endl << std::flush;
+        // std::cout << woof_name << "[" << result->seq << "]: V\t-> " << subscriber_woof << std::endl << std::flush;
 
         /* add to the buffer if it is a remote woof which could not be put */
         if (res == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
