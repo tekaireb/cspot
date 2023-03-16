@@ -192,7 +192,7 @@ void add_node(int ns, int host_id, int id, int opcode) {
         
         // Create subscription_events woof
         woof_create(generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id, host_id),
-                    sizeof(subscription_event), 25);
+                    sizeof(subscription_event), 500);
 
 
         // Create consumer_pointer woof
