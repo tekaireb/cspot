@@ -1,14 +1,14 @@
 #include "df.h"
-#include "woofc.h"
 #include "dfinterface.h"
+#include "woofc.h"
 
-#include <iostream>
-#include <fstream>
-#include <deque>
 #include <chrono>
 #include <ctime>
+#include <deque>
+#include <fstream>
+#include <iostream>
+#include <math.h>
 #include <thread>
-#include <math.h> 
 
 extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
@@ -25,13 +25,13 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
     // std::cout << woof_name << " @ " << seqno << std::endl;
-    
+
     // Extract id
     unsigned long id = get_id_from_woof_path(woof_name);
 
     // std::cout << id << ": " << result->seq << std::endl;
 
-    //Extract namespace
+    // Extract namespace
     int ns = get_ns_from_woof_path(woof_name);
 
     // Exit if double-fired
@@ -66,7 +66,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         end_idx = woof_last_seq(subdata_woof) + 1;
     } else {
         err = woof_get(submap_woof, &end_idx, id + 1);
-        if(err < 0) {
+        if (err < 0) {
             std::cout << "Error reading submap woof (o2): " << submap_woof << std::endl;
             return 0;
         }
@@ -79,7 +79,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         // Get subscriber data
         subscriber sub;
         err = woof_get(subdata_woof, &sub, i);
-        if(err < 0) {
+        if (err < 0) {
             std::cout << "Error reading subdata woof: " << subdata_woof << std::endl;
             return 0;
         }
@@ -97,15 +97,15 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
             event_buffer.push_back(subevent);
         }
     }
- 
+
     // keep retrying to send the subscription events in the buffer until empty
     int itr = 0;
     int MAX_RETRIES = 100;
-    while(itr <= MAX_RETRIES) {
+    while (itr <= MAX_RETRIES) {
         if (itr > 0) {
             std::cout << "retrying" << std::endl;
         }
-        
+
         while (!event_buffer.empty()) {
             subscription_event subevent = event_buffer.front();
             event_buffer.pop_front();
@@ -117,10 +117,9 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
             if (WooFInvalid(res)) {
                 std::cout << "Retry Failed : " << subscriber_woof << std::endl;
                 event_buffer.push_back(subevent);
-            }
-            else {
-                //duplicate event sent randomly
-                if(rand()%2) {
+            } else {
+                // duplicate event sent randomly
+                if (rand() % 2) {
                     woof_put(subscriber_woof, SUBSCRIPTION_EVENT_HANDLER, &subevent);
                 }
                 std::cout << "Retry Success : " << subscriber_woof << std::endl;
@@ -131,7 +130,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
             break;
         }
 
-        int ms = std::min((int(pow(2,itr)) * 1000) + (rand() % 100), 32000);
+        int ms = std::min((int(pow(2, itr)) * 1000) + (rand() % 100), 32000);
         std::this_thread::sleep_for(std::chrono::milliseconds(ms));
         itr++;
     }

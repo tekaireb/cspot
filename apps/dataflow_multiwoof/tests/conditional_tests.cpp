@@ -4,9 +4,8 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
-
 #include <unistd.h>
+#include <vector>
 
 void selector_test() {
     TEST("Selector test");
@@ -18,7 +17,7 @@ void selector_test() {
     add_operand(ns, 1, 2); // Selector (0 or 1)
     add_operand(ns, 1, 3); // a
     add_operand(ns, 1, 4); // b
-    
+
     subscribe(ns, 1, 0, ns, 2); // Selector --> SEL:0
     subscribe(ns, 1, 1, ns, 3); // a --> SEL:1
     subscribe(ns, 1, 2, ns, 4); // b --> SEL:2
@@ -26,25 +25,26 @@ void selector_test() {
     setup();
 
     for (int i = 1; i <= 2; i++) {
-        operand op(i - 1, i);   // Selector
+        operand op(i - 1, i); // Selector
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op);
-        operand a(10, i);       // a
+        operand a(10, i); // a
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &a);
-        operand b(20, i);       // b
+        operand b(20, i); // b
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 4), OUTPUT_HANDLER, &b);
     }
-    
+
     do {
         usleep(1e5);
     } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < 2);
 
-    operand result;
-    woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &result, 1);
-    ASSERT_EQ(result.value, 10, "SEL = 0 -> result = a = 10");
+    operand r1;
+    woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &r1, 1);
+    ASSERT_EQ(r1.value, 10, "SEL = 0 -> result = a = 10");
 
-    woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &result, 2);
-    ASSERT_EQ(result.value, 20, "SEL = 1 -> result = b = 20");
-    
+    operand r2;
+    woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &r2, 2);
+    ASSERT_EQ(r2.value, 20, "SEL = 1 -> result = b = 20");
+
     END_TEST();
 }
 

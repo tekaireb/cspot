@@ -2,14 +2,13 @@
 #include "dfinterface.h"
 #include "woofc.h"
 
+#include <chrono>
 #include <cmath>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <queue>
-#include <chrono>
-
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 // Helper function to calculate Euclidean distance between two points
 double dist(Point& a, Point& b) {
@@ -71,7 +70,7 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
     case NOT:
         result.value = (ops[0].value ? 0 : 1);
         break;
-    
+
     case SEL:
         // Use selector value to index alternatives
         result.value = ops[(int)ops[0].value + 1].value;
@@ -92,9 +91,8 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
     case KNN: {
         size_t k = static_cast<size_t>(ops[0].value);
         Point p = Point(ops[1].value, ops[2].value);
-        std::string data_woof = "laminar-" + std::to_string(ns) + ".knn_data." +
-                                std::to_string(n.id);
-        
+        std::string data_woof = "laminar-" + std::to_string(ns) + ".knn_data." + std::to_string(n.id);
+
         using distPair = std::pair<double, int>; // (distance, label)
         std::priority_queue<distPair, std::vector<distPair>, std::greater<distPair>> pq;
 
@@ -117,7 +115,7 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
                 count++;
             else
                 count--;
-                
+
             if (count == 0) {
                 most_common_label = pq.top().second;
                 count = 1;
@@ -130,12 +128,10 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
         woof_put(data_woof, "", &p);
 
         result.value = most_common_label;
-    }
-        break;
-    
+    } break;
+
     case LINREG: {
-        std::string data_woof = "laminar-" + std::to_string(ns) +
-                                ".linreg_data." + std::to_string(n.id);
+        std::string data_woof = "laminar-" + std::to_string(ns) + ".linreg_data." + std::to_string(n.id);
 
         Regression r;
         if (woof_last_seq(data_woof)) {
@@ -144,8 +140,7 @@ operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsi
         r.update(ops[0].value, ops[1].value);
         woof_put(data_woof, "", &r);
         result.value = r.slope;
-    }
-        break;
+    } break;
 
     default:
         result.value = 0;
@@ -166,7 +161,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Extract id
     unsigned long id = get_id_from_woof_path(woof_name);
 
-    //Extract namespace
+    // Extract namespace
     int ns = get_ns_from_woof_path(woof_name);
 
     // Get subscription_event
@@ -192,7 +187,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Only proceed if this event is not already being handled
     if (exec_iter_lk.lock) {
-       DEBUG_PRINT("Another handler already locked, exiting");
+        DEBUG_PRINT("Another handler already locked, exiting");
     }
 
     // Look up subscriptions to determine required number of operands
@@ -201,7 +196,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     std::string subdata = generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns);
     unsigned long start_idx, end_idx;
     unsigned long last_seq = woof_last_seq(submap);
-    
+
     err = woof_get(submap, &start_idx, id);
     if (err < 0) {
         std::cout << "Error reading submap woof (s1): " << submap << std::endl;
@@ -229,7 +224,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get last used output and seqno for this port
         cached_output last_output;
-        std::string last_used_sub_pos_woof = generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, id, -1, i-start_idx);
+        std::string last_used_sub_pos_woof = generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, id, -1, i - start_idx);
         if (woof_last_seq(last_used_sub_pos_woof) == 0) {
             // On first read, check if output woof is empty
             if (woof_last_seq(output_woof) == 0) {
@@ -241,7 +236,8 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             woof_get(last_used_sub_pos_woof, &last_output, 0);
         }
 
-        // std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] last_output_seq: " << last_output.op.seq << ", consumer_seq: " << consumer_seq << std::endl;
+        // std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] last_output_seq: " << last_output.op.seq
+        // << ", consumer_seq: " << consumer_seq << std::endl;
         if (last_output.op.seq == consumer_seq) {
             // Operand for this seq has already been found and cached
             // Retrieve from cache and proceed
@@ -255,7 +251,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             DEBUG_PRINT("Cached operand exceeds current excecution iteration, exiting");
             return 0;
         }
-        
+
         // std::cout << "subscription port: " << i - start_idx << std::endl;
         // Get subscription id
         err = woof_get(subdata, &sub, i);
@@ -270,7 +266,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         // Scan from last used output until finding current seq
         unsigned long idx = last_output.seq;
         unsigned long last_idx = woof_last_seq(output_woof);
-        
+
         if (idx >= last_idx) {
             DEBUG_PRINT("No new outputs to check");
             return 0;
@@ -286,7 +282,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             }
         } while (op.seq < consumer_seq && idx < last_idx);
 
-        #ifdef DEBUG
+#ifdef DEBUG
         if (op.seq != consumer_seq) {
             DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (SKIPPED EXECUTION ITER)");
             std::vector<operand> v;
@@ -302,7 +298,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
                 std::cout << output_woof << " @ " << o.seq << ": " << o.value << std::endl;
             }
         }
-        #endif
+#endif
 
         // Write latest idx back to `last used subscription position` woof
         // std::cout << "Writing back: " << "op = " << op.value << ", seq=" << idx << std::endl;
@@ -312,15 +308,15 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         if (op.seq == consumer_seq) {
             // Relevant operand found, save and continue
             // std::cout << "[" << woof_name<< "] getting op" << std::endl;
-            // std::cout << "[" << woof_name<< "] consumer_seq: " \
-            << consumer_seq << ", woof: " << output_woof << ", op: " \
-            << op.value << std::endl;
+            // std::cout << "[" << woof_name<< "] consumer_seq: "
+            // << consumer_seq << ", woof: " << output_woof << ", op: "
+            // << op.value << std::endl;
             op_values[i - start_idx] = op;
         } else {
             // At least one input is not ready --> exit handler
-            // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq \
-            << ", op.seq: " << op.seq << std::endl;
-            DEBUG_PRINT("Not all operands are present, exiting");            
+            // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq
+            // << ", op.seq: " << op.seq << std::endl;
+            DEBUG_PRINT("Not all operands are present, exiting");
             return 0;
         }
     }
@@ -358,10 +354,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     woof_get(consumer_ptr_woof, &prev_exec_iter_lk, lk_seq - 1);
     if (prev_exec_iter_lk.iter > exec_iter_lk.iter) {
         DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (LOCKS OUT OF ORDER)");
-        
+
         DEBUG_PRINT("\tprev: " << prev_exec_iter_lk.iter << ", " << prev_exec_iter_lk.lock);
         DEBUG_PRINT("\tthis: " << exec_iter_lk.iter << ", " << exec_iter_lk.lock);
-        
+
         // Put previous entry back and trigger subscription handler manually (if not locked)
         woof_put(consumer_ptr_woof, "", &prev_exec_iter_lk);
         if (!prev_exec_iter_lk.lock) {
@@ -380,7 +376,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Get opcode
     node n;
-    std::string nodes_woof = generate_woof_path(NODES_WOOF_TYPE, ns); 
+    std::string nodes_woof = generate_woof_path(NODES_WOOF_TYPE, ns);
     err = woof_get(nodes_woof, &n, id);
     if (err < 0) {
         std::cout << "Error reading nodes woof: " << nodes_woof << std::endl;
@@ -390,7 +386,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     operand result = perform_operation(op_values, ns, n, consumer_seq);
     // std::cout << "[" << woof_name<< "] result = " << result.value << std::endl;
-    
+
     // Do not write result if it already exists
     output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, id);
 
@@ -413,7 +409,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             //     subevent->seq++;
             //     subscription_event_handler(wf, seqno + 1, subevent);
             // }
-            
+
             return 0;
         }
     }
@@ -423,7 +419,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         woof_put(output_woof, OUTPUT_HANDLER, &result);
         DEBUG_PRINT("Wrote result #" << consumer_seq);
     }
-    
+
     // // linreg_multinode
     // if (id == 8 && woof_name == "laminar-1.subscription_events.8") {
 
