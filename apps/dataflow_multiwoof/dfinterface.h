@@ -4,9 +4,21 @@
 #include "df.h"
 #include "woofc.h"
 
-#include <string>
 #include <map>
 #include <set>
+#include <string>
+
+// {namspace --> entries}
+extern std::map<int, int> subscribe_entries;
+// {namespace --> {id --> [subscribers...]}}
+extern std::map<int, std::map<int, std::set<subscriber>>> subscribers;
+// {namespace --> {id --> [subscriptions...]}}
+extern std::map<int, std::map<int, std::set<subscription>>> subscriptions;
+// {namespace --> [nodes...]}
+extern std::map<int, std::set<node>> nodes;
+// set of host structs for url extraction
+extern std::set<host> hosts;
+
 
 #define OUTPUT_HANDLER "output_handler"
 #define SUBSCRIPTION_EVENT_HANDLER "subscription_event_handler"
@@ -29,8 +41,7 @@ void reset();
 
 std::string graphviz_representation();
 
-std::string generate_woof_path(DFWoofType woof_type, int ns = -1, int id = -1, 
-                                int host_id = -1, int port_id = -1);
+std::string generate_woof_path(DFWoofType woof_type, int ns = -1, int id = -1, int host_id = -1, int port_id = -1);
 
 unsigned long get_id_from_woof_path(std::string woof_path);
 
