@@ -8,18 +8,6 @@
 #include <set>
 #include <string>
 
-// {namspace --> entries}
-extern std::map<int, int> subscribe_entries;
-// {namespace --> {id --> [subscribers...]}}
-extern std::map<int, std::map<int, std::set<subscriber>>> subscribers;
-// {namespace --> {id --> [subscriptions...]}}
-extern std::map<int, std::map<int, std::set<subscription>>> subscriptions;
-// {namespace --> [nodes...]}
-extern std::map<int, std::set<node>> nodes;
-// set of host structs for url extraction
-extern std::set<host> hosts;
-
-
 #define OUTPUT_HANDLER "output_handler"
 #define SUBSCRIPTION_EVENT_HANDLER "subscription_event_handler"
 

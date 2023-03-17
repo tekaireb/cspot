@@ -8,13 +8,13 @@
 #include <vector>
 
 // {namspace --> entries}
-std::map<int, int> subscribe_entries = {};
+std::map<int, int> subscribe_entries;
 // {namespace --> {id --> [subscribers...]}}
-std::map<int, std::map<int, std::set<subscriber>>> subscribers = {};
+std::map<int, std::map<int, std::set<subscriber>>> subscribers;
 // {namespace --> {id --> [subscriptions...]}}
-std::map<int, std::map<int, std::set<subscription>>> subscriptions = {};
+std::map<int, std::map<int, std::set<subscription>>> subscriptions;
 // {namespace --> [nodes...]}
-std::map<int, std::set<node>> nodes = {};
+std::map<int, std::set<node>> nodes;
 // set of host structs for url extraction
 std::set<host> hosts;
 
