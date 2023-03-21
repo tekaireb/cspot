@@ -1,0 +1,9 @@
+add_library(df_operation
+        df_operation.h
+        df_operation.c
+        df_arithmetic.h
+        df_arithmetic.c
+        df_logic.h
+        df_logic.c
+        df_internal.h
+        df_internal.c)
