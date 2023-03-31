@@ -1,30 +1,30 @@
-#include "../dfinterface.h"
+#include "../df_interface.h"
 #include "test_utils.h"
 #include "tests.h"
 
 #include <iostream>
-#include <string>
 #include <vector>
-
 #include <unistd.h>
 
 void simple_namespace_test() {
-    TEST("Simple namespace test");
+    TEST("Simple namespace test")
 
     add_operand(1, 1, 1); // a
     add_operand(1, 1, 2); // b
 
-    add_node(2, 1, 1, ADD);
-    add_node(2, 1, 2, MUL);
-    add_node(2, 1, 3, MUL);
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+    add_node(2, 1, 1, addition);
+    add_node(2, 1, 2, multiplication);
+    add_node(2, 1, 3, multiplication);
 
-    add_node(3, 1, 1, ADD);
-    add_node(3, 1, 2, MUL);
-    add_node(3, 1, 3, MUL);
+    add_node(3, 1, 1, addition);
+    add_node(3, 1, 2, multiplication);
+    add_node(3, 1, 3, multiplication);
 
-    add_node(4, 1, 1, ADD);
-    add_node(4, 1, 2, MUL);
-    add_node(4, 1, 3, MUL);
+    add_node(4, 1, 1, addition);
+    add_node(4, 1, 2, multiplication);
+    add_node(4, 1, 3, multiplication);
 
     subscribe("2:1:0", "1:1");
     subscribe("2:1:1", "1:2");
@@ -45,9 +45,11 @@ void simple_namespace_test() {
 
     setup();
 
-    operand op(1.0);
+    DF_VALUE *op_value = build_double(1);
+    operand op(*op_value);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op);
+    deep_delete(op_value);
 
     do {
         usleep(1e5);
@@ -57,7 +59,7 @@ void simple_namespace_test() {
     unsigned long last = woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 1));
     for (unsigned long i = 1; i <= last; i++) {
         woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 1), &op, i);
-        v.push_back(op.value);
+        v.push_back(op.value.value.df_double);
     }
 
     // // Expected: 128
@@ -66,14 +68,14 @@ void simple_namespace_test() {
     //     std::cout << i << " ";
     // }
 
-    ASSERT_EQ(v[0], 128, "2(2(1+1)^2)^2 = 128");
+    ASSERT_EQ(v[0], 128, "2(2(1+1)^2)^2 = 128")
 
-    END_TEST();
+    END_TEST()
 }
 
 void namespace_tests() {
     set_host(1);
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
-    
+
     simple_namespace_test();
 }

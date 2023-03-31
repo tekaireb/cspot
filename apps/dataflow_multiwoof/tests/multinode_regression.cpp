@@ -1,54 +1,58 @@
-#include "../dfinterface.h"
+#include "../df_interface.h"
 
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include <random>
-#include <chrono>
-#include <thread>
 #include <unistd.h>
 
 void online_linreg_multinode() {
     // Update variables (num, x, y, xx, xy)
-
-    add_node(1, 1, 1, MUL);    // num *= decay_rate
-    add_node(1, 1, 2, MUL);    // x *= decay_rate
-    add_node(1, 1, 3, MUL);    // y *= decay_rate
-    add_node(1, 1, 4, MUL);    // xx *= decay_rate
-    add_node(1, 1, 5, MUL);    // xy *= decay_rate
-    add_node(1, 1, 6, ADD);    // num += 1
-    add_node(1, 1, 7, ADD);    // x += new_x
-    add_node(1, 1, 8, ADD);    // y += new_y
-    add_node(1, 1, 9, MUL);    // new_x ^ 2
-    add_node(1, 1, 10, ADD);   // xx += new_x ^ 2
-    add_node(1, 1, 11, MUL);   // new_x * new_y
-    add_node(1, 1, 12, ADD);   // xy += new_x * new_y
-    add_node(1, 1, 13, OFFSET);// num seq + 1
-    add_node(1, 1, 14, OFFSET);// x seq + 1
-    add_node(1, 1, 15, OFFSET);// y seq + 1
-    add_node(1, 1, 16, OFFSET);// xx seq + 1
-    add_node(1, 1, 17, OFFSET);// xy seq + 1
-    add_node(1, 1, 18, SEL);   // num or 0?
-    add_node(1, 1, 19, SEL);   // x or 0?
-    add_node(1, 1, 20, SEL);   // y or 0?
-    add_node(1, 1, 21, SEL);   // xx or 0?
-    add_node(1, 1, 22, SEL);   // xy or 0?
+    const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    const DF_OPERATION offset = {DF_INTERNAL, DF_INTERNAL_OFFSET};
+    const DF_OPERATION select = {DF_INTERNAL, DF_INTERNAL_SELECT};
+    const DF_OPERATION subtraction = {DF_ARITHMETIC, DF_ARITH_SUBTRACTION};
+    const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
+    const DF_OPERATION greater_than = {DF_LOGIC, DF_LOGIC_GREATER_THAN};
+    
+    add_node(1, 1, 1, multiplication);    // num *= decay_rate
+    add_node(1, 1, 2, multiplication);    // x *= decay_rate
+    add_node(1, 1, 3, multiplication);    // y *= decay_rate
+    add_node(1, 1, 4, multiplication);    // xx *= decay_rate
+    add_node(1, 1, 5, multiplication);    // xy *= decay_rate
+    add_node(1, 1, 6, addition);    // num += 1
+    add_node(1, 1, 7, addition);    // x += new_x
+    add_node(1, 1, 8, addition);    // y += new_y
+    add_node(1, 1, 9, multiplication);    // new_x ^ 2
+    add_node(1, 1, 10, addition);   // xx += new_x ^ 2
+    add_node(1, 1, 11, multiplication);   // new_x * new_y
+    add_node(1, 1, 12, addition);   // xy += new_x * new_y
+    add_node(1, 1, 13, offset);// num seq + 1
+    add_node(1, 1, 14, offset);// x seq + 1
+    add_node(1, 1, 15, offset);// y seq + 1
+    add_node(1, 1, 16, offset);// xx seq + 1
+    add_node(1, 1, 17, offset);// xy seq + 1
+    add_node(1, 1, 18, select);   // num or 0?
+    add_node(1, 1, 19, select);   // x or 0?
+    add_node(1, 1, 20, select);   // y or 0?
+    add_node(1, 1, 21, select);   // xx or 0?
+    add_node(1, 1, 22, select);   // xy or 0?
 
     // Calculate slope and intercept
 
-    add_node(2, 1, 1, MUL);    // num * xx
-    add_node(2, 1, 2, MUL);    // x * x
-    add_node(2, 1, 3, SUB);    // det = num * xx - x * x
-    add_node(2, 1, 4, MUL);    // xx * y
-    add_node(2, 1, 5, MUL);    // xy * x
-    add_node(2, 1, 6, SUB);    // xx * y - xy * x
-    add_node(2, 1, 7, DIV);    // intercept = (xx * y - xy * x) / det;
-    add_node(2, 1, 8, MUL);    // xy * num
-    add_node(2, 1, 9, MUL);    // x * y
-    add_node(2, 1, 10, SUB);   // xy * num - x * y
-    add_node(2, 1, 11, DIV);   // slope = (xy * num - x * y) / det;
-    add_node(2, 1, 12, GT);    // det > 1e-10?
+    add_node(2, 1, 1, multiplication);    // num * xx
+    add_node(2, 1, 2, multiplication);    // x * x
+    add_node(2, 1, 3, subtraction);    // det = num * xx - x * x
+    add_node(2, 1, 4, multiplication);    // xx * y
+    add_node(2, 1, 5, multiplication);    // xy * x
+    add_node(2, 1, 6, subtraction);    // xx * y - xy * x
+    add_node(2, 1, 7, division);    // intercept = (xx * y - xy * x) / det;
+    add_node(2, 1, 8, multiplication);    // xy * num
+    add_node(2, 1, 9, multiplication);    // x * y
+    add_node(2, 1, 10, subtraction);   // xy * num - x * y
+    add_node(2, 1, 11, division);   // slope = (xy * num - x * y) / det;
+    add_node(2, 1, 12, greater_than);    // det > 1e-10?
     // add_node(2, 13, SEL);   // intercept or 0?
     // add_node(2, 14, SEL);   // slope or 0?
 
@@ -67,8 +71,8 @@ void online_linreg_multinode() {
 
     // Outputs
 
-    add_node(5, 2, 1, SEL);         // intercept = intercept or 0
-    add_node(5, 2, 2, SEL);         // slope = slope or 0
+    add_node(5, 2, 1, select);         // intercept = intercept or 0
+    add_node(5, 2, 2, select);         // slope = slope or 0
 
     // Edges
 
@@ -134,7 +138,7 @@ void online_linreg_multinode() {
     subscribe("2:3:1", "2:2");      // det = num * xx - x * x
     subscribe("2:12:0", "2:3");     // det > ____?
     subscribe("2:12:1", "3:5");     // det > 1e-10?
-    
+
     // Intercept
     subscribe("2:4:0", "1:10");     // xx * _
     subscribe("2:4:1", "1:8");     // xx * y
@@ -168,48 +172,59 @@ void online_linreg_multinode() {
 
     // Initialization
 
-    int iters = 2;
+    const int iters = 2;
 
     std::cout << "Initializing constants" << std::endl;
 
     // Const (3:1) = 1
     for (int i = 1; i <= iters; i++) {
-        operand op(1.0, i);
+        DF_VALUE *double_value = build_double(1.0);
+        operand op(*double_value, i);
         woof_put("laminar-3.output.1", "", &op);
+        free(double_value);
     }
 
     // Const (3:2) = 0
     for (int i = 1; i <= iters; i++) {
-        operand op(0.0, i);
+        DF_VALUE *double_value = build_double(0.0);
+        operand op(*double_value, i);
         woof_put("laminar-3.output.2", "", &op);
+        free(double_value);
     }
 
     // Const (3:3) = exp(-dt/T)  [decay_rate]
-    double dt = 1e-2;
-    double T = 5e-2;
-    double decay_rate = exp(-dt / T);
+    const double dt = 1e-2;
+    const double T = 5e-2;
+    const double decay_rate = exp(-dt / T);
     for (int i = 1; i <= iters; i++) {
-        operand op(decay_rate, i);
+        DF_VALUE *double_value = build_double(decay_rate);
+        operand op(*double_value, i);
         woof_put("laminar-3.output.3", "", &op);
+        free(double_value);
     }
 
     // Const (3:4) = 0, 1, 1, ..., 1
     for (int i = 1; i <= iters; i++) {
         int val = (i == 1 ? 0 : 1);
-        operand op(val, i);
+        DF_VALUE *double_value = build_double(val);
+        operand op(*double_value, i);
         woof_put("laminar-3.output.4", "", &op);
+        free(double_value);
     }
 
     // Const (3:5) = 1e-10
     for (int i = 1; i <= iters; i++) {
-        operand op(1e-10, i);
+        DF_VALUE *double_value = build_double(1e-10);
+        operand op(*double_value, i);
         woof_put("laminar-3.output.5", "", &op);
     }
 
     // Seed offset nodes with initial value
     for (int i = 13; i <= 17; i++) {
-        operand op(0, 1);
+        DF_VALUE *double_value = build_double(0.0);
+        operand op(*double_value, 1);
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
+        free(double_value);
     }
 
     while (woof_last_seq("laminar-1.output.6") < 1) {
@@ -227,16 +242,24 @@ void online_linreg_multinode() {
 
     std::cout << "Writing x and y values" << std::endl;
 
+    std::vector<DF_VALUE *> pointers_to_free;
     for (int i = 0; i < iters; i++) {
         double x = i + distr(eng);
+        DF_VALUE *x_value = build_double(x);
         double y = 3 + 2 * i + distr(eng);
-        x_values.push_back(operand(x, i + 1));
-        y_values.push_back(operand(y, i + 1));
+        DF_VALUE *y_value = build_double(y);
+        x_values.push_back(operand(*x_value, i + 1));
+        y_values.push_back(operand(*y_value, i + 1));
+        pointers_to_free.push_back(x_value);
+        pointers_to_free.push_back(y_value);
     }
 
     for (int i = 1; i <= iters; i++) {
         woof_put("laminar-4.output.1", "output_handler", &x_values[i - 1]);
         woof_put("laminar-4.output.2", "output_handler", &y_values[i - 1]);
+    }
+    for (const auto &item: pointers_to_free) {
+        free(item);
     }
 
     std::cout << "Waiting for program to finish" << std::endl;
@@ -251,11 +274,11 @@ void online_linreg_multinode() {
     for (int i = 1; i <= iters; i++) {
         operand op1;
         woof_get("laminar-5.output.1", &op1, i);
-        intercepts.push_back(op1.value);
+        intercepts.push_back(op1.value.value.df_double);
 
         operand op2;
         woof_get("laminar-5.output.2", &op2, i);
-        slopes.push_back(op2.value);
+        slopes.push_back(op2.value.value.df_double);
     }
 
     for (int i = 0; i < iters; i++) {
@@ -264,9 +287,9 @@ void online_linreg_multinode() {
 }
 
 int main() {
-    
+
     set_host(1);
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
-    
+
     online_linreg_multinode();
 }

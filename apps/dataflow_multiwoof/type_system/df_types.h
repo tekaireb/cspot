@@ -1,28 +1,27 @@
 //
-// Created by lukas on 09.01.2023.
+// Created by Lukas Brand Privat on 29.03.23.
 //
-#ifndef CSPOT_DFTYPE_H
-#define CSPOT_DFTYPE_H
 
-#include "woofc.h"
+#ifndef CSPOT_DF_TYPES_H
+#define CSPOT_DF_TYPES_H
 
 #include <uuid/uuid.h>
+#include <stdio.h>
 
-enum df_types_enum
-{
-    DF_UNKNOWN,
+enum df_types_enum {
+    DF_UNKNOWN = 0,
 
     // Simple Types
-    DF_BOOLEAN,
-    DF_BYTE,
-    DF_SHORT,
-    DF_INTEGER,
-    DF_LONG,
-    DF_UNSIGNED_BYTE,
-    DF_UNSIGNED_SHORT,
-    DF_UNSIGNED_INTEGER,
-    DF_UNSIGNED_LONG,
-    DF_DOUBLE,
+    DF_BOOLEAN = 1,
+    DF_BYTE = 10,
+    DF_SHORT = 11,
+    DF_INTEGER = 12,
+    DF_LONG = 13,
+    DF_UNSIGNED_BYTE = 20,
+    DF_UNSIGNED_SHORT = 21,
+    DF_UNSIGNED_INTEGER = 22,
+    DF_UNSIGNED_LONG = 23,
+    DF_DOUBLE = 30,
     DF_DATETIME,
 
     // Compound Types
@@ -41,13 +40,20 @@ struct df_storage_system {
 };
 typedef struct df_storage_system DF_STORAGE_SYSTEM;
 
+/* **************** STRING **************** */
+struct df_value_string {
+    struct df_storage_system storage_system;
+    size_t size;
+    const char *value;
+};
+typedef struct df_value_string DF_VALUE_STRING;
 
 /* **************** ARRAY **************** */
 struct df_value_array {
     struct df_storage_system storage_system;
     size_t size;
     enum df_types_enum type;
-    const void* value;
+    const void *value;
 };
 typedef struct df_value_array DF_VALUE_ARRAY;
 
@@ -56,7 +62,7 @@ typedef struct df_value_array DF_VALUE_ARRAY;
 struct df_record_element {
     char identifier[21];
     enum df_types_enum type;
-    struct df_types_struct* value;
+    struct df_types_struct *value;
 };
 typedef struct df_record_element DF_RECORD_ELEMENTS;
 
@@ -74,6 +80,7 @@ union df_values_union {
     int df_int;
     long df_long;
     double df_double;
+    struct df_value_string df_string;
     struct df_value_array df_array;
     struct df_value_record df_object;
 };
@@ -85,12 +92,18 @@ struct df_types_struct {
 };
 typedef struct df_types_struct DF_VALUE;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int is_primitive(const DF_VALUE* value);
-int is_number(const DF_VALUE* value);
-
-unsigned long write_value(const char* woof, const DF_VALUE* value);
-unsigned long read_value(const char* woof, unsigned long sequence_number, DF_VALUE* value);
+char *type_to_string(DF_TYPE type);
+char *value_to_string(DF_VALUE value);
 
 
-#endif // CSPOT_DFTYPE_H
+int deep_copy(const DF_VALUE *src, const DF_VALUE *dest);
+int deep_delete(DF_VALUE *value);
+
+#ifdef __cplusplus
+}
+#endif
+#endif //CSPOT_DF_TYPES_H

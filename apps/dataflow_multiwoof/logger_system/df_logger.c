@@ -3,11 +3,11 @@
 //
 #include "df_logger.h"
 
-#include <malloc.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 enum LOG_LEVELS CURRENT_LOG_LEVEL = DEBUG;
 const char* PREFIX = "DFHandler";

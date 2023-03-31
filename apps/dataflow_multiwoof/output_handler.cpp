@@ -1,20 +1,18 @@
 #include "df.h"
-#include "dfinterface.h"
+#include "df_interface.h"
 #include "woofc.h"
 
 #include <chrono>
-#include <ctime>
 #include <deque>
-#include <fstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <thread>
 
-extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
+extern "C" int output_handler(WOOF *wf, unsigned long seqno, void *ptr) {
     // std::cout << "OUTPUT HANDLER STARTED " <<  WoofGetFileName(wf) << std::endl;
 
     int err;
-    operand* result = static_cast<operand*>(ptr);
+    auto *result = static_cast<operand *>(ptr);
     unsigned long consumer_seq = result->seq;
     std::deque<subscription_event> event_buffer;
 
@@ -27,7 +25,7 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // std::cout << woof_name << " @ " << seqno << std::endl;
 
     // Extract id
-    unsigned long id = get_id_from_woof_path(woof_name);
+    unsigned long id = get_node_id_from_woof_path(woof_name);
 
     // std::cout << id << ": " << result->seq << std::endl;
 
@@ -92,8 +90,8 @@ extern "C" int output_handler(WOOF* wf, unsigned long seqno, void* ptr) {
         // std::cout << woof_name << "[" << result->seq << "]: V\t-> " << subscriber_woof << std::endl << std::flush;
 
         /* add to the buffer if it is a remote woof which could not be put */
-        if (res == (unsigned long)-1 && !subscriber_woof.rfind("woof://", 0)) {
-            DEBUG_PRINT("Buffer for remote put");
+        if (res == (unsigned long) -1 && !subscriber_woof.rfind("woof://", 0)) {
+            DEBUG_PRINT("Buffer for remote put")
             event_buffer.push_back(subevent);
         }
     }

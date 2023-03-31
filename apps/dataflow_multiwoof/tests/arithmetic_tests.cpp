@@ -1,4 +1,4 @@
-#include "../dfinterface.h"
+#include "../df_interface.h"
 #include "test_utils.h"
 #include "tests.h"
 
@@ -13,7 +13,8 @@ void simple_arithmetic() {
 
     int ns = 1;
 
-    add_node(ns, 1, 1, ADD);
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    add_node(ns, 1, 1, addition);
 
     add_operand(ns, 1, 2);
     add_operand(ns, 1, 3);
@@ -25,28 +26,31 @@ void simple_arithmetic() {
     sleep(1);
 
     // 1 + 1 == 2
-    operand op1(1.0, 1);
+    DF_VALUE *op1_value = build_double(1);
+    operand op1(*op1_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op1);
     sleep(2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op1);
+    deep_delete(op1_value);
 
     do {
         usleep(1e5);
     } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) == 0);
 
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &op1, 1);
-    
-    ASSERT_EQ(op1.value, 2, "1 + 1 == 2");
 
-    END_TEST();
+    ASSERT_EQ(op1.value.value.df_double, 2, "1 + 1 == 2")
+
+    END_TEST()
 }
 
 void complex_arithmetic() {
-    TEST("Complex arithmetic");
+    TEST("Complex arithmetic")
 
     int ns = 1;
 
-    add_node(ns, 1, 1, ADD);
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    add_node(ns, 1, 1, addition);
 
     add_operand(ns, 1, 2);
     add_operand(ns, 1, 3);
@@ -57,24 +61,31 @@ void complex_arithmetic() {
     setup();
 
     // 1 + 1 == 2
-    operand op1(1.0, 1);
+    DF_VALUE *op1_value = build_double(1);
+    operand op1(*op1_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op1);
+    deep_delete(op1_value);
 
     // 2 + 2 == 4
-    operand op2(2.0, 2);
+    DF_VALUE *op2_value = build_double(2);
+    operand op2(*op2_value, 2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op2);
+    deep_delete(op2_value);
 
     // 3 + 3 == 6
     // Receive two inputs on a before receiving inputs on b
-    operand op3(3.0, 3);
-    operand op4(3.0, 4);
+    DF_VALUE *op3_value = build_double(3);
+    operand op3(*op3_value, 3);
+    DF_VALUE *op4_value = build_double(3);
+    operand op4(*op4_value, 4);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op4);
-
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op4);
+    deep_delete(op3_value);
+    deep_delete(op4_value);
 
     do {
         usleep(1e5);
@@ -95,23 +106,24 @@ void complex_arithmetic() {
     // std::cout << std::endl;
 
     // Note: duplicates are allowed (e.g., [2, 2, 4, 6, 6] is valid as long as internal sequence numbers are correct)
-    std::vector<unsigned long> expected = {NULL, 2, 4, 6, 6};
+    std::vector<unsigned long> expected = {0, 2, 4, 6, 6};
     unsigned long prev_seq = 1;
-    for (auto& op : v) {
-        ASSERT(op.seq == prev_seq || op.seq == prev_seq + 1, "Sequence increases monotonically");
-        ASSERT_EQ(op.value, expected[op.seq], "Ensure value is correct for each sequence number");
+    for (auto &op: v) {
+        ASSERT(op.seq == prev_seq || op.seq == prev_seq + 1, "Sequence increases monotonically")
+        ASSERT_EQ(op.value.value.df_double, expected[op.seq], "Ensure value is correct for each sequence number")
         prev_seq = op.seq;
     }
 
-    END_TEST();
+    END_TEST()
 }
 
 void stream_arithmetic() {
-    TEST("Stream arithmetic");
+    TEST("Stream arithmetic")
 
     int ns = 1;
 
-    add_node(ns, 1, 1, ADD);
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    add_node(ns, 1, 1, addition);
 
     add_operand(ns, 1, 2);
     add_operand(ns, 1, 3);
@@ -132,25 +144,30 @@ void stream_arithmetic() {
     double d = 4.0;
 
     for (unsigned long i = 1; i <= iters; i++) {
-        operand op(a, i);
+        DF_VALUE *op_value = build_double(a);
+        operand op(*op_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op);
-        op.value = b;
+        op_value->value.df_double = b;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op);
-        op.value = c;
+        op_value->value.df_double = c;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 4), OUTPUT_HANDLER, &op);
-        op.value = d;
+        op_value->value.df_double = d;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 5), OUTPUT_HANDLER, &op);
+        deep_delete(op_value);
     }
-    
+
     do {
         usleep(1e5);
-    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < iters);    
+    } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < iters);
 
     operand result;
     std::string woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1);
     woof_get(woof, &result, woof_last_seq(woof));
-    ASSERT_EQ(result.value, a + b + c + d, "Final result should be a + b + c + d");
-    ASSERT_EQ(result.seq, iters, "Final seq should be last iteration");
+    ASSERT_EQ(result.value.value.df_double, a + b + c + d, "Final result should be a + b + c + d")
+    ASSERT_EQ(result.seq, iters, "Final seq should be last iteration")
 
     std::vector<operand> v;
     operand op;
@@ -168,23 +185,28 @@ void stream_arithmetic() {
     // }
     // std::cout << std::endl;
 
-    END_TEST();
+    END_TEST()
 }
 
 void quadratic_test() {
-    TEST("Quadratic test");
+    TEST("Quadratic test")
     double a = 2, b = 5, c = 2;
-    
+
     int ns = 1;
 
-    add_node(ns, 1, 1, DIV);
-    add_node(ns, 1, 2, MUL); // 2 * a
-    add_node(ns, 1, 3, MUL); // -1 * b
-    add_node(ns, 1, 4, ADD); // -b + sqrt(b^2 - 4ac)
-    add_node(ns, 1, 5, SQR); // sqrt(b^2 - 4ac)
-    add_node(ns, 1, 6, SUB); // b^2 - 4ac
-    add_node(ns, 1, 7, MUL); // b ^ 2
-    add_node(ns, 1, 8, MUL); // 4 * a * c
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    const DF_OPERATION subtraction = {DF_ARITHMETIC, DF_ARITH_SUBTRACTION};
+    const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+    const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
+    const DF_OPERATION sqrt = {DF_ARITHMETIC, DF_ARITH_SQRT};
+    add_node(ns, 1, 1, division);
+    add_node(ns, 1, 2, multiplication); // 2 * a
+    add_node(ns, 1, 3, multiplication); // -1 * b
+    add_node(ns, 1, 4, addition); // -b + sqrt(b^2 - 4ac)
+    add_node(ns, 1, 5, sqrt); // sqrt(b^2 - 4ac)
+    add_node(ns, 1, 6, subtraction); // b^2 - 4ac
+    add_node(ns, 1, 7, multiplication); // b ^ 2
+    add_node(ns, 1, 8, multiplication); // 4 * a * c
 
     add_operand(ns, 1, 9);  // a
     add_operand(ns, 1, 10); // b
@@ -212,19 +234,26 @@ void quadratic_test() {
 
     setup();
 
-    operand op(a);
+    DF_VALUE *op_value = build_double(a);
+    operand op(*op_value);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 9), OUTPUT_HANDLER, &op);
-    op.value = b;
+    op_value->value.df_double = b;
+    op.value = *op_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 10), OUTPUT_HANDLER, &op);
-    op.value = c;
+    op_value->value.df_double = c;
+    op.value = *op_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 11), OUTPUT_HANDLER, &op);
-    op.value = 2;
+    op_value->value.df_double = 2;
+    op.value = *op_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 12), OUTPUT_HANDLER, &op);
-    op.value = -1;
+    op_value->value.df_double = -1;
+    op.value = *op_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 13), OUTPUT_HANDLER, &op);
-    op.value = 4;
+    op_value->value.df_double = 4;
+    op.value = *op_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 14), OUTPUT_HANDLER, &op);
-    
+    deep_delete(op_value);
+
     do {
         usleep(1e5);
     } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) == 0);
@@ -238,7 +267,7 @@ void quadratic_test() {
     // }
 
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &op, 1);
-    ASSERT_EQ(op.value, -0.5, "Final result should be -0.5");
+    ASSERT_EQ(op.value.value.df_double, -0.5, "Final result should be -0.5")
 
     END_TEST();
 }
@@ -246,17 +275,22 @@ void quadratic_test() {
 void stream_quadratic_test() {
     TEST("Stream quadratic test");
     double a = 2, b = 5, c = 2;
-    
+
     int ns = 1;
 
-    add_node(ns, 1, 1, DIV);
-    add_node(ns, 1, 2, MUL); // 2 * a
-    add_node(ns, 1, 3, MUL); // -1 * b
-    add_node(ns, 1, 4, ADD); // -b + sqrt(b^2 - 4ac)
-    add_node(ns, 1, 5, SQR); // sqrt(b^2 - 4ac)
-    add_node(ns, 1, 6, SUB); // b^2 - 4ac
-    add_node(ns, 1, 7, MUL); // b ^ 2
-    add_node(ns, 1, 8, MUL); // 4 * a * c
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    const DF_OPERATION subtraction = {DF_ARITHMETIC, DF_ARITH_SUBTRACTION};
+    const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+    const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
+    const DF_OPERATION sqrt = {DF_ARITHMETIC, DF_ARITH_SQRT};
+    add_node(ns, 1, 1, division);
+    add_node(ns, 1, 2, multiplication); // 2 * a
+    add_node(ns, 1, 3, multiplication); // -1 * b
+    add_node(ns, 1, 4, addition); // -b + sqrt(b^2 - 4ac)
+    add_node(ns, 1, 5, sqrt); // sqrt(b^2 - 4ac)
+    add_node(ns, 1, 6, subtraction); // b^2 - 4ac
+    add_node(ns, 1, 7, multiplication); // b ^ 2
+    add_node(ns, 1, 8, multiplication); // 4 * a * c
 
     add_operand(ns, 1, 9);  // a
     add_operand(ns, 1, 10); // b
@@ -287,20 +321,27 @@ void stream_quadratic_test() {
     unsigned long iters = 15;
 
     for (unsigned long i = 1; i <= iters; i++) {
-        operand op(a, i);
+        DF_VALUE *op_value = build_double(a);
+        operand op(*op_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 9), OUTPUT_HANDLER, &op);
-        op.value = b;
+        op_value->value.df_double = b;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 10), OUTPUT_HANDLER, &op);
-        op.value = c;
+        op_value->value.df_double = c;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 11), OUTPUT_HANDLER, &op);
-        op.value = 2;
+        op_value->value.df_double = 2;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 12), OUTPUT_HANDLER, &op);
-        op.value = -1;
+        op_value->value.df_double = -1;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 13), OUTPUT_HANDLER, &op);
-        op.value = 4;
+        op_value->value.df_double = 4;
+        op.value = *op_value;
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 14), OUTPUT_HANDLER, &op);
+        deep_delete(op_value);
     }
-    
+
     do {
         usleep(1e5);
     } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1)) < iters);
@@ -314,14 +355,14 @@ void stream_quadratic_test() {
     // }
 
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 1), &result, iters);
-    ASSERT_EQ(result.value, -0.5, "Final result should be -0.5");
+    ASSERT_EQ(result.value.value.df_double, -0.5, "Final result should be -0.5")
 
     END_TEST();
 }
 
 std::vector<std::vector<double>> mat_test(
-    const std::vector<std::vector<double>>& a,
-    const std::vector<std::vector<double>>& b) {
+        const std::vector<std::vector<double>> &a,
+        const std::vector<std::vector<double>> &b) {
     int rows_a = a.size();
     int cols_a = a[0].size();
     int rows_b = b.size();
@@ -349,12 +390,14 @@ std::vector<std::vector<double>> mat_test(
     for (int r = 0; r < rows_r; r++) {
         for (int c = 0; c < cols_r; c++) {
             // Create addition node for intermediate products
-            add_node(4, 1, r * cols_r + c + 1, ADD);
+            const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+            add_node(4, 1, r * cols_r + c + 1, addition);
 
             // Create all multiplication nodes for one output cell
             for (int i = 0; i < cols_a; i++) {
                 id = r * (cols_r * cols_a) + c * cols_a + i + 1;
-                add_node(3, 1, id, MUL);
+                const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+                add_node(3, 1, id, multiplication);
                 subscribe(3, id, 0, 1, r * cols_a + i + 1);
                 subscribe(3, id, 1, 2, i * cols_b + c + 1);
 
@@ -363,26 +406,30 @@ std::vector<std::vector<double>> mat_test(
             }
         }
     }
-    
+
     /* Run program */
     setup();
 
     // Write matrices to operands
     for (int i = 0; i < rows_a; i++) {
         for (int j = 0; j < cols_a; j++) {
-            operand op(a[i][j], 1);
+            DF_VALUE *op_value = build_double(a[i][j]);
+            operand op(*op_value, 1);
             id = i * cols_a + j + 1;
             woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, id), OUTPUT_HANDLER, &op);
+            deep_delete(op_value);
         }
     }
 
     for (int i = 0; i < rows_b; i++) {
         for (int j = 0; j < cols_b; j++) {
-            operand op(b[i][j], 1);
+            DF_VALUE *op_value = build_double(b[i][j]);
+            operand op(*op_value, 1);
             id = i * cols_b + j + 1;
             woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, id), OUTPUT_HANDLER, &op);
+            deep_delete(op_value);
         }
-    }    
+    }
 
     operand op;
     std::vector<std::vector<double>> v;
@@ -396,7 +443,7 @@ std::vector<std::vector<double>> mat_test(
             } while (woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 4, id)) == 0);
 
             woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 4, id), &op, 1);
-            v[r].push_back(op.value);
+            v[r].push_back(op.value.value.df_double);
         }
     }
 
@@ -412,61 +459,61 @@ std::vector<std::vector<double>> mat_test(
 }
 
 void mat_test_1() {
-    TEST("Matrix test 1");
+    TEST("Matrix test 1")
 
     std::vector<std::vector<double>> a = {
-        {1, 2},
-        {3, 4}
+            {1, 2},
+            {3, 4}
     };
 
     std::vector<std::vector<double>> b = {
-        {5, 6},
-        {7, 8}
+            {5, 6},
+            {7, 8}
     };
 
     std::vector<std::vector<double>> expected = {
-        {19, 22},
-        {43, 50}
+            {19, 22},
+            {43, 50}
     };
 
     std::vector<std::vector<double>> result = mat_test(a, b);
 
-    ASSERT((result == expected), "Incorrect matrix multiplication result");
+    ASSERT((result == expected), "Incorrect matrix multiplication result")
 
-    END_TEST();
+    END_TEST()
 }
 
 void mat_test_2() {
-    TEST("Matrix test 2");
+    TEST("Matrix test 2")
 
     std::vector<std::vector<double>> a = {
-        {1, 2, 3},
-        {4, 5, 6}
+            {1, 2, 3},
+            {4, 5, 6}
     };
 
     std::vector<std::vector<double>> b = {
-        {10, 11},
-        {20, 21},
-        {30, 31}
+            {10, 11},
+            {20, 21},
+            {30, 31}
     };
 
     std::vector<std::vector<double>> expected = {
-        {140, 146},
-        {320, 335}
+            {140, 146},
+            {320, 335}
     };
 
     std::vector<std::vector<double>> result = mat_test(a, b);
 
-    ASSERT((result == expected), "Incorrect matrix multiplication result");
+    ASSERT((result == expected), "Incorrect matrix multiplication result")
 
-    END_TEST();
+    END_TEST()
 }
 
 void arithmetic_tests() {
 
     set_host(1);
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
-    
+
     simple_arithmetic();
     complex_arithmetic();
     stream_arithmetic();

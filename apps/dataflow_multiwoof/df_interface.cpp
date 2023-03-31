@@ -1,4 +1,4 @@
-#include "dfinterface.h"
+#include "df_interface.h"
 
 #include "df.h"
 
@@ -9,17 +9,16 @@
 
 // {namspace --> entries}
 std::map<int, int> subscribe_entries;
-// {namespace --> {id --> [subscribers...]}}
+// {namespace --> {node_id --> [subscribers...]}}
 std::map<int, std::map<int, std::set<subscriber>>> subscribers;
-// {namespace --> {id --> [subscriptions...]}}
+// {namespace --> {node_id --> [subscriptions...]}}
 std::map<int, std::map<int, std::set<subscription>>> subscriptions;
 // {namespace --> [nodes...]}
-std::map<int, std::set<node>> nodes;
+std::map<int, std::set<node> > nodes;
 // set of host structs for url extraction
 std::set<host> hosts;
 
 int get_curr_host() {
-
     int curr_host_id;
     int err = woof_get(generate_woof_path(HOST_ID_WOOF_TYPE), &curr_host_id, 0);
     if (err < 0) {
@@ -29,12 +28,15 @@ int get_curr_host() {
     return curr_host_id;
 }
 
-std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id, int port_id) {
+std::string generate_woof_path(const DFWoofType woof_type,
+                               const int ns,
+                               const int node_id,
+                               int host_id,
+                               const int port_id) {
     node n;
     int curr_host_id;
-    std::string host_url = "";
+    std::string host_url;
     std::string woof_path, nodes_woof_path;
-
 
     // if it is the host_woof then ns == -1 and id == -1
     if (woof_type == HOST_ID_WOOF_TYPE || woof_type == HOSTS_WOOF_TYPE) {
@@ -42,7 +44,7 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
     }
 
     // namespace level static woof return directly.
-    if (id == -1) {
+    if (node_id == -1) {
         return host_url + "laminar-" + std::to_string(ns) + "." + DFWOOFTYPE_STR[woof_type];
     }
 
@@ -52,9 +54,9 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
     if (host_id == -1) {
         // get the host of the node from the node level woofs
         nodes_woof_path = host_url + "laminar-" + std::to_string(ns) + "." + DFWOOFTYPE_STR[NODES_WOOF_TYPE];
-        int err = woof_get(nodes_woof_path, &n, id);
+        int err = woof_get(nodes_woof_path, &n, node_id);
         if (err < 0) {
-            std::cout << "Error reading the node info for node id: " << std::to_string(id)
+            std::cout << "Error reading the node info for node id: " << std::to_string(node_id)
                       << "node ns : " << std::to_string(ns) << std::endl;
             exit(1);
         }
@@ -72,7 +74,8 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
         host_url.assign(h.host_url);
     }
 
-    woof_path = host_url + "laminar-" + std::to_string(ns) + "." + DFWOOFTYPE_STR[woof_type] + "." + std::to_string(id);
+    woof_path = host_url + "laminar-" + std::to_string(ns) + "." + DFWOOFTYPE_STR[woof_type] + "." +
+                std::to_string(node_id);
 
     if (woof_type == SUBSCRIPTION_POS_WOOF_TYPE) {
         woof_path = woof_path + "." + std::to_string(port_id);
@@ -81,38 +84,46 @@ std::string generate_woof_path(DFWoofType woof_type, int ns, int id, int host_id
     return woof_path;
 }
 
-unsigned long get_id_from_woof_path(std::string woof_path) {
-
-    size_t last_dot = woof_path.find_last_of('.');
-    std::string id_str = woof_path.substr(last_dot + 1);
-
-    return std::stoul(id_str);
+/**
+ * Will retrieve laminar node_id from woof path:
+ * woof://host_url/laminar-namespace.woof_type.node_id -> node_id
+ * @param woof_path complete woof_path as reference
+ * @return
+ */
+unsigned long get_node_id_from_woof_path(const std::string &woof_path) {
+    const size_t last_dot = woof_path.find_last_of('.');
+    const std::string node_id_str = woof_path.substr(last_dot + 1);
+    return std::stoul(node_id_str);
 }
 
-int get_ns_from_woof_path(std::string woof_path) {
-
-    size_t dash = woof_path.find('-');
-    std::string ns_str = woof_path.substr(dash + 1);
-    size_t first_dot = ns_str.find('.');
-    ns_str = ns_str.substr(0, first_dot);
-
+/**
+ * Will retrieve laminar namespace from woof path:
+ * woof://host_url/laminar-namespace.woof_type.node_id -> namespace
+ * @param woof_path complete woof_path as reference
+ * @return
+ */
+int get_ns_from_woof_path(const std::string &woof_path) {
+    const size_t dash = woof_path.find('-');
+    const std::string ns_plus_ending_str = woof_path.substr(dash + 1);
+    const size_t first_dot = ns_plus_ending_str.find('.');
+    const std::string ns_str = ns_plus_ending_str.substr(0, first_dot);
     return std::stoi(ns_str);
 }
 
-void woof_create(std::string name, unsigned long element_size, unsigned long history_size) {
-    WooFInit(); /* attach local namespace for create */
 
-    int err = WooFCreate(name.c_str(), element_size, history_size);
+void woof_create(const std::string &name, const unsigned long element_size, const unsigned long history_size) {
+    WooFInit();
+    const int err = WooFCreate(name.c_str(), element_size, history_size);
     if (err < 0) {
         std::cerr << "ERROR -- creation of " << name << " failed\n";
         exit(1);
     }
 }
 
-unsigned long woof_put(std::string name, std::string handler, const void* element) {
+unsigned long woof_put(const std::string &name, const std::string &handler, const void *element) {
     unsigned long seqno;
-    if (handler == "") {
-        seqno = WooFPut(name.c_str(), NULL, element);
+    if (handler.empty()) {
+        seqno = WooFPut(name.c_str(), nullptr, element);
     } else {
         seqno = WooFPut(name.c_str(), handler.c_str(), element);
     }
@@ -120,11 +131,10 @@ unsigned long woof_put(std::string name, std::string handler, const void* elemen
     if (WooFInvalid(seqno)) {
         std::cerr << "ERROR -- put to " << name << " failed\n";
     }
-
     return seqno;
 }
 
-int woof_get(std::string name, void* element, unsigned long seq_no) {
+int woof_get(const std::string &name, void *element, unsigned long seq_no) {
     int err = WooFGet(name.c_str(), element, seq_no);
     if (err < 0) {
         std::cerr << "ERROR -- get [" << seq_no << "] from " << name << " failed\n";
@@ -132,11 +142,12 @@ int woof_get(std::string name, void* element, unsigned long seq_no) {
     return err;
 }
 
-unsigned long woof_last_seq(std::string name) {
+unsigned long woof_last_seq(const std::string &name) {
     return WooFGetLatestSeqno(name.c_str());
 }
 
-std::vector<std::string> split(std::string s, char delim = ',') {
+
+std::vector<std::string> split(const std::string &s, char delim = ',') {
     std::vector<std::string> result;
     size_t start = 0;
     size_t end = s.find(delim);
@@ -154,43 +165,33 @@ std::vector<std::string> split(std::string s, char delim = ',') {
     return result;
 }
 
-void add_host(int host_id, std::string host_ip, std::string woof_path) {
-
+void add_host(const int host_id, const std::string &host_ip, const std::string &woof_path) {
     // global info stored in every host
-    std::string host_url = "woof://" + host_ip + woof_path;
-    char host_url_c_str[200];
-    strcpy(host_url_c_str, host_url.c_str());
-    hosts.insert(host(host_id, host_url_c_str));
+    const std::string host_url = "woof://" + host_ip + woof_path;
+    hosts.insert(host(host_id, host_url.c_str()));
 }
 
 void set_host(int host_id) {
-
-    std::string hosts_woof_path = generate_woof_path(HOST_ID_WOOF_TYPE);
-
+    const std::string hosts_woof_path = generate_woof_path(HOST_ID_WOOF_TYPE);
     woof_create(hosts_woof_path, sizeof(int), 1);
-
     woof_put(hosts_woof_path, "", &host_id);
 }
 
-void add_node(int ns, int host_id, int id, int opcode) {
-
+void add_node(const int ns, const int host_id, const int id, DF_OPERATION operation) {
     // global info stored in every host
-    nodes[ns].insert(node(id, host_id, opcode));
+    nodes[ns].insert(node(id, host_id, operation));
 
-    int curr_host_id = get_curr_host();
-
+    const int curr_host_id = get_curr_host();
     // create node related info only for current host
     if (host_id == curr_host_id) {
-
         woof_create(generate_woof_path(OUTPUT_WOOF_TYPE, ns, id, host_id), sizeof(operand), 100);
 
         // Create subscription_events woof
         woof_create(
-            generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id, host_id), sizeof(subscription_event), 500);
-
+                generate_woof_path(SUBSCRIPTION_EVENTS_WOOF_TYPE, ns, id, host_id), sizeof(subscription_event), 500);
 
         // Create consumer_pointer woof
-        std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id, host_id);
+        const std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id, host_id);
         execution_iteration_lock initial_consumer_ptr;
         // TODO: consumer_ptr_woof should be of size 1, but CSPOT hangs when
         // writing to full woof (instead of overwriting), so the size has
@@ -200,11 +201,10 @@ void add_node(int ns, int host_id, int id, int opcode) {
     }
 }
 
-void add_operand(int ns, int host_id, int id) {
-
-
+void add_operand(const int ns, const int host_id, const int id) {
+    DF_OPERATION operation = {.category = DF_INTERNAL, .operation = DF_INTERNAL_OPERAND};
     // global info stored in every host
-    nodes[ns].insert(node(id, host_id, OPERAND));
+    nodes[ns].insert(node(id, host_id, operation));
 
     int curr_host_id = get_curr_host();
     // Create output woof if the operand belongs to this host only
@@ -213,7 +213,7 @@ void add_operand(int ns, int host_id, int id) {
     }
 }
 
-void subscribe(int dst_ns, int dst_id, int dst_port, int src_ns, int src_id) {
+void subscribe(const int dst_ns, const int dst_id, const int dst_port, const int src_ns, const int src_id) {
     subscribers[src_ns][src_id].insert(subscriber(dst_ns, dst_id, dst_port));
     subscriptions[dst_ns][dst_id].insert(subscription(src_ns, src_id, dst_port));
 
@@ -221,7 +221,7 @@ void subscribe(int dst_ns, int dst_id, int dst_port, int src_ns, int src_id) {
     subscribe_entries[dst_ns]++;
 }
 
-void subscribe(std::string dst_addr, std::string src_addr) {
+void subscribe(const std::string &dst_addr, const std::string &src_addr) {
     std::vector<std::string> dst = split(dst_addr, ':');
     std::vector<std::string> src = split(src_addr, ':');
 
@@ -229,14 +229,12 @@ void subscribe(std::string dst_addr, std::string src_addr) {
 }
 
 void setup() {
-
     // setup all the namespaces
-    for (const auto& [ns, value] : nodes) {
-
+    for (const auto &[ns, value]: nodes) {
         // Create woof to hold node data
         woof_create(generate_woof_path(NODES_WOOF_TYPE, ns), sizeof(node), nodes[ns].size());
 
-        for (auto& node : nodes[ns]) {
+        for (auto &node: nodes[ns]) {
             woof_put(generate_woof_path(NODES_WOOF_TYPE, ns), "", &node);
         }
 
@@ -245,11 +243,11 @@ void setup() {
         woof_create(generate_woof_path(SUBSCRIBER_DATA_WOOF_TYPE, ns), sizeof(subscriber), subscribe_entries[ns]);
 
         unsigned long current_data_pos = 1;
-        for (size_t i = 1; i <= nodes[ns].size(); i++) {
+        for (int i = 1; i <= nodes[ns].size(); i++) {
             // Add entry in map (idx = node id, val = start idx in subscriber_data)
             woof_put(generate_woof_path(SUBSCRIBER_MAP_WOOF_TYPE, ns), "", &current_data_pos);
 
-            for (auto& sub : subscribers[ns][i]) {
+            for (auto &sub: subscribers[ns][i]) {
                 woof_put(generate_woof_path(SUBSCRIBER_DATA_WOOF_TYPE, ns), "", &sub);
                 current_data_pos++;
             }
@@ -260,17 +258,17 @@ void setup() {
         woof_create(generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns), sizeof(subscription), subscribe_entries[ns]);
 
         current_data_pos = 1;
-        for (size_t i = 1; i <= nodes[ns].size(); i++) {
+        for (int i = 1; i <= nodes[ns].size(); i++) {
             // Add entry in map (idx = node id, val = start idx in subscription_data)
             woof_put(generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns), "", &current_data_pos);
 
-            for (auto& sub : subscriptions[ns][i]) {
+            for (auto &sub: subscriptions[ns][i]) {
                 woof_put(generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns), "", &sub);
                 current_data_pos++;
             }
 
             // Add woofs to hold last used seq in subscription output woof
-            for (size_t port = 0; port < subscriptions[ns][i].size(); port++) {
+            for (int port = 0; port < subscriptions[ns][i].size(); port++) {
                 woof_create(generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, i, -1, port), sizeof(cached_output), 10);
             }
         }
@@ -281,7 +279,7 @@ void setup() {
     // std::cout << "Sizeof host : " << sizeof(host) << "Hosts size : " << hosts.size() << std::endl;
     woof_create(generate_woof_path(HOSTS_WOOF_TYPE), sizeof(host), hosts.size());
 
-    for (auto& host : hosts) {
+    for (auto &host: hosts) {
         woof_put(generate_woof_path(HOSTS_WOOF_TYPE), "", &host);
     }
 }
@@ -303,7 +301,7 @@ std::string graphviz_representation() {
     std::string g = "digraph G {\n\tnode [shape=\"record\", style=\"rounded\"];";
 
     // Add nodes
-    for (auto& [ns, ns_nodes] : nodes) {
+    for (auto &[ns, ns_nodes]: nodes) {
         g += "\n\tsubgraph cluster_" + std::to_string(ns) + " { ";
         g += "\n\t\tlabel=\"Subgraph #" + std::to_string(ns) + "\";";
 
@@ -312,11 +310,14 @@ std::string graphviz_representation() {
         while (n != ns_nodes.end()) {
             g += "\n\t\tnode_" + std::to_string(ns) + "_" + std::to_string(n->id) + " [label=\"{";
             // Add ports
-            if (n->opcode != OPERAND) {
+            if (!(n->operation.category == DF_INTERNAL && n->operation.operation == DF_INTERNAL_OPERAND)) {
                 g += "{";
                 for (size_t port = 0; port < s->second.size(); port++) {
                     std::string p = std::to_string(port);
-                    g += "<" + p + "> " + p;
+                    g += "<";
+                    g += p;
+                    g += "> ";
+                    g += p;
                     if (port < s->second.size() - 1) {
                         g += '|';
                     }
@@ -324,12 +325,14 @@ std::string graphviz_representation() {
                 g += "}|";
             }
 
-            g += "<out>[" + std::string(OPCODE_STR[n->opcode]);
+            char *operation_string = operation_to_string(n->operation);
+            g += "<out>[" + std::string(operation_string);
+            free(operation_string);
             g += "]\\nNode #" + std::to_string(n->id) + "}\"];";
 
             n++;
 
-            if (n->opcode != OPERAND) {
+            if (!(n->operation.category == DF_INTERNAL && n->operation.operation == DF_INTERNAL_OPERAND)) {
                 s++;
             }
         }
@@ -338,11 +341,11 @@ std::string graphviz_representation() {
     }
 
     // Add edges
-    for (auto& [ns, ns_subscriptions] : subscriptions) {
-        for (auto& [id, subs] : ns_subscriptions) {
-            for (auto s = subs.begin(); s != subs.end(); s++) {
-                g += "\n\tnode_" + std::to_string(s->ns) + "_" + std::to_string(s->id) + ":out -> ";
-                g += "node_" + std::to_string(ns) + "_" + std::to_string(id) + ":" + std::to_string(s->port) + ";";
+    for (auto &[ns, ns_subscriptions]: subscriptions) {
+        for (auto &[id, subs]: ns_subscriptions) {
+            for (auto s: subs) {
+                g += "\n\tnode_" + std::to_string(s.ns) + "_" + std::to_string(s.id) + ":out -> ";
+                g += "node_" + std::to_string(ns) + "_" + std::to_string(id) + ":" + std::to_string(s.port) + ";";
             }
         }
     }

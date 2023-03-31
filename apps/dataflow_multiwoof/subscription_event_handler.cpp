@@ -1,155 +1,24 @@
 #include "df.h"
-#include "dfinterface.h"
+#include "df_interface.h"
 #include "woofc.h"
+#include "operation_system/df_operation.h"
 
-#include <chrono>
 #include <cmath>
 #include <iostream>
-#include <queue>
 #include <string>
-#include <unistd.h>
 #include <vector>
 
-// Helper function to calculate Euclidean distance between two points
-double dist(Point& a, Point& b) {
-    return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
-}
 
-operand perform_operation(const std::vector<operand>& ops, int ns, node& n, unsigned long consumer_seq) {
-    // std::cout << "Perform operation: ops = ";
-    // for (auto& op : ops) std::cout << op.value << " ";
-    int opcode = n.opcode;
-    // std::cout << "\nopcode: " << OPCODE_STR[opcode] << std::endl;
-
-    operand result(0, consumer_seq);
-    switch (opcode) {
-    case ADD:
-        result.value = 0;
-        for (auto& op : ops) {
-            result.value += op.value;
-        }
-        break;
-    case SUB:
-        result.value = ops[0].value;
-        for (size_t i = 1; i < ops.size(); i++) {
-            result.value -= ops[i].value;
-        }
-        break;
-    case MUL:
-        result.value = 1;
-        for (auto& op : ops) {
-            result.value *= op.value;
-        }
-        break;
-    case DIV:
-        result.value = ops[0].value;
-        for (size_t i = 1; i < ops.size(); i++) {
-            result.value /= ops[i].value;
-        }
-        break;
-    case SQR:
-        result.value = sqrt(ops[0].value);
-        break;
-
-    case LT:
-        result.value = (double)(ops[0].value < ops[1].value);
-        break;
-
-    case GT:
-        result.value = (double)(ops[0].value > ops[1].value);
-        break;
-
-    case EQ:
-        result.value = (double)(ops[0].value == ops[1].value);
-        break;
-
-    case ABS:
-        result.value = (ops[0].value < 0 ? -ops[0].value : ops[0].value);
-        break;
-
-    case NOT:
-        result.value = (ops[0].value ? 0 : 1);
-        break;
-
-    case SEL:
-        // Use selector value to index alternatives
-        result.value = ops[(int)ops[0].value + 1].value;
-        break;
-
-    case FILTER:
-        result.value = ops[1].value;
-        // if (!static_cast<bool>(ops[0].value)) {
-        //     exit(0);
-        // }
-        break;
-
-    case OFFSET:
-        result.value = ops[1].value;
-        result.seq = consumer_seq + static_cast<unsigned long>(ops[0].value);
-        break;
-
-    case KNN: {
-        size_t k = static_cast<size_t>(ops[0].value);
-        Point p = Point(ops[1].value, ops[2].value);
-        std::string data_woof = "laminar-" + std::to_string(ns) + ".knn_data." + std::to_string(n.id);
-
-        using distPair = std::pair<double, int>; // (distance, label)
-        std::priority_queue<distPair, std::vector<distPair>, std::greater<distPair>> pq;
-
-        // Iterate over points data and add to priority queue
-        unsigned long last_seq = woof_last_seq(data_woof);
-        Point p_i;
-        for (unsigned long s = 0; s <= last_seq; s++) {
-            woof_get(data_woof, &p_i, s);
-            double d = dist(p, p_i);
-            pq.push(std::make_pair(d, p_i.label));
-        }
-
-        // Pop top k elements and find most common label
-        int num_pops = std::min(k, pq.size());
-        int most_common_label = pq.top().second;
-        int count = 1;
-        pq.pop();
-        for (int i = 1; i < num_pops; i++) {
-            if (pq.top().second == most_common_label)
-                count++;
-            else
-                count--;
-
-            if (count == 0) {
-                most_common_label = pq.top().second;
-                count = 1;
-            }
-            pq.pop();
-        }
-
-        // Add result to data woof
-        p.label = most_common_label;
-        woof_put(data_woof, "", &p);
-
-        result.value = most_common_label;
-    } break;
-
-    case LINREG: {
-        std::string data_woof = "laminar-" + std::to_string(ns) + ".linreg_data." + std::to_string(n.id);
-
-        Regression r;
-        if (woof_last_seq(data_woof)) {
-            woof_get(data_woof, &r, 0);
-        }
-        r.update(ops[0].value, ops[1].value);
-        woof_put(data_woof, "", &r);
-        result.value = r.slope;
-    } break;
-
-    default:
-        result.value = 0;
-        break;
-    }
+operand perform_operation(const std::vector<operand> &operands, int ns, node &node, unsigned long consumer_seq) {
+    const DF_OPERATION operation = node.operation;
+    operand result({}, consumer_seq);
+    auto *result_value = (DF_VALUE *) malloc(sizeof(DF_VALUE));
+    df_operation(operation, reinterpret_cast<const DF_VALUE *>(operands.data()), operands.size(),
+                 result_value);
     return result;
 }
 
-extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* ptr) {
+extern "C" int subscription_event_handler(WOOF *wf, unsigned long seqno, void *ptr) {
     // auto start = std::chrono::high_resolution_clock::now();
     // std::cout << "SUBSCRIPTION EVENT HANDLER STARTED" << std::endl;
 
@@ -159,13 +28,13 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     std::string woof_name(WoofGetFileName(wf));
 
     // Extract id
-    unsigned long id = get_id_from_woof_path(woof_name);
+    unsigned long id = get_node_id_from_woof_path(woof_name);
 
     // Extract namespace
     int ns = get_ns_from_woof_path(woof_name);
 
     // Get subscription_event
-    subscription_event* subevent = static_cast<subscription_event*>(ptr);
+    auto *subevent = static_cast<subscription_event *>(ptr);
 
     // Get current execution iteration
     execution_iteration_lock exec_iter_lk;
@@ -180,14 +49,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > consumer_seq) {
-        DEBUG_PRINT("event seq: " << subevent->seq << ", consumer seq: " << consumer_seq);
-        DEBUG_PRINT("Event is not for current seq, exiting");
+        DEBUG_PRINT("event seq: " << subevent->seq << ", consumer seq: " << consumer_seq)
+        DEBUG_PRINT("Event is not for current seq, exiting")
         return 0;
     }
 
     // Only proceed if this event is not already being handled
     if (exec_iter_lk.lock) {
-        DEBUG_PRINT("Another handler already locked, exiting");
+        DEBUG_PRINT("Another handler already locked, exiting")
     }
 
     // Look up subscriptions to determine required number of operands
@@ -219,7 +88,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     std::vector<operand> op_values(num_ops);
     subscription sub;
-    operand op(0);
+    operand op({});
     std::string output_woof;
     for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get last used output and seqno for this port
@@ -228,7 +97,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         if (woof_last_seq(last_used_sub_pos_woof) == 0) {
             // On first read, check if output woof is empty
             if (woof_last_seq(output_woof) == 0) {
-                DEBUG_PRINT("No outputs yet, exiting");
+                DEBUG_PRINT("No outputs yet, exiting")
                 return 0;
             }
         } else {
@@ -248,7 +117,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // Another handler has already cached an operand from a later
             // execution iteration, thus this execution iteration has already
             // been completed, exit
-            DEBUG_PRINT("Cached operand exceeds current excecution iteration, exiting");
+            DEBUG_PRINT("Cached operand exceeds current excecution iteration, exiting")
             return 0;
         }
 
@@ -268,7 +137,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         unsigned long last_idx = woof_last_seq(output_woof);
 
         if (idx >= last_idx) {
-            DEBUG_PRINT("No new outputs to check");
+            DEBUG_PRINT("No new outputs to check")
             return 0;
         }
 
@@ -284,7 +153,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
 #ifdef DEBUG
         if (op.seq != consumer_seq) {
-            DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (SKIPPED EXECUTION ITER)");
+            DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (SKIPPED EXECUTION ITER)")
             std::vector<operand> v;
             for (int j = 1; j <= idx; j++) {
                 operand tmp;
@@ -294,8 +163,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
             std::cout << "op.seq: " << op.seq << ", consumer_seq: " << consumer_seq << std::endl;
 
-            for (auto& o : v) {
-                std::cout << output_woof << " @ " << o.seq << ": " << o.value << std::endl;
+            for (auto &o: v) {
+                char *value_string = value_to_string(o.value);
+                std::cout << output_woof << " @ " << o.seq << ": " << value_string << std::endl;
+                free(value_string);
             }
         }
 #endif
@@ -316,14 +187,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             // At least one input is not ready --> exit handler
             // std::cout << "idx: " << idx << ", consumer_seq: " << consumer_seq
             // << ", op.seq: " << op.seq << std::endl;
-            DEBUG_PRINT("Not all operands are present, exiting");
+            DEBUG_PRINT("Not all operands are present, exiting")
             return 0;
         }
     }
 
     /* Fire node */
 
-    DEBUG_PRINT("Firing node");
+    DEBUG_PRINT("Firing node")
 
     // TODO: Factor out into function [
     // Get current execution iteration
@@ -335,14 +206,14 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > exec_iter_lk.iter) {
-        DEBUG_PRINT("event seq: " << subevent->seq << ", consumer seq: " << exec_iter_lk.iter);
-        DEBUG_PRINT("Event is not for current seq, exiting");
+        DEBUG_PRINT("event seq: " << subevent->seq << ", consumer seq: " << exec_iter_lk.iter)
+        DEBUG_PRINT("Event is not for current seq, exiting")
         return 0;
     }
 
     // Only proceed if this event is not already being handled
     if (exec_iter_lk.lock) {
-        DEBUG_PRINT("Another handler already locked, exiting");
+        DEBUG_PRINT("Another handler already locked, exiting")
     }
     // TODO: Factor out into function ]
 
@@ -353,10 +224,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     execution_iteration_lock prev_exec_iter_lk;
     woof_get(consumer_ptr_woof, &prev_exec_iter_lk, lk_seq - 1);
     if (prev_exec_iter_lk.iter > exec_iter_lk.iter) {
-        DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (LOCKS OUT OF ORDER)");
+        DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (LOCKS OUT OF ORDER)")
 
-        DEBUG_PRINT("\tprev: " << prev_exec_iter_lk.iter << ", " << prev_exec_iter_lk.lock);
-        DEBUG_PRINT("\tthis: " << exec_iter_lk.iter << ", " << exec_iter_lk.lock);
+        DEBUG_PRINT("\tprev: " << prev_exec_iter_lk.iter << ", " << prev_exec_iter_lk.lock)
+        DEBUG_PRINT("\tthis: " << exec_iter_lk.iter << ", " << exec_iter_lk.lock)
 
         // Put previous entry back and trigger subscription handler manually (if not locked)
         woof_put(consumer_ptr_woof, "", &prev_exec_iter_lk);
@@ -392,13 +263,13 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     operand last_result;
     woof_get(output_woof, &last_result, 0);
-    if (n.opcode != OFFSET) {
+    if (!(n.operation.category == DF_INTERNAL && n.operation.operation == DF_INTERNAL_OFFSET)) {
         // Fix for offset: the following code prevents duplicates with most
         // nodes, but renders the offset node useless. For now, this feature
         // will be disabled for offset nodes. TODO: account for offset node's
         // `offset` to check for duplicates.
         if (last_result.seq >= consumer_seq) {
-            DEBUG_PRINT("Operation already performed, exiting");
+            DEBUG_PRINT("Operation already performed, exiting")
             // // Relinquish lock and increment execution iteration
             // exec_iter_lk.lock = false;
             // exec_iter_lk.iter++;
@@ -415,9 +286,10 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
 
     // Write result (unless FILTER should omit result)
-    if (n.opcode != FILTER || op_values[0].value) {
+    if (!(n.operation.category == DF_INTERNAL && n.operation.operation == DF_INTERNAL_FILTER) ||
+        op_values[0].value.value.df_int) {
         woof_put(output_woof, OUTPUT_HANDLER, &result);
-        DEBUG_PRINT("Wrote result #" << consumer_seq);
+        DEBUG_PRINT("Wrote result #" << consumer_seq)
     }
 
     // // linreg_multinode
