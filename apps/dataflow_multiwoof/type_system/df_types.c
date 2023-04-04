@@ -179,7 +179,7 @@ char *value_to_string(const DF_VALUE value) {
     return return_string;
 }
 
-int deep_copy(const DF_VALUE *src, const DF_VALUE *dest) {
+int deep_copy(const DF_VALUE *src, DF_VALUE *dest) {
     //TODO
     return 0;
 }

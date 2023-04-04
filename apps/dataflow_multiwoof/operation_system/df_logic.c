@@ -26,7 +26,7 @@ int compute_neq(const DF_VALUE operands[], unsigned int operand_count, DF_VALUE 
 
 static int equal_types(const DF_VALUE operands[], unsigned int operand_count);
 
-
+/*
 int df_logic_operation(const DF_LOGIC_OP logic_operation,
                        const DF_VALUE operands[],
                        const unsigned int operand_count,
@@ -37,6 +37,7 @@ int df_logic_operation(const DF_LOGIC_OP logic_operation,
     }
     return df_logic_operation_with_type(logic_operation, operands, operand_count, result_type, result);
 }
+*/
 
 int df_logic_operation_with_type(const DF_LOGIC_OP logic_operation,
                                  const DF_VALUE operands[],
@@ -54,7 +55,7 @@ int df_logic_operation_with_type(const DF_LOGIC_OP logic_operation,
     switch (logic_operation) {
         case DF_LOGIC_NOT: {
             if (operand_count != 1) {
-                log_value_count_mismatch(1, operand_count);
+                log_operand_count_mismatch(1, operand_count);
                 return 0;
             }
             return compute_not(operands[0], result);
@@ -168,6 +169,7 @@ int compute_and(const DF_VALUE *const operands,
             return 1;
         }
         default:
+            log_unsupported_type_on_operation(operand_type, "AND");
             return 0;
     }
 }

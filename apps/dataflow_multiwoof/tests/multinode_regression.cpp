@@ -181,7 +181,7 @@ void online_linreg_multinode() {
         DF_VALUE *double_value = build_double(1.0);
         operand op(*double_value, i);
         woof_put("laminar-3.output.1", "", &op);
-        free(double_value);
+        deep_delete(double_value);
     }
 
     // Const (3:2) = 0
@@ -189,7 +189,7 @@ void online_linreg_multinode() {
         DF_VALUE *double_value = build_double(0.0);
         operand op(*double_value, i);
         woof_put("laminar-3.output.2", "", &op);
-        free(double_value);
+        deep_delete(double_value);
     }
 
     // Const (3:3) = exp(-dt/T)  [decay_rate]
@@ -200,7 +200,7 @@ void online_linreg_multinode() {
         DF_VALUE *double_value = build_double(decay_rate);
         operand op(*double_value, i);
         woof_put("laminar-3.output.3", "", &op);
-        free(double_value);
+        deep_delete(double_value);
     }
 
     // Const (3:4) = 0, 1, 1, ..., 1
@@ -209,7 +209,7 @@ void online_linreg_multinode() {
         DF_VALUE *double_value = build_double(val);
         operand op(*double_value, i);
         woof_put("laminar-3.output.4", "", &op);
-        free(double_value);
+        deep_delete(double_value);
     }
 
     // Const (3:5) = 1e-10
@@ -217,6 +217,7 @@ void online_linreg_multinode() {
         DF_VALUE *double_value = build_double(1e-10);
         operand op(*double_value, i);
         woof_put("laminar-3.output.5", "", &op);
+        deep_delete(double_value);
     }
 
     // Seed offset nodes with initial value
@@ -224,7 +225,7 @@ void online_linreg_multinode() {
         DF_VALUE *double_value = build_double(0.0);
         operand op(*double_value, 1);
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
-        free(double_value);
+        deep_delete(double_value);
     }
 
     while (woof_last_seq("laminar-1.output.6") < 1) {
@@ -259,7 +260,7 @@ void online_linreg_multinode() {
         woof_put("laminar-4.output.2", "output_handler", &y_values[i - 1]);
     }
     for (const auto &item: pointers_to_free) {
-        free(item);
+        deep_delete(item);
     }
 
     std::cout << "Waiting for program to finish" << std::endl;

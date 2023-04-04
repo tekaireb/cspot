@@ -134,7 +134,7 @@ void filter_test() {
     // }
 
     // Note: duplicates are allowed
-    std::vector<unsigned long> expected = {0, 0, 2, 3, 0, 5};
+    std::vector<unsigned long> expected = {NULL, NULL, 2, 3, NULL, 5};
     unsigned long prev_seq = 1;
     for (auto &op: v) {
         ASSERT(op.seq >= prev_seq, "Sequence increases monotonically")

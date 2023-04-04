@@ -4,7 +4,7 @@
 #include "df_arithmetic.h"
 
 #include "../logger_system/df_operation_logger.h"
-
+#include "../type_system/df_type.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -30,7 +30,7 @@ static int compatible_types(const DF_VALUE operands[], unsigned int operand_coun
 
 static int equal_types(const DF_VALUE operands[], unsigned int operand_count);
 
-
+/*
 int df_arithmetic_operation(const DF_ARITHMETIC_OP arithmetic_operation,
                             const DF_VALUE operands[],
                             const unsigned int operand_count,
@@ -44,13 +44,17 @@ int df_arithmetic_operation(const DF_ARITHMETIC_OP arithmetic_operation,
     }
     return df_arithmetic_operation_with_type(arithmetic_operation, operands, operand_count, result_type, result);
 }
+*/
 
 
 int df_arithmetic_operation_with_type(const DF_ARITHMETIC_OP arithmetic_operation,
                                       const DF_VALUE operands[],
                                       const unsigned int operand_count,
                                       const DF_TYPE result_type,
-                                      DF_VALUE *const result) {
+                                      DF_VALUE *result) {
+    if (operand_count < 1) {
+        return 0;
+    }
     if (!compatible_types(operands, operand_count, result_type)) {
         return 0;
     }
@@ -71,14 +75,14 @@ int df_arithmetic_operation_with_type(const DF_ARITHMETIC_OP arithmetic_operatio
             return compute_modulo(operands, operand_count, result_type, result);
         case DF_ARITH_SQRT: {
             if (operand_count != 1) {
-                log_value_count_mismatch(1, operand_count);
+                log_operand_count_mismatch(1, operand_count);
                 return 0;
             }
             return compute_sqrt(operands[0], result_type, result);
         }
         case DF_ARITH_ABS:
             if (operand_count != 1) {
-                log_value_count_mismatch(1, operand_count);
+                log_operand_count_mismatch(1, operand_count);
                 return 0;
             }
             return compute_abs(operands[0], result_type, result);
@@ -304,9 +308,9 @@ int compute_division(const DF_VALUE operands[],
 }
 
 int compute_modulo(const DF_VALUE operands[],
-                     unsigned int operand_count,
-                     DF_TYPE result_type,
-                     DF_VALUE *const result) {
+                   unsigned int operand_count,
+                   DF_TYPE result_type,
+                   DF_VALUE *const result) {
     switch (result_type) {
         case DF_BYTE:
         case DF_SHORT:
@@ -347,7 +351,7 @@ int compute_modulo(const DF_VALUE operands[],
         case DF_DOUBLE: {
             double value = operands[0].value.df_double;
             for (unsigned int i = 1; i < operand_count; i++) {
-                value = fmod(value,operands[i].value.df_double);
+                value = fmod(value, operands[i].value.df_double);
             }
             result->value.df_double = value;
             return 1;

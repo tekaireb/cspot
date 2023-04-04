@@ -31,6 +31,13 @@ DF_VALUE *build_list(DF_TYPE type, void *l);
 DF_VALUE *build_stream(DF_TYPE type, void *s);
 DF_VALUE *build_record();
 
+int get_boolean(DF_VALUE value);
+char get_byte(DF_VALUE value);
+short get_short(DF_VALUE value);
+int get_integer(DF_VALUE value);
+long get_long(DF_VALUE value);
+
+
 #ifdef __cplusplus
 }
 #endif

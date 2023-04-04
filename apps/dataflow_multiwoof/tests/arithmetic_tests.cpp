@@ -106,7 +106,7 @@ void complex_arithmetic() {
     // std::cout << std::endl;
 
     // Note: duplicates are allowed (e.g., [2, 2, 4, 6, 6] is valid as long as internal sequence numbers are correct)
-    std::vector<unsigned long> expected = {0, 2, 4, 6, 6};
+    std::vector<unsigned long> expected = {NULL, 2, 4, 6, 6};
     unsigned long prev_seq = 1;
     for (auto &op: v) {
         ASSERT(op.seq == prev_seq || op.seq == prev_seq + 1, "Sequence increases monotonically")

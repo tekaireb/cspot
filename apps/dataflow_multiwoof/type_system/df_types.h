@@ -82,7 +82,9 @@ union df_values_union {
     double df_double;
     struct df_value_string df_string;
     struct df_value_array df_array;
-    struct df_value_record df_object;
+    struct df_value_array df_list; //TODO
+    struct df_value_array df_stream; //TODO
+    struct df_value_record df_record;
 };
 typedef union df_values_union DF_TYPE_VALUE;
 
@@ -92,6 +94,7 @@ struct df_types_struct {
 };
 typedef struct df_types_struct DF_VALUE;
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -100,10 +103,11 @@ char *type_to_string(DF_TYPE type);
 char *value_to_string(DF_VALUE value);
 
 
-int deep_copy(const DF_VALUE *src, const DF_VALUE *dest);
+int deep_copy(const DF_VALUE *src, DF_VALUE *dest);
 int deep_delete(DF_VALUE *value);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif //CSPOT_DF_TYPES_H

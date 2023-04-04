@@ -14,32 +14,42 @@ void sqrt_loop_test() {
     TEST("Square root loop test");
 
     /* Nodes */
-    
+
     // Inputs
     add_operand(1, 1, 1);      // X
     add_operand(1, 1, 2);      // Epsilon
 
     // // Initialization
-    add_node(2, 1, 1, DIV);    // Root = X / 2.0
-    add_node(2, 1, 2, SEL);    // Initial root or body output?
-    add_node(2, 1, 3, OFFSET); // Account for no body output before first iter
+    const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
+    const DF_OPERATION select = {DF_INTERNAL, DF_INTERNAL_SELECT};
+    const DF_OPERATION offset = {DF_INTERNAL, DF_INTERNAL_OFFSET};
+    add_node(2, 1, 1, division);    // Root = X / 2.0
+    add_node(2, 1, 2, select);    // Initial root or body output?
+    add_node(2, 1, 3, offset); // Account for no body output before first iter
     add_operand(2, 1, 4);      // 2.0
     add_operand(2, 1, 5);      // SEL: root, body, body, ...
     add_operand(2, 1, 6);      // Offset = 1
-    
+
     // Test
-    add_node(3, 1, 1, MUL);    
-    add_node(3, 1, 2, SUB);
-    add_node(3, 1, 3, ABS);
-    add_node(3, 1, 4, LT);
-    add_node(3, 1, 5, NOT);
-    add_node(3, 1, 6, FILTER); // Repeat body
-    add_node(3, 1, 7, FILTER); // Produce result
-    
+    const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    const DF_OPERATION subtraction = {DF_ARITHMETIC, DF_ARITH_SUBTRACTION};
+    const DF_OPERATION absolute = {DF_ARITHMETIC, DF_ARITH_ABS};
+    const DF_OPERATION less_than = {DF_LOGIC, DF_LOGIC_LESS_THAN};
+    const DF_OPERATION not_ = {DF_LOGIC, DF_LOGIC_NOT};
+    const DF_OPERATION filter = {DF_INTERNAL, DF_INTERNAL_FILTER};
+    add_node(3, 1, 1, multiplication);
+    add_node(3, 1, 2, subtraction);
+    add_node(3, 1, 3, absolute);
+    add_node(3, 1, 4, less_than);
+    add_node(3, 1, 5, not_);
+    add_node(3, 1, 6, filter); // Repeat body
+    add_node(3, 1, 7, filter); // Produce result
+
     // Body
-    add_node(4, 1, 1, DIV);
-    add_node(4, 1, 2, ADD);
-    add_node(4, 1, 3, DIV);    // Root
+    add_node(4, 1, 1, division);
+    add_node(4, 1, 2, addition);
+    add_node(4, 1, 3, division);    // Root
     add_operand(4, 1, 4);      // 2.0
 
     /* Edges */
@@ -66,7 +76,7 @@ void sqrt_loop_test() {
     subscribe("3:6:1", "4:3");  // Pass root back to body
     subscribe("3:7:0", "3:4");  // Result if (delta < epsilon)
     subscribe("3:7:1", "4:3");  // Pass root to result
-    
+
     // Body
     subscribe("4:1:0", "1:1");  // 4N1 = X / _
     subscribe("4:1:1", "2:2");  // 4N1 = X / Root
@@ -82,50 +92,65 @@ void sqrt_loop_test() {
     double x = 144.0;
     double epsilon = 10;
 
-    operand op(2.0, 1);
+    DF_VALUE *double_value = build_double(2);
+    operand op(*double_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op);
-    operand op2(2.0, 2);
+    operand op2(*double_value, 2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op2);
-    operand op3(2.0, 3);
+    operand op3(*double_value, 3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op3);
-    operand op4(2.0, 4);
+    operand op4(*double_value, 4);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op4);
+    deep_delete(double_value);
 
-    op.value = op2.value = op3.value = op4.value = x;
+    DF_VALUE *x_value = build_double(x);
+    op.value = op2.value = op3.value = op4.value = *x_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op4);
-    op.value = op2.value = op3.value = op4.value = epsilon;
+    deep_delete(x_value);
+
+    DF_VALUE *epsilon_value = build_double(epsilon);
+    op.value = op2.value = op3.value = op4.value = *epsilon_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op4);
+    deep_delete(epsilon_value);
 
     // Initialization
 
     // Seed initialization feedback with junk (not used in first iter)
-    op.value = 0;
+    DF_VALUE *empty_value = build_double(0);
+    op.value = *empty_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 3), OUTPUT_HANDLER, &op);
+    deep_delete(empty_value);
     // unsigned long consumer_ptr = 2;
     // woof_put("laminar-2.subscription_pointer.3", "", &consumer_ptr);
 
-    op.value = op2.value = op3.value = op4.value = 2.0;
+    DF_VALUE *two_value = build_double(2);
+    op.value = op2.value = op3.value = op4.value = *two_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op4);
-    op.value = 0;
-    op2.value = op3.value = op4.value = 1;
+    deep_delete(two_value);
+    DF_VALUE *zero_value = build_double(0);
+    op.value = *zero_value;
+    DF_VALUE *one_value = build_double(1);
+    op2.value = op3.value = op4.value = *one_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op4);
-    op.value = op2.value = op3.value = op4.value = 1;
+    op.value = op2.value = op3.value = op4.value = *one_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 6), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 6), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 6), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 6), OUTPUT_HANDLER, &op4);
+    deep_delete(zero_value);
+    deep_delete(one_value);
 
     do {
         usleep(5e5);
@@ -135,11 +160,11 @@ void sqrt_loop_test() {
     unsigned long last = woof_last_seq(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 6));
     for (unsigned long i = 1; i <= last; i++) {
         woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 6), &op, i);
-        v.push_back(op.value);
+        v.push_back(op.value.value.df_double);
     }
 
     woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 7), &op, 0);
-    double result = op.value;
+    const double result = op.value.value.df_double;
 
     // // Expected: 37, 20.4459, ...
     // std::cout << "Intermediate values: ";
@@ -149,56 +174,62 @@ void sqrt_loop_test() {
     // std::cout << std::endl;
     // std::cout << "Result: " << result << std::endl;
 
-    ASSERT_EQ(v[0], 37, "First iteration");
-    ASSERT_EQ(round(v[1] * 1e4) / 1e4, 20.4459, "Second iteration");
-    ASSERT_EQ(round(v[2] * 1e4) / 1e4, 13.7445, "Third iteration");
-    ASSERT_EQ(round(result * 1e4) / 1e4, 12.1107, "Final result");
+    ASSERT_EQ(v[0], 37, "First iteration")
+    ASSERT_EQ(round(v[1] * 1e4) / 1e4, 20.4459, "Second iteration")
+    ASSERT_EQ(round(v[2] * 1e4) / 1e4, 13.7445, "Third iteration")
+    ASSERT_EQ(round(result * 1e4) / 1e4, 12.1107, "Final result")
 
-    END_TEST();
+    END_TEST()
 }
 
 void multinode_regression() {
-    TEST("Multinode regression test");
+    TEST("Multinode regression test")
 
     // Update variables (num, x, y, xx, xy)
-
-    add_node(1, 1, 1, MUL);      // num *= decay_rate
-    add_node(1, 1, 2, MUL);      // x *= decay_rate
-    add_node(1, 1, 3, MUL);      // y *= decay_rate
-    add_node(1, 1, 4, MUL);      // xx *= decay_rate
-    add_node(1, 1, 5, MUL);      // xy *= decay_rate
-    add_node(1, 1, 6, ADD);      // num += 1
-    add_node(1, 1, 7, ADD);      // x += new_x
-    add_node(1, 1, 8, ADD);      // y += new_y
-    add_node(1, 1, 9, MUL);      // new_x ^ 2
-    add_node(1, 1, 10, ADD);     // xx += new_x ^ 2
-    add_node(1, 1, 11, MUL);     // new_x * new_y
-    add_node(1, 1, 12, ADD);     // xy += new_x * new_y
-    add_node(1, 1, 13, OFFSET);  // num seq + 1
-    add_node(1, 1, 14, OFFSET);  // x seq + 1
-    add_node(1, 1, 15, OFFSET);  // y seq + 1
-    add_node(1, 1, 16, OFFSET);  // xx seq + 1
-    add_node(1, 1, 17, OFFSET);  // xy seq + 1
-    add_node(1, 1, 18, SEL);     // num or 0?
-    add_node(1, 1, 19, SEL);     // x or 0?
-    add_node(1, 1, 20, SEL);     // y or 0?
-    add_node(1, 1, 21, SEL);     // xx or 0?
-    add_node(1, 1, 22, SEL);     // xy or 0?
+    const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
+    const DF_OPERATION addition = {DF_ARITHMETIC, DF_ARITH_ADDITION};
+    const DF_OPERATION offset = {DF_INTERNAL, DF_INTERNAL_OFFSET};
+    const DF_OPERATION select = {DF_INTERNAL, DF_INTERNAL_SELECT};
+    const DF_OPERATION subtraction = {DF_ARITHMETIC, DF_ARITH_SUBTRACTION};
+    const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
+    const DF_OPERATION greater_than = {DF_LOGIC, DF_LOGIC_GREATER_THAN};
+    add_node(1, 1, 1, multiplication);      // num *= decay_rate
+    add_node(1, 1, 2, multiplication);      // x *= decay_rate
+    add_node(1, 1, 3, multiplication);      // y *= decay_rate
+    add_node(1, 1, 4, multiplication);      // xx *= decay_rate
+    add_node(1, 1, 5, multiplication);      // xy *= decay_rate
+    add_node(1, 1, 6, addition);      // num += 1
+    add_node(1, 1, 7, addition);      // x += new_x
+    add_node(1, 1, 8, addition);      // y += new_y
+    add_node(1, 1, 9, multiplication);      // new_x ^ 2
+    add_node(1, 1, 10, addition);     // xx += new_x ^ 2
+    add_node(1, 1, 11, multiplication);     // new_x * new_y
+    add_node(1, 1, 12, addition);     // xy += new_x * new_y
+    add_node(1, 1, 13, offset);  // num seq + 1
+    add_node(1, 1, 14, offset);  // x seq + 1
+    add_node(1, 1, 15, offset);  // y seq + 1
+    add_node(1, 1, 16, offset);  // xx seq + 1
+    add_node(1, 1, 17, offset);  // xy seq + 1
+    add_node(1, 1, 18, select);     // num or 0?
+    add_node(1, 1, 19, select);     // x or 0?
+    add_node(1, 1, 20, select);     // y or 0?
+    add_node(1, 1, 21, select);     // xx or 0?
+    add_node(1, 1, 22, select);     // xy or 0?
 
     // Calculate slope and intercept
 
-    add_node(2, 1, 1, MUL);   // num * xx
-    add_node(2, 1, 2, MUL);   // x * x
-    add_node(2, 1, 3, SUB);   // det = num * xx - x * x
-    add_node(2, 1, 4, MUL);   // xx * y
-    add_node(2, 1, 5, MUL);   // xy * x
-    add_node(2, 1, 6, SUB);   // xx * y - xy * x
-    add_node(2, 1, 7, DIV);   // intercept = (xx * y - xy * x) / det;
-    add_node(2, 1, 8, MUL);   // xy * num
-    add_node(2, 1, 9, MUL);   // x * y
-    add_node(2, 1, 10, SUB);  // xy * num - x * y
-    add_node(2, 1, 11, DIV);  // slope = (xy * num - x * y) / det;
-    add_node(2, 1, 12, GT);   // det > 1e-10?
+    add_node(2, 1, 1, multiplication);   // num * xx
+    add_node(2, 1, 2, multiplication);   // x * x
+    add_node(2, 1, 3, subtraction);   // det = num * xx - x * x
+    add_node(2, 1, 4, multiplication);   // xx * y
+    add_node(2, 1, 5, multiplication);   // xy * x
+    add_node(2, 1, 6, subtraction);   // xx * y - xy * x
+    add_node(2, 1, 7, division);   // intercept = (xx * y - xy * x) / det;
+    add_node(2, 1, 8, multiplication);   // xy * num
+    add_node(2, 1, 9, multiplication);   // x * y
+    add_node(2, 1, 10, subtraction);  // xy * num - x * y
+    add_node(2, 1, 11, division);  // slope = (xy * num - x * y) / det;
+    add_node(2, 1, 12, greater_than);   // det > 1e-10?
     // add_node(2, 1, 13, SEL);   // intercept or 0?
     // // add_node(2, 1, 14, SEL);   // slope or 0?
 
@@ -216,8 +247,8 @@ void multinode_regression() {
 
     // Outputs
 
-    add_node(5, 1, 1, SEL);  // intercept = intercept or 0
-    add_node(5, 1, 2, SEL);  // slope = slope or 0
+    add_node(5, 1, 1, select);  // intercept = intercept or 0
+    add_node(5, 1, 2, select);  // slope = slope or 0
 
     // Edges
 
@@ -323,14 +354,18 @@ void multinode_regression() {
 
     // Const (3:1) = 1
     for (int i = 1; i <= iters; i++) {
-        operand op(1.0, i);
+        DF_VALUE *double_value = build_double(1.0);
+        operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 1), "", &op);
+        deep_delete(double_value);
     }
 
     // Const (3:2) = 0
     for (int i = 1; i <= iters; i++) {
-        operand op(0.0, i);
+        DF_VALUE *double_value = build_double(0.0);
+        operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 2), "", &op);
+        deep_delete(double_value);
     }
 
     // Const (3:3) = exp(-dt/T)  [decay_rate]
@@ -338,27 +373,35 @@ void multinode_regression() {
     double T = 5e-2;
     double decay_rate = exp(-dt / T);
     for (int i = 1; i <= iters; i++) {
-        operand op(decay_rate, i);
+        DF_VALUE *double_value = build_double(decay_rate);
+        operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 3), "", &op);
+        deep_delete(double_value);
     }
 
     // Const (3:4) = 0, 1, 1, ..., 1
     for (int i = 1; i <= iters; i++) {
         int val = (i == 1 ? 0 : 1);
-        operand op(val, i);
+        DF_VALUE *double_value = build_double(val);
+        operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 4), "", &op);
+        deep_delete(double_value);
     }
 
     // Const (3:5) = 1e-10
     for (int i = 1; i <= iters; i++) {
-        operand op(1e-10, i);
+        DF_VALUE *double_value = build_double(1e-10);
+        operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 5), "", &op);
+        deep_delete(double_value);
     }
 
     // Seed offset nodes with initial value
     for (int i = 13; i <= 17; i++) {
-        operand op(0, 1);
+        DF_VALUE *double_value = build_double(0.0);
+        operand op(*double_value, 1);
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
+        deep_delete(double_value);
     }
 
     while (woof_last_seq("laminar-1.output.6") < 1) {
@@ -376,16 +419,24 @@ void multinode_regression() {
 
     std::cout << "Writing x and y values" << std::endl;
 
+    std::vector<DF_VALUE *> pointers_to_free;
     for (int i = 0; i < iters; i++) {
         double x = i + distr(eng);
+        DF_VALUE *x_value = build_double(x);
         double y = 3 + 2 * i + distr(eng);
-        x_values.push_back(operand(x, i + 1));
-        y_values.push_back(operand(y, i + 1));
+        DF_VALUE *y_value = build_double(y);
+        x_values.push_back(operand(*x_value, i + 1));
+        y_values.push_back(operand(*y_value, i + 1));
+        pointers_to_free.push_back(x_value);
+        pointers_to_free.push_back(y_value);
     }
 
     for (int i = 1; i <= iters; i++) {
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 1), "output_handler", &x_values[i - 1]);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 2), "output_handler", &y_values[i - 1]);
+    }
+    for (const auto &item: pointers_to_free) {
+        deep_delete(item);
     }
 
     std::cout << "Waiting for program to finish" << std::endl;
@@ -403,16 +454,16 @@ void multinode_regression() {
     for (int i = 1; i <= iters; i++) {
         operand op1;
         woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 5, 1), &op1, i);
-        intercepts.push_back(op1.value);
+        intercepts.push_back(op1.value.value.df_double);
 
-        ASSERT(op1.seq == prev_intercept_seq || op1.seq == prev_intercept_seq + 1, "Sequence increases monotonically");
+        ASSERT(op1.seq == prev_intercept_seq || op1.seq == prev_intercept_seq + 1, "Sequence increases monotonically")
         prev_intercept_seq = op1.seq;
 
         operand op2;
         woof_get(generate_woof_path(OUTPUT_WOOF_TYPE, 5, 2), &op2, i);
-        slopes.push_back(op2.value);
+        slopes.push_back(op2.value.value.df_double);
 
-        ASSERT(op2.seq == prev_slope_seq || op2.seq == prev_slope_seq + 1, "Sequence increases monotonically");
+        ASSERT(op2.seq == prev_slope_seq || op2.seq == prev_slope_seq + 1, "Sequence increases monotonically")
         prev_slope_seq = op2.seq;
     }
 
@@ -420,13 +471,13 @@ void multinode_regression() {
         std::cout << "y = " << slopes[i] << "x + " << intercepts[i] << std::endl;
     }
 
-    ASSERT(intercepts.size() >= iters, "Finish all iterations");
+    ASSERT(intercepts.size() >= iters, "Finish all iterations")
 
-    ASSERT(slopes.back() >= 1.5 && slopes.back() <= 2.5, "Slope is within expected range (~2)");
-    ASSERT(intercepts.back() >= 2.5 && intercepts.back() <= 3.5, "Intercept is within expected range (~3)");
+    ASSERT(slopes.back() >= 1.5 && slopes.back() <= 2.5, "Slope is within expected range (~2)")
+    ASSERT(intercepts.back() >= 2.5 && intercepts.back() <= 3.5, "Intercept is within expected range (~3)")
 
 
-    END_TEST();
+    END_TEST()
 }
 
 void loop_tests() {

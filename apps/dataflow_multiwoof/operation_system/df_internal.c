@@ -31,7 +31,7 @@ int df_internal_operation_with_type(const DF_INTERNAL_OP internal_operation,
     switch (internal_operation) {
         case DF_INTERNAL_OPERAND: {
             if (operand_count != 1) {
-                log_value_count_mismatch(1, operand_count);
+                log_operand_count_mismatch(1, operand_count);
                 return 0;
             }
             return compute_operand(operands[0], result);
@@ -94,7 +94,7 @@ int compute_select(const DF_VALUE operands[],
             return 0;
     }
     if (selector + 1 + 1 > operand_count) {
-        log_value_count_mismatch(selector + 1, operand_count);
+        log_operand_count_mismatch(selector + 1, operand_count);
         return 0;
     }
     const DF_VALUE selected_value = operands[selector + 1];

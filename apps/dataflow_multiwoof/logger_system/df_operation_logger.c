@@ -2,14 +2,13 @@
 // Created by Lukas Brand Privat on 21.03.23.
 //
 
+#include "df_logger.h"
 #include "df_operation_logger.h"
 
 #include <stdlib.h>
 
-#include "df_logger.h"
-
 void log_result_type_ignored() {
-    //TODO
+    log_error("Result type is ignored");
 }
 
 void log_operation_not_existing(const char *operation_category, unsigned int operation) {
@@ -21,7 +20,9 @@ void log_unsupported_type() {
 }
 
 void log_unsupported_type_on_operation(DF_TYPE type, const char *operation_name) {
-    //TODO
+    char *type_string = type_to_string((type));
+    log_error("Operation %s does not support type %s", operation_name, type_string);
+    free(type_string);
 }
 
 void log_type_mismatch(const DF_TYPE result_type, const DF_TYPE current_type) {
@@ -39,8 +40,11 @@ void log_not_a_number(const DF_TYPE current_type) {
     free(operand_type_string);
 }
 
-void log_value_count_mismatch(const unsigned int expected, const unsigned int actual) {
-    log_error("Input value mismatch operation input count: expected %ud actual %ud", expected, actual);
+void log_operand_count_mismatch(const unsigned int expected, const unsigned int actual) {
+    log_error("Input value mismatch operation input count: expected %u actual %u", expected, actual);
 }
 
 
+void log_must_not_be_null(const char *reference) {
+    log_error("Reference must not be null: %s", reference);
+}

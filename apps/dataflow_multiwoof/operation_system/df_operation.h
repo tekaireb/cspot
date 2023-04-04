@@ -11,10 +11,12 @@
 extern "C" {
 #endif
 
+
 int df_operation(DF_OPERATION operation,
                  const DF_VALUE operands[],
                  unsigned int operand_count,
                  DF_VALUE *result);
+
 
 int df_operation_with_type(DF_OPERATION operation,
                            const DF_VALUE operands[],

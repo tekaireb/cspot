@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 enum LOG_LEVELS CURRENT_LOG_LEVEL = DEBUG;
-const char* PREFIX = "DFHandler";
+const char* PREFIX = "DF";
 
 void log_format(const char* tag, const char* message, va_list args) {
     time_t t = time(NULL);
@@ -130,7 +130,7 @@ size_t get_string(const DF_VALUE* value, char value_string[], const size_t value
     } else if (value_type == DF_DATETIME) {
         return snprintf(value_string, value_length, "\"TIMESTAMP - %lu\"", value->value.df_unsigned_long);
     } else if (value_type == DF_UNKNOWN) {
-        return snprintf(value_string, value_length, "\"UNKNOWN VALUE - %p\"", value->value.df_object);
+        return snprintf(value_string, value_length, "\"UNKNOWN VALUE - %p\"", value->value.df_record);
     } else {
         return 0;
     }
