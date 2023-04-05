@@ -12,7 +12,7 @@ int df_operation(const DF_OPERATION operation,
                  const unsigned int operand_count,
                  DF_VALUE *result) {
     if (result == NULL) {
-        log_must_not_be_null("result reference");
+        log_reference_must_not_be_null("result reference");
         return 0;
     }
     return df_operation_with_type(operation, operands, operand_count, operands[0].type, result);
@@ -35,7 +35,7 @@ int df_operation_with_type(const DF_OPERATION operation,
                            const DF_TYPE result_type,
                            DF_VALUE *result) {
     if (result == NULL) {
-        log_must_not_be_null("result reference");
+        log_reference_must_not_be_null("result reference");
         return 0;
     }
     switch (operation.category) {

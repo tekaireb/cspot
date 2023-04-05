@@ -25,7 +25,7 @@ void log_not_a_number(DF_TYPE current_type);
 
 void log_operand_count_mismatch(unsigned int expected, unsigned int actual);
 
-void log_must_not_be_null(const char *reference);
+void log_reference_must_not_be_null(const char *reference);
 
 #ifdef __cplusplus
 }

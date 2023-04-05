@@ -43,7 +43,6 @@ typedef struct df_storage_system DF_STORAGE_SYSTEM;
 /* **************** STRING **************** */
 struct df_value_string {
     struct df_storage_system storage_system;
-    size_t size;
     const char *value;
 };
 typedef struct df_value_string DF_VALUE_STRING;

@@ -45,6 +45,6 @@ void log_operand_count_mismatch(const unsigned int expected, const unsigned int 
 }
 
 
-void log_must_not_be_null(const char *reference) {
+void log_reference_must_not_be_null(const char *reference) {
     log_error("Reference must not be null: %s", reference);
 }
