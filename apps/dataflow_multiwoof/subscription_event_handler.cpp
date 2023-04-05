@@ -1,24 +1,26 @@
 #include "df.h"
 #include "df_interface.h"
-#include "woofc.h"
 #include "operation_system/df_operation.h"
+#include "woofc.h"
 
-#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
 
 
-operand perform_operation(const std::vector<operand> &operands, int ns, node &node, unsigned long consumer_seq) {
+operand perform_operation(const std::vector<operand>& operands, int ns, node& node, unsigned long consumer_seq) {
     const DF_OPERATION operation = node.operation;
-    operand result({}, consumer_seq);
-    auto *result_value = (DF_VALUE *) malloc(sizeof(DF_VALUE));
-    df_operation(operation, reinterpret_cast<const DF_VALUE *>(operands.data()), operands.size(),
-                 result_value);
+    DF_VALUE operands_array[operands.size()];
+    for (size_t i = 0; i < operands.size(); ++i) {
+        operands_array[i] = operands[i].value;
+    }
+    DF_VALUE result_value;
+    df_operation_with_type(operation, operands_array, operands.size(), operands[0].value.type, &result_value);
+    operand result(result_value, consumer_seq);
     return result;
 }
 
-extern "C" int subscription_event_handler(WOOF *wf, unsigned long seqno, void *ptr) {
+extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* ptr) {
     // auto start = std::chrono::high_resolution_clock::now();
     // std::cout << "SUBSCRIPTION EVENT HANDLER STARTED" << std::endl;
 
@@ -34,7 +36,7 @@ extern "C" int subscription_event_handler(WOOF *wf, unsigned long seqno, void *p
     int ns = get_ns_from_woof_path(woof_name);
 
     // Get subscription_event
-    auto *subevent = static_cast<subscription_event *>(ptr);
+    auto* subevent = static_cast<subscription_event*>(ptr);
 
     // Get current execution iteration
     execution_iteration_lock exec_iter_lk;
@@ -88,7 +90,7 @@ extern "C" int subscription_event_handler(WOOF *wf, unsigned long seqno, void *p
 
     std::vector<operand> op_values(num_ops);
     subscription sub;
-    operand op({});
+    operand op(default_df_value());
     std::string output_woof;
     for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get last used output and seqno for this port
@@ -163,8 +165,8 @@ extern "C" int subscription_event_handler(WOOF *wf, unsigned long seqno, void *p
 
             std::cout << "op.seq: " << op.seq << ", consumer_seq: " << consumer_seq << std::endl;
 
-            for (auto &o: v) {
-                char *value_string = value_to_string(o.value);
+            for (auto& o : v) {
+                char* value_string = value_to_string(o.value);
                 std::cout << output_woof << " @ " << o.seq << ": " << value_string << std::endl;
                 free(value_string);
             }
