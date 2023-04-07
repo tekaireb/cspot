@@ -8,15 +8,25 @@
 #include "../type_system/df_types.h"
 #include "df_operations.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
 int df_internal_operation(DF_INTERNAL_OP internal_operation,
                           const DF_VALUE operands[],
                           unsigned int operand_count,
                           DF_VALUE* result);
+*/
 
 int df_internal_operation_with_type(DF_INTERNAL_OP internal_operation,
                                     const DF_VALUE operands[],
                                     unsigned int operand_count,
                                     DF_TYPE result_type,
                                     DF_VALUE* result);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // CSPOT_DF_INTERNAL_H

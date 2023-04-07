@@ -2,9 +2,10 @@
 // Created by Lukas Brand on 29.03.23.
 //
 
-#include <string.h>
-#include <stdlib.h>
 #include "df_operations.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 DF_OPERATION default_df_operation() {
     DF_OPERATION operation;
@@ -13,13 +14,13 @@ DF_OPERATION default_df_operation() {
     return operation;
 }
 
-char *operation_to_string(const DF_OPERATION operation) {
-    char *category_string;
-    char *operation_string;
+char* operation_to_string(const DF_OPERATION operation) {
+    char* category_string;
+    char* operation_string;
     switch (operation.category) {
         case DF_LOGIC:
             category_string = "LOGIC";
-            switch ((DF_LOGIC_OP) operation.operation) {
+            switch ((DF_LOGIC_OP)operation.operation) {
                 case DF_LOGIC_NOT:
                     operation_string = "NOT";
                     break;
@@ -54,7 +55,7 @@ char *operation_to_string(const DF_OPERATION operation) {
             break;
         case DF_ARITHMETIC:
             category_string = "ARITHMETIC";
-            switch ((DF_ARITHMETIC_OP) operation.operation) {
+            switch ((DF_ARITHMETIC_OP)operation.operation) {
                 case DF_ARITH_ADDITION:
                     operation_string = "ADDITION";
                     break;
@@ -83,7 +84,7 @@ char *operation_to_string(const DF_OPERATION operation) {
             break;
         case DF_INTERNAL:
             category_string = "INTERNAL";
-            switch ((DF_INTERNAL_OP) operation.operation) {
+            switch ((DF_INTERNAL_OP)operation.operation) {
                 case DF_INTERNAL_OPERAND:
                     operation_string = "OPERAND";
                     break;
@@ -103,7 +104,7 @@ char *operation_to_string(const DF_OPERATION operation) {
             break;
         case DF_MACHINE_LEARNING:
             category_string = "MACHINE LEARNING";
-            switch ((DF_MACHINE_LEARNING_OP) operation.operation) {
+            switch ((DF_MACHINE_LEARNING_OP)operation.operation) {
                 case DF_MACHINE_LEARNING_KNN:
                     operation_string = "K-NEAREST NEIGHBOR";
                     break;
@@ -120,12 +121,12 @@ char *operation_to_string(const DF_OPERATION operation) {
             operation_string = "UNKNOWN OPERATION";
             break;
     }
-    const char *colon_string = " :";
+    const char* colon_string = " :";
     const size_t colon_size = strlen(colon_string);
     const size_t category_string_size = strlen(category_string);
     const size_t operation_string_size = strlen(operation_string);
 
-    char *return_string = malloc(category_string_size + colon_size + operation_string_size + 1);
+    char* return_string = malloc(category_string_size + colon_size + operation_string_size + 1);
     strcpy(return_string, category_string);
     strcpy(return_string, colon_string);
     strcpy(return_string, operation_string);

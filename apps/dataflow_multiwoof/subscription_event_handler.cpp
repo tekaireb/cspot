@@ -15,7 +15,12 @@ operand perform_operation(const std::vector<operand>& operands, int ns, node& no
         operands_array[i] = operands[i].value;
     }
     DF_VALUE result_value;
-    df_operation_with_type(operation, operands_array, operands.size(), operands[0].value.type, &result_value);
+    printf("OP: %d / %d \n", operation.category, operation.operation);
+    int operation_result =
+        df_operation_with_type(operation, operands_array, operands.size(), operands[0].value.type, &result_value);
+    if (!operation_result) {
+        printf("UNKNOWN OPERATION ERROR OCCURRED!\n");
+    }
     operand result(result_value, consumer_seq);
     return result;
 }

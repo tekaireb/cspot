@@ -6,15 +6,17 @@
 
 #include "../logger_system/df_operation_logger.h"
 
-int compute_operand(DF_VALUE operand, DF_VALUE *result);
+#include <stdlib.h>
 
-int compute_select(const DF_VALUE operands[], unsigned int operand_count, DF_TYPE result_type, DF_VALUE *result);
+int compute_operand(DF_VALUE operand, DF_VALUE* result);
 
-int compute_filter(const DF_VALUE operands[], unsigned int operand_count, DF_TYPE result_type, DF_VALUE *result);
+int compute_select(const DF_VALUE operands[], unsigned int operand_count, DF_TYPE result_type, DF_VALUE* result);
 
-int compute_offset(const DF_VALUE operands[], unsigned int operand_count, DF_TYPE result_type, DF_VALUE *result);
+int compute_filter(const DF_VALUE operands[], unsigned int operand_count, DF_TYPE result_type, DF_VALUE* result);
 
+int compute_offset(const DF_VALUE operands[], unsigned int operand_count, DF_TYPE result_type, DF_VALUE* result);
 
+/*
 int df_internal_operation(const DF_INTERNAL_OP internal_operation,
                           const DF_VALUE operands[],
                           const unsigned int operand_count,
@@ -22,12 +24,13 @@ int df_internal_operation(const DF_INTERNAL_OP internal_operation,
     const DF_TYPE result_type = operands[0].type;
     return df_internal_operation_with_type(internal_operation, operands, operand_count, result_type, result);
 }
+*/
 
 int df_internal_operation_with_type(const DF_INTERNAL_OP internal_operation,
                                     const DF_VALUE operands[],
                                     const unsigned int operand_count,
                                     const DF_TYPE result_type,
-                                    DF_VALUE *result) {
+                                    DF_VALUE* result) {
     switch (internal_operation) {
         case DF_INTERNAL_OPERAND: {
             if (operand_count != 1) {
@@ -49,15 +52,15 @@ int df_internal_operation_with_type(const DF_INTERNAL_OP internal_operation,
 }
 
 
-int compute_operand(const DF_VALUE operand, DF_VALUE *result) {
+int compute_operand(const DF_VALUE operand, DF_VALUE* result) {
     return deep_copy(&operand, result);
 }
 
 int compute_select(const DF_VALUE operands[],
                    const unsigned int operand_count,
                    const DF_TYPE result_type,
-                   DF_VALUE *result) {
-    DF_TYPE select_type = operands[0].type;
+                   DF_VALUE* result) {
+    const DF_TYPE select_type = operands[0].type;
     unsigned long selector;
     switch (select_type) {
         case DF_BYTE:
@@ -83,7 +86,7 @@ int compute_select(const DF_VALUE operands[],
             selector = operands[0].value.df_unsigned_long;
             break;
         case DF_DOUBLE: {
-            int temp_selector = (int) operands[0].value.df_double;
+            int temp_selector = (int)operands[0].value.df_double;
             if (temp_selector < 0) {
                 return 0;
             }
@@ -91,6 +94,7 @@ int compute_select(const DF_VALUE operands[],
             break;
         }
         default:
+            log_unsupported_type_on_operation(select_type, "SELECT");
             return 0;
     }
     if (selector + 1 + 1 > operand_count) {
@@ -109,24 +113,22 @@ int compute_select(const DF_VALUE operands[],
 int compute_filter(const DF_VALUE operands[],
                    const unsigned int operand_count,
                    const DF_TYPE result_type,
-                   DF_VALUE *result) {
-    //TODO
-
-//    result.value = operands[1].value;
-    // if (!static_cast<bool>(ops[0].value)) {
-    //     exit(0);
-    // }
-    return 0;
+                   DF_VALUE* result) {
+    printf("TEST");
+    char* value_string = value_to_string(operands[1]);
+    printf("VALUE %s", value_string);
+    free(value_string);
+    return deep_copy(&operands[1], result);
 }
 
 int compute_offset(const DF_VALUE operands[],
                    const unsigned int operand_count,
                    const DF_TYPE result_type,
-                   DF_VALUE *result) {
-    //TODO: Might be a meta operation which needs special treatment
-//    case OFFSET:
-//        result.value = operands[1].value;
-//    result.seq = consumer_seq + static_cast<unsigned long>(operands[0].value);
-//    break;
+                   DF_VALUE* result) {
+    // TODO: Might be a meta operation which needs special treatment
+    //    case OFFSET:
+    //        result.value = operands[1].value;
+    //    result.seq = consumer_seq + static_cast<unsigned long>(operands[0].value);
+    //    break;
     return 0;
 }

@@ -11,20 +11,25 @@
 extern "C" {
 #endif
 
+struct df_operation_metadata {};
+typedef struct df_operation_metadata DF_OPERATION_METADATA;
 
+
+/*
 int df_operation(DF_OPERATION operation,
                  const DF_VALUE operands[],
                  unsigned int operand_count,
                  DF_VALUE *result);
-
+*/
 
 int df_operation_with_type(DF_OPERATION operation,
                            const DF_VALUE operands[],
                            unsigned int operand_count,
                            DF_TYPE result_type,
-                           DF_VALUE *result);
+                           DF_VALUE* result);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif // CSPOT_DF_OPERATION_H

@@ -30,6 +30,7 @@ BraceWrapping:
 
 IncludeBlocks: Regroup
 SortIncludes: true
+IndentCaseLabels: true
 
 #SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
