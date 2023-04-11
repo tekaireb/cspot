@@ -1,13 +1,15 @@
 #ifndef DF_H
 #define DF_H
 
+#include "operation_system/df_operations.h"
+#include "type_system/df_type_builder.h"
+#include "type_system/df_types.h"
+
 #include <cmath>
 #include <cstring>
-#include "type_system/df_types.h"
-#include "type_system/df_type_builder.h"
-#include "operation_system/df_operations.h"
 
-enum DFWoofType {
+enum DFWoofType
+{
     OUTPUT_WOOF_TYPE = 0,
     SUBSCRIPTION_EVENTS_WOOF_TYPE,
     SUBSCRIPTION_POINTER_WOOF_TYPE,
@@ -21,25 +23,26 @@ enum DFWoofType {
     HOSTS_WOOF_TYPE
 };
 
-static const char *DFWOOFTYPE_STR[] = {
-        "output",
-        "subscription_events",
-        "subscription_pointer",
-        "subscriber_map",
-        "subscriber_data",
-        "subscription_map",
-        "subscription_data",
-        "subscription_pos",
-        "nodes",
-        "host_id",
-        "hosts"
-};
+static const char* DFWOOFTYPE_STR[] = {"output",
+                                       "subscription_events",
+                                       "subscription_pointer",
+                                       "subscriber_map",
+                                       "subscriber_data",
+                                       "subscription_map",
+                                       "subscription_data",
+                                       "subscription_pos",
+                                       "nodes",
+                                       "host_id",
+                                       "hosts"};
 
 struct operand {
     DF_VALUE value;
     unsigned long seq;
 
-    explicit operand(DF_VALUE value = default_df_value(), unsigned long seq = 1) : value(value), seq(seq) {}
+    explicit operand(DF_VALUE value = {.type = DF_UNKNOWN}, unsigned long seq = 1)
+        : value(value)
+        , seq(seq) {
+    }
 };
 
 struct cached_output {
@@ -47,15 +50,20 @@ struct cached_output {
     unsigned long seq; // CSPOT seq in output woof
 
     // Defaults execution iteration and seq to 0 so initial access is thrown out and updated
-    explicit cached_output(operand op = operand(default_df_value(), 0), unsigned long seq = 0) : op(op),
-                                                                                                 seq(seq) {}
+    explicit cached_output(operand op = operand({.type = DF_UNKNOWN}, 0), unsigned long seq = 0)
+        : op(op)
+        , seq(seq) {
+    }
 };
 
 struct execution_iteration_lock {
     unsigned long iter; // Current execution iteration
     bool lock;          // True if a handler has claimed this iteration
 
-    explicit execution_iteration_lock(unsigned long iter = 1, bool lock = false) : iter(iter), lock(lock) {}
+    explicit execution_iteration_lock(unsigned long iter = 1, bool lock = false)
+        : iter(iter)
+        , lock(lock) {
+    }
 };
 
 struct subscriber {
@@ -64,9 +72,14 @@ struct subscriber {
     int port;
 
     explicit subscriber(int dst_ns = 0, int dst_id = 0, int dst_port = 0)
-            : ns(dst_ns), id(dst_id), port(dst_port) {}
+        : ns(dst_ns)
+        , id(dst_id)
+        , port(dst_port) {
+    }
 
-    bool operator<(const subscriber &other) const { return id < other.id; }
+    bool operator<(const subscriber& other) const {
+        return id < other.id;
+    }
 };
 
 struct subscription {
@@ -75,9 +88,12 @@ struct subscription {
     int port;
 
     explicit subscription(int src_ns = 0, int src_id = 0, int dst_port = 0)
-            : ns(src_ns), id(src_id), port(dst_port) {}
+        : ns(src_ns)
+        , id(src_id)
+        , port(dst_port) {
+    }
 
-    bool operator<(const subscription &other) const {
+    bool operator<(const subscription& other) const {
         return port < other.port;
     }
 };
@@ -89,7 +105,11 @@ struct subscription_event {
     unsigned long seq;
 
     explicit subscription_event(int ns = 0, int id = 0, int port = 0, unsigned long seqno = 0)
-            : ns(ns), id(id), port(port), seq(seqno) {}
+        : ns(ns)
+        , id(id)
+        , port(port)
+        , seq(seqno) {
+    }
 };
 
 struct node {
@@ -97,10 +117,15 @@ struct node {
     int host_id;
     DF_OPERATION operation;
 
-    explicit node(int id = 0, int host_id = 0, DF_OPERATION operation = default_df_operation())
-            : id(id), host_id(host_id), operation(operation) {}
+    explicit node(int id = 0,
+                  int host_id = 0,
+                  DF_OPERATION operation = {.category = DF_INTERNAL, .operation = DF_INTERNAL_OPERAND})
+        : id(id)
+        , host_id(host_id)
+        , operation(operation) {
+    }
 
-    bool operator<(const node &other) const {
+    bool operator<(const node& other) const {
         return id < other.id;
     }
 };
@@ -115,7 +140,7 @@ struct host {
         strcpy(host_url, host_url_);
     }
 
-    bool operator<(const host &other) const {
+    bool operator<(const host& other) const {
         return host_id < other.host_id;
     }
 };
@@ -124,9 +149,15 @@ struct host {
 // #define DEBUG
 
 #ifdef DEBUG
-#define DEBUG_PRINT(str) { std::cout << "[" << woof_name << "] " << "[" << consumer_seq << "] " << str << std::endl << std::flush; }
+#define DEBUG_PRINT(str)                                                                                               \
+    {                                                                                                                  \
+        std::cout << "[" << woof_name << "] "                                                                          \
+                  << "[" << consumer_seq << "] " << str << std::endl                                                   \
+                  << std::flush;                                                                                       \
+    }
 #else
-#define DEBUG_PRINT(str) { }
+#define DEBUG_PRINT(str)                                                                                               \
+    {}
 #endif
 
 #endif

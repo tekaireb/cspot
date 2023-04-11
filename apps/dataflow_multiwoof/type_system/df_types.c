@@ -103,49 +103,144 @@ char* type_to_string(const DF_TYPE type) {
     return string;
 }
 
-char* value_to_string(const DF_VALUE value) {
-    char** value_string = NULL;
+char* value_to_string(const DF_VALUE* value) {
+    char* value_string = NULL;
     size_t value_string_size = 0;
-    switch (value.type) {
-        case DF_UNKNOWN:
-            value_string_size = asprintf(value_string, "UNKNOWN: UNKNOWN VALUE");
+    switch (value->type) {
+        case DF_UNKNOWN: {
+            value_string_size = snprintf(NULL, 0, "UNKNOWN: UNKNOWN VALUE");
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "UNKNOWN: UNKNOWN VALUE");
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_BOOLEAN:
-            value_string_size = asprintf(value_string, "BOOLEAN: %d", value.value.df_int);
+        }
+        case DF_BOOLEAN: {
+            value_string_size = snprintf(NULL, 0, "BOOLEAN: %d", value->value.df_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "BOOLEAN: %d", value->value.df_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_BYTE:
-            value_string_size = asprintf(value_string, "BYTE: %d", value.value.df_int);
+        }
+        case DF_BYTE: {
+            value_string_size = snprintf(NULL, 0, "BYTE: %d", value->value.df_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "BYTE: %d", value->value.df_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_SHORT:
-            value_string_size = asprintf(value_string, "SHORT: %d", value.value.df_int);
+        }
+        case DF_SHORT: {
+            value_string_size = snprintf(NULL, 0, "SHORT: %d", value->value.df_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "SHORT: %d", value->value.df_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_INTEGER:
-            value_string_size = asprintf(value_string, "INTEGER: %d", value.value.df_int);
+        }
+        case DF_INTEGER: {
+            value_string_size = snprintf(NULL, 0, "INTEGER: %d", value->value.df_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "INTEGER: %d", value->value.df_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_LONG:
-            value_string_size = asprintf(value_string, "LONG: %ld", value.value.df_long);
+        }
+        case DF_LONG: {
+            value_string_size = snprintf(NULL, 0, "LONG: %ld", value->value.df_long);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "LONG: %ld", value->value.df_long);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_UNSIGNED_BYTE:
-            value_string_size = asprintf(value_string, "UNSIGNED BYTE: %u", value.value.df_unsigned_int);
+        }
+        case DF_UNSIGNED_BYTE: {
+            value_string_size = snprintf(NULL, 0, "UNSIGNED BYTE: %u", value->value.df_unsigned_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret =
+                snprintf(value_string, value_string_size + 1, "UNSIGNED BYTE: %u", value->value.df_unsigned_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_UNSIGNED_SHORT:
-            value_string_size = asprintf(value_string, "UNSIGNED SHORT: %u", value.value.df_unsigned_int);
+        }
+        case DF_UNSIGNED_SHORT: {
+            value_string_size = snprintf(NULL, 0, "UNSIGNED SHORT: %u", value->value.df_unsigned_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret =
+                snprintf(value_string, value_string_size + 1, "UNSIGNED SHORT: %u", value->value.df_unsigned_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_UNSIGNED_INTEGER:
-            value_string_size = asprintf(value_string, "UNSIGNED INTEGER: %u", value.value.df_unsigned_int);
+        }
+        case DF_UNSIGNED_INTEGER: {
+            value_string_size = snprintf(NULL, 0, "UNSIGNED INTEGER: %u", value->value.df_unsigned_int);
+            value_string = malloc(value_string_size + 1);
+            const int ret =
+                snprintf(value_string, value_string_size + 1, "UNSIGNED INTEGER: %u", value->value.df_unsigned_int);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_UNSIGNED_LONG:
-            value_string_size = asprintf(value_string, "UNSIGNED LONG: %lu", value.value.df_unsigned_long);
+        }
+        case DF_UNSIGNED_LONG: {
+            value_string_size = snprintf(NULL, 0, "UNSIGNED LONG: %lu", value->value.df_unsigned_long);
+            value_string = malloc(value_string_size + 1);
+            const int ret =
+                snprintf(value_string, value_string_size + 1, "UNSIGNED LONG: %lu", value->value.df_unsigned_long);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_DOUBLE:
-            value_string_size = asprintf(value_string, "DOUBLE: %f", value.value.df_double);
+        }
+        case DF_DOUBLE: {
+            value_string_size = snprintf(NULL, 0, "DOUBLE: %f", value->value.df_double);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "DOUBLE: %f", value->value.df_double);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_DATETIME:
-            value_string_size = asprintf(value_string, "DOUBLE: %ld", value.value.df_long);
+        }
+        case DF_DATETIME: {
+            value_string_size = snprintf(NULL, 0, "DOUBLE: %ld", value->value.df_long);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "DOUBLE: %ld", value->value.df_long);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
-        case DF_STRING:
-            value_string_size = asprintf(value_string, "STRING: %s", value.value.df_string.value);
+        }
+        case DF_STRING: {
+            value_string_size = snprintf(NULL, 0, "STRING: %s", value->value.df_string.value);
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "STRING: %s", value->value.df_string.value);
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
             break;
+        }
         case DF_ARRAY:
             // TODO
             break;
@@ -158,12 +253,18 @@ char* value_to_string(const DF_VALUE value) {
         case DF_RECORD:
             // TODO
             break;
-        default:
-            value_string_size = asprintf(value_string, "UNKNOWN VALUE");
+        default: {
+            value_string_size = snprintf(NULL, 0, "UNKNOWN VALUE");
+            value_string = malloc(value_string_size + 1);
+            const int ret = snprintf(value_string, value_string_size + 1, "UNKNOWN VALUE");
+            if (ret < 0 || ret > value_string_size) {
+                free(value_string);
+                return NULL;
+            }
+            break;
+        }
     }
-    char* return_string = malloc(value_string_size + 1);
-    strcpy(return_string, *value_string);
-    return return_string;
+    return value_string;
 }
 
 int deep_copy(const DF_VALUE* src, DF_VALUE* dest) {

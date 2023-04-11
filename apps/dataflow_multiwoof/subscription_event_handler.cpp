@@ -1,7 +1,6 @@
 #include "df.h"
 #include "df_interface.h"
 #include "operation_system/df_operation.h"
-#include "woofc.h"
 
 #include <iostream>
 #include <string>
@@ -14,14 +13,15 @@ operand perform_operation(const std::vector<operand>& operands, int ns, node& no
     for (size_t i = 0; i < operands.size(); ++i) {
         operands_array[i] = operands[i].value;
     }
+    DF_OPERATION_METADATA metadata = {
+        .host_id = node.host_id, .laminar_namespace = ns, .node_id = node.id, .consumer_sequence = consumer_seq};
     DF_VALUE result_value;
-    printf("OP: %d / %d \n", operation.category, operation.operation);
-    int operation_result =
-        df_operation_with_type(operation, operands_array, operands.size(), operands[0].value.type, &result_value);
+    int operation_result = df_operation_with_type(
+        operation, operands_array, operands.size(), &metadata, operands[0].value.type, &result_value);
     if (!operation_result) {
         printf("UNKNOWN OPERATION ERROR OCCURRED!\n");
     }
-    operand result(result_value, consumer_seq);
+    operand result(result_value, metadata.consumer_sequence);
     return result;
 }
 
@@ -33,26 +33,23 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
     // Get name of this woof
     std::string woof_name(WoofGetFileName(wf));
-
     // Extract id
-    unsigned long id = get_node_id_from_woof_path(woof_name);
-
+    const unsigned long node_id = get_node_id_from_woof_path(woof_name);
     // Extract namespace
-    int ns = get_ns_from_woof_path(woof_name);
-
+    const int ns = get_ns_from_woof_path(woof_name);
     // Get subscription_event
     auto* subevent = static_cast<subscription_event*>(ptr);
 
     // Get current execution iteration
     execution_iteration_lock exec_iter_lk;
-    std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, id);
+    std::string consumer_ptr_woof = generate_woof_path(SUBSCRIPTION_POINTER_WOOF_TYPE, ns, node_id);
     err = woof_get(consumer_ptr_woof, &exec_iter_lk, 0);
     if (err < 0) {
         std::cout << "Error reading woof (s1): " << consumer_ptr_woof << std::endl;
         return err;
     }
 
-    unsigned long consumer_seq = exec_iter_lk.iter;
+    const unsigned long consumer_seq = exec_iter_lk.iter;
 
     // Only proceed if this event is relevant to the current execution iteration
     if (subevent->seq > consumer_seq) {
@@ -60,29 +57,28 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
         DEBUG_PRINT("Event is not for current seq, exiting")
         return 0;
     }
-
     // Only proceed if this event is not already being handled
     if (exec_iter_lk.lock) {
         DEBUG_PRINT("Another handler already locked, exiting")
+        // return 0;
     }
 
     // Look up subscriptions to determine required number of operands
-    // TODO: Replace woofmap with single entry read-only woof for better performance
     std::string submap = generate_woof_path(SUBSCRIPTION_MAP_WOOF_TYPE, ns);
     std::string subdata = generate_woof_path(SUBSCRIPTION_DATA_WOOF_TYPE, ns);
     unsigned long start_idx, end_idx;
     unsigned long last_seq = woof_last_seq(submap);
 
-    err = woof_get(submap, &start_idx, id);
+    err = woof_get(submap, &start_idx, node_id);
     if (err < 0) {
         std::cout << "Error reading submap woof (s1): " << submap << std::endl;
         return err;
     }
 
-    if (id == last_seq) {
+    if (node_id == last_seq) {
         end_idx = woof_last_seq(subdata) + 1;
     } else {
-        err = woof_get(submap, &end_idx, id + 1);
+        err = woof_get(submap, &end_idx, node_id + 1);
         if (err < 0) {
             std::cout << "Error reading submap woof (s2): " << submap << std::endl;
             return err;
@@ -92,15 +88,13 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     int num_ops = static_cast<int>(end_idx - start_idx);
 
     // Scan through subscription outputs and collect operands
-
     std::vector<operand> op_values(num_ops);
-    subscription sub;
-    operand op(default_df_value());
     std::string output_woof;
     for (unsigned long i = start_idx; i < end_idx; i++) {
         // Get last used output and seqno for this port
         cached_output last_output;
-        std::string last_used_sub_pos_woof = generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, id, -1, i - start_idx);
+        std::string last_used_sub_pos_woof =
+            generate_woof_path(SUBSCRIPTION_POS_WOOF_TYPE, ns, node_id, -1, i - start_idx);
         if (woof_last_seq(last_used_sub_pos_woof) == 0) {
             // On first read, check if output woof is empty
             if (woof_last_seq(output_woof) == 0) {
@@ -130,6 +124,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
 
         // std::cout << "subscription port: " << i - start_idx << std::endl;
         // Get subscription id
+        subscription sub;
         err = woof_get(subdata, &sub, i);
         if (err < 0) {
             std::cout << "Error reading subdata woof: " << subdata << std::endl;
@@ -148,6 +143,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             return 0;
         }
 
+        operand op;
         // Increment sequence number (idx) until finding current execution iteration
         do {
             idx++;
@@ -171,7 +167,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
             std::cout << "op.seq: " << op.seq << ", consumer_seq: " << consumer_seq << std::endl;
 
             for (auto& o : v) {
-                char* value_string = value_to_string(o.value);
+                char* value_string = value_to_string(&o.value);
                 std::cout << output_woof << " @ " << o.seq << ": " << value_string << std::endl;
                 free(value_string);
             }
@@ -232,7 +228,6 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     woof_get(consumer_ptr_woof, &prev_exec_iter_lk, lk_seq - 1);
     if (prev_exec_iter_lk.iter > exec_iter_lk.iter) {
         DEBUG_PRINT("ERROR: UNEXPECTED BEHAVIOR (LOCKS OUT OF ORDER)")
-
         DEBUG_PRINT("\tprev: " << prev_exec_iter_lk.iter << ", " << prev_exec_iter_lk.lock)
         DEBUG_PRINT("\tthis: " << exec_iter_lk.iter << ", " << exec_iter_lk.lock)
 
@@ -255,7 +250,7 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // Get opcode
     node n;
     std::string nodes_woof = generate_woof_path(NODES_WOOF_TYPE, ns);
-    err = woof_get(nodes_woof, &n, id);
+    err = woof_get(nodes_woof, &n, node_id);
     if (err < 0) {
         std::cout << "Error reading nodes woof: " << nodes_woof << std::endl;
         return err;
@@ -266,10 +261,11 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     // std::cout << "[" << woof_name<< "] result = " << result.value << std::endl;
 
     // Do not write result if it already exists
-    output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, id);
+    output_woof = generate_woof_path(OUTPUT_WOOF_TYPE, ns, node_id);
 
     operand last_result;
     woof_get(output_woof, &last_result, 0);
+    // TODO handler is dependent on operation
     if (!(n.operation.category == DF_INTERNAL && n.operation.operation == DF_INTERNAL_OFFSET)) {
         // Fix for offset: the following code prevents duplicates with most
         // nodes, but renders the offset node useless. For now, this feature
@@ -293,8 +289,9 @@ extern "C" int subscription_event_handler(WOOF* wf, unsigned long seqno, void* p
     }
 
     // Write result (unless FILTER should omit result)
+    // TODO! only works for doubles
     if (!(n.operation.category == DF_INTERNAL && n.operation.operation == DF_INTERNAL_FILTER) ||
-        op_values[0].value.value.df_int) {
+        op_values[0].value.value.df_double) {
         woof_put(output_woof, OUTPUT_HANDLER, &result);
         DEBUG_PRINT("Wrote result #" << consumer_seq)
     }

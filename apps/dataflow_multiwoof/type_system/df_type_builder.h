@@ -11,8 +11,6 @@
 extern "C" {
 #endif
 
-DF_VALUE default_df_value();
-
 DF_VALUE *build_boolean(int b);
 DF_VALUE *build_byte(char b);
 DF_VALUE *build_short(short s);

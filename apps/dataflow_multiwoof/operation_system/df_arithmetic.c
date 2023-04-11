@@ -30,22 +30,6 @@ static int compatible_types(const DF_VALUE operands[], unsigned int operand_coun
 
 static int equal_types(const DF_VALUE operands[], unsigned int operand_count);
 
-/*
-int df_arithmetic_operation(const DF_ARITHMETIC_OP arithmetic_operation,
-                            const DF_VALUE operands[],
-                            const unsigned int operand_count,
-                            DF_VALUE *result) {
-    const DF_TYPE result_type = operands[0].type;
-    if (!compatible_types(operands, operand_count, result_type)) {
-        return 0;
-    }
-    if (!equal_types(operands, operand_count)) {
-        return 0;
-    }
-    return df_arithmetic_operation_with_type(arithmetic_operation, operands, operand_count, result_type, result);
-}
-*/
-
 
 int df_arithmetic_operation_with_type(const DF_ARITHMETIC_OP arithmetic_operation,
                                       const DF_VALUE operands[],

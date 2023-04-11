@@ -35,11 +35,11 @@ unsigned long write_value_with_handler(const char *woof, const char *handler, co
     }
 }
 
-unsigned long write_value(const char *woof, const DF_VALUE *value) {
+unsigned long write_value_woof(const char* woof, const DF_VALUE* value) {
     return write_value_with_handler(woof, NULL, value);
 }
 
-unsigned long read_value(const char *woof, const unsigned long sequence_number, DF_VALUE *value) {
+unsigned long read_value_woof(const char* woof, const unsigned long sequence_number, DF_VALUE* value) {
     int status = WooFGet(woof, value, sequence_number);
     if (WooFInvalid(status)) {
         return status;
@@ -50,4 +50,14 @@ unsigned long read_value(const char *woof, const unsigned long sequence_number, 
         // TODO
         return status;
     }
+}
+
+unsigned long write_value(const DF_VALUE* value) {
+    // TODO
+    return 0;
+}
+
+unsigned long read_value(DF_VALUE* value) {
+    // TODO
+    return 0;
 }

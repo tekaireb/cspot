@@ -6,13 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-DF_VALUE default_df_value() {
-    DF_VALUE value;
-    value.type = DF_UNKNOWN;
-    value.value.df_int = -1;
-    return value;
-}
-
 DF_VALUE *build_boolean(int b) {
     DF_VALUE *value = malloc(sizeof(DF_VALUE));
     value->value.df_int = b;

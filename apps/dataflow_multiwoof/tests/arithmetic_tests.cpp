@@ -510,7 +510,6 @@ void mat_test_2() {
 }
 
 void arithmetic_tests() {
-
     set_host(1);
     add_host(1, "127.0.0.1", "/home/centos/cspot/build/bin/");
 

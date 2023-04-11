@@ -7,17 +7,48 @@
 #include <stdlib.h>
 #include <string.h>
 
-DF_OPERATION default_df_operation() {
-    DF_OPERATION operation;
-    operation.category = DF_INTERNAL;
-    operation.operation = DF_INTERNAL_FILTER;
-    return operation;
-}
-
 char* operation_to_string(const DF_OPERATION operation) {
     char* category_string;
     char* operation_string;
     switch (operation.category) {
+        case DF_CAST:
+            category_string = "CAST";
+            switch ((DF_CAST_OP)operation.operation) {
+                case DF_CAST_TO_BOOLEAN:
+                    operation_string = "CAST TO BOOLEAN";
+                    break;
+                case DF_CAST_TO_BYTE:
+                    operation_string = "CAST TO BYTE";
+                    break;
+                case DF_CAST_TO_SHORT:
+                    operation_string = "CAST TO SHORT";
+                    break;
+                case DF_CAST_TO_INTEGER:
+                    operation_string = "CAST TO INTEGER";
+                    break;
+                case DF_CAST_TO_LONG:
+                    operation_string = "CAST TO LONG";
+                    break;
+                case DF_CAST_TO_UNSIGNED_BYTE:
+                    operation_string = "CAST TO UNSIGNED BYTE";
+                    break;
+                case DF_CAST_TO_UNSIGNED_SHORT:
+                    operation_string = "CAST TO UNSIGNED SHORT";
+                    break;
+                case DF_CAST_TO_UNSIGNED_INTEGER:
+                    operation_string = "CAST TO UNSIGNED INTEGER";
+                    break;
+                case DF_CAST_TO_UNSIGNED_LONG:
+                    operation_string = "CAST TO UNSIGNED LONG";
+                    break;
+                case DF_CAST_TO_DOUBLE:
+                    operation_string = "CAST TO DOUBLE";
+                    break;
+                default:
+                    operation_string = "UNKNOWN OPERATION";
+                    break;
+            }
+            break;
         case DF_LOGIC:
             category_string = "LOGIC";
             switch ((DF_LOGIC_OP)operation.operation) {
@@ -128,8 +159,8 @@ char* operation_to_string(const DF_OPERATION operation) {
 
     char* return_string = malloc(category_string_size + colon_size + operation_string_size + 1);
     strcpy(return_string, category_string);
-    strcpy(return_string, colon_string);
-    strcpy(return_string, operation_string);
+    strcat(return_string, colon_string);
+    strcat(return_string, operation_string);
 
     return return_string;
 }

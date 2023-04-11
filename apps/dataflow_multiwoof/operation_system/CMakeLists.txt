@@ -1,6 +1,8 @@
 add_library(df_operation
         df_operation.h
         df_operation.c
+        df_cast.h
+        df_cast.c
         df_arithmetic.h
         df_arithmetic.c
         df_logic.h

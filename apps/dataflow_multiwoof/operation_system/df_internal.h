@@ -22,6 +22,7 @@ int df_internal_operation(DF_INTERNAL_OP internal_operation,
 int df_internal_operation_with_type(DF_INTERNAL_OP internal_operation,
                                     const DF_VALUE operands[],
                                     unsigned int operand_count,
+                                    DF_OPERATION_METADATA* operation_metadata,
                                     DF_TYPE result_type,
                                     DF_VALUE* result);
 

@@ -60,7 +60,7 @@ void filter_test() {
 
     int ns = 1;
 
-    DF_OPERATION filter = {.category = DF_INTERNAL, .operation = DF_INTERNAL_FILTER};
+    const DF_OPERATION filter = {.category = DF_INTERNAL, .operation = DF_INTERNAL_FILTER};
     add_node(ns, 1, 1, filter);
 
     add_operand(ns, 1, 2); // Filter condition
@@ -116,7 +116,6 @@ void filter_test() {
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &data5);
     deep_delete(data5_value);
 
-    printf("TEST");
 
     do {
         usleep(1e5);

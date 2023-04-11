@@ -7,6 +7,7 @@
 
 enum df_operation_categories
 {
+    DF_CAST,
     DF_LOGIC,
     DF_ARITHMETIC,
     DF_INTERNAL,
@@ -19,6 +20,30 @@ struct df_operation {
     unsigned int operation;
 };
 typedef struct df_operation DF_OPERATION;
+
+struct df_operation_metadata {
+    int host_id;
+    int laminar_namespace;
+    int node_id;
+    unsigned long consumer_sequence;
+};
+typedef struct df_operation_metadata DF_OPERATION_METADATA;
+
+
+enum df_cast_ops_enum
+{
+    DF_CAST_TO_BOOLEAN,
+    DF_CAST_TO_BYTE,
+    DF_CAST_TO_SHORT,
+    DF_CAST_TO_INTEGER,
+    DF_CAST_TO_LONG,
+    DF_CAST_TO_UNSIGNED_BYTE,
+    DF_CAST_TO_UNSIGNED_SHORT,
+    DF_CAST_TO_UNSIGNED_INTEGER,
+    DF_CAST_TO_UNSIGNED_LONG,
+    DF_CAST_TO_DOUBLE,
+};
+typedef enum df_cast_ops_enum DF_CAST_OP;
 
 
 enum df_logic_ops_enum
@@ -36,7 +61,7 @@ enum df_logic_ops_enum
 typedef enum df_logic_ops_enum DF_LOGIC_OP;
 
 
-enum df_arithmetics_enum
+enum df_arithmetic_ops_enum
 {
     DF_ARITH_ADDITION,
     DF_ARITH_SUBTRACTION,
@@ -46,31 +71,30 @@ enum df_arithmetics_enum
     DF_ARITH_SQRT,
     DF_ARITH_ABS,
 };
-typedef enum df_arithmetics_enum DF_ARITHMETIC_OP;
+typedef enum df_arithmetic_ops_enum DF_ARITHMETIC_OP;
 
 
-enum df_internals_enum
+enum df_internal_ops_enum
 {
     DF_INTERNAL_OPERAND,
     DF_INTERNAL_SELECT,
     DF_INTERNAL_FILTER,
     DF_INTERNAL_OFFSET,
 };
-typedef enum df_internals_enum DF_INTERNAL_OP;
+typedef enum df_internal_ops_enum DF_INTERNAL_OP;
 
 
-enum df_machine_learnings_enum
+enum df_machine_learning_ops_enum
 {
     DF_MACHINE_LEARNING_KNN,
     DF_MACHINE_LEARNING_LINREG,
 };
-typedef enum df_machine_learnings_enum DF_MACHINE_LEARNING_OP;
+typedef enum df_machine_learning_ops_enum DF_MACHINE_LEARNING_OP;
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-DF_OPERATION default_df_operation();
 
 char* operation_to_string(DF_OPERATION type);
 

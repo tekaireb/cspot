@@ -12,13 +12,6 @@
 extern "C" {
 #endif
 
-/*
-int df_arithmetic_operation(DF_ARITHMETIC_OP arithmetic_operation,
-                            const DF_VALUE operands[],
-                            unsigned int operand_count,
-                            DF_VALUE *result);
-*/
-
 int df_arithmetic_operation_with_type(DF_ARITHMETIC_OP arithmetic_operation,
                                       const DF_VALUE operands[],
                                       unsigned int operand_count,

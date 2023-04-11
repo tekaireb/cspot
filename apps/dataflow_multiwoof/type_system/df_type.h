@@ -11,16 +11,20 @@
 extern "C" {
 #endif
 
-unsigned long write_value(const char *woof, const DF_VALUE *value);
+unsigned long write_value(const DF_VALUE* value);
 
-unsigned long read_value(const char *woof, unsigned long sequence_number, DF_VALUE *value);
+unsigned long write_value_woof(const char* woof, const DF_VALUE* value);
 
+unsigned long read_value(DF_VALUE* value);
 
-int is_primitive(const DF_VALUE *value);
+unsigned long read_value_woof(const char* woof, unsigned long sequence_number, DF_VALUE* value);
 
-int is_number(const DF_VALUE *value);
+int is_primitive(const DF_VALUE* value);
+
+int is_number(const DF_VALUE* value);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif // CSPOT_DF_TYPE_H

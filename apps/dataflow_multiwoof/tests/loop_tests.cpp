@@ -2,13 +2,12 @@
 #include "test_utils.h"
 #include "tests.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <random>
 #include <cmath>
-
+#include <iostream>
+#include <random>
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 void sqrt_loop_test() {
     TEST("Square root loop test");
@@ -16,19 +15,19 @@ void sqrt_loop_test() {
     /* Nodes */
 
     // Inputs
-    add_operand(1, 1, 1);      // X
-    add_operand(1, 1, 2);      // Epsilon
+    add_operand(1, 1, 1); // X
+    add_operand(1, 1, 2); // Epsilon
 
     // // Initialization
     const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
     const DF_OPERATION select = {DF_INTERNAL, DF_INTERNAL_SELECT};
     const DF_OPERATION offset = {DF_INTERNAL, DF_INTERNAL_OFFSET};
-    add_node(2, 1, 1, division);    // Root = X / 2.0
-    add_node(2, 1, 2, select);    // Initial root or body output?
-    add_node(2, 1, 3, offset); // Account for no body output before first iter
-    add_operand(2, 1, 4);      // 2.0
-    add_operand(2, 1, 5);      // SEL: root, body, body, ...
-    add_operand(2, 1, 6);      // Offset = 1
+    add_node(2, 1, 1, division); // Root = X / 2.0
+    add_node(2, 1, 2, select);   // Initial root or body output?
+    add_node(2, 1, 3, offset);   // Account for no body output before first iter
+    add_operand(2, 1, 4);        // 2.0
+    add_operand(2, 1, 5);        // SEL: root, body, body, ...
+    add_operand(2, 1, 6);        // Offset = 1
 
     // Test
     const DF_OPERATION multiplication = {DF_ARITHMETIC, DF_ARITH_MULTIPLICATION};
@@ -49,41 +48,41 @@ void sqrt_loop_test() {
     // Body
     add_node(4, 1, 1, division);
     add_node(4, 1, 2, addition);
-    add_node(4, 1, 3, division);    // Root
-    add_operand(4, 1, 4);      // 2.0
+    add_node(4, 1, 3, division); // Root
+    add_operand(4, 1, 4);        // 2.0
 
     /* Edges */
 
     // Initialization
-    subscribe("2:1:0", "1:1");  // Root = X / _
-    subscribe("2:1:1", "2:4");  // Root = X / 2.0
-    subscribe("2:2:0", "2:5");  // Selector
-    subscribe("2:2:1", "2:1");  // SEL=0: Root = X / 2.0
-    subscribe("2:2:2", "2:3");  // SEL=1: Root = result of body
-    subscribe("2:3:0", "2:6");  // Offset = 1
-    subscribe("2:3:1", "3:6");  // Result of body with offset
+    subscribe("2:1:0", "1:1"); // Root = X / _
+    subscribe("2:1:1", "2:4"); // Root = X / 2.0
+    subscribe("2:2:0", "2:5"); // Selector
+    subscribe("2:2:1", "2:1"); // SEL=0: Root = X / 2.0
+    subscribe("2:2:2", "2:3"); // SEL=1: Root = result of body
+    subscribe("2:3:0", "2:6"); // Offset = 1
+    subscribe("2:3:1", "3:6"); // Result of body with offset
 
     // Test
-    subscribe("3:1:0", "4:3");  // 3N1 = Root * _
-    subscribe("3:1:1", "4:3");  // 3N1 = Root * Root
-    subscribe("3:2:0", "1:1");  // 3N2 = X - _
-    subscribe("3:2:1", "3:1");  // 3N2 = X - 3N1
-    subscribe("3:3:0", "3:2");  // 3N3 = ABS(3N2)
-    subscribe("3:4:0", "3:3");  // 3N4 = 3N3 < _
-    subscribe("3:4:1", "1:2");  // 3N4 = 3N3 < Epsilon
-    subscribe("3:5:0", "3:4");  // 3N5 = NOT(3N4)
-    subscribe("3:6:0", "3:5");  // Repeat if !(delta < epsilon)
-    subscribe("3:6:1", "4:3");  // Pass root back to body
-    subscribe("3:7:0", "3:4");  // Result if (delta < epsilon)
-    subscribe("3:7:1", "4:3");  // Pass root to result
+    subscribe("3:1:0", "4:3"); // 3N1 = Root * _
+    subscribe("3:1:1", "4:3"); // 3N1 = Root * Root
+    subscribe("3:2:0", "1:1"); // 3N2 = X - _
+    subscribe("3:2:1", "3:1"); // 3N2 = X - 3N1
+    subscribe("3:3:0", "3:2"); // 3N3 = ABS(3N2)
+    subscribe("3:4:0", "3:3"); // 3N4 = 3N3 < _
+    subscribe("3:4:1", "1:2"); // 3N4 = 3N3 < Epsilon
+    subscribe("3:5:0", "3:4"); // 3N5 = NOT(3N4)
+    subscribe("3:6:0", "3:5"); // Repeat if !(delta < epsilon)
+    subscribe("3:6:1", "4:3"); // Pass root back to body
+    subscribe("3:7:0", "3:4"); // Result if (delta < epsilon)
+    subscribe("3:7:1", "4:3"); // Pass root to result
 
     // Body
-    subscribe("4:1:0", "1:1");  // 4N1 = X / _
-    subscribe("4:1:1", "2:2");  // 4N1 = X / Root
-    subscribe("4:2:0", "4:1");  // 4N2 = 4N1 + _
-    subscribe("4:2:1", "2:2");  // 4N2 = 4N1 + Root
-    subscribe("4:3:0", "4:2");  // 4N3 = 4N2 / _
-    subscribe("4:3:1", "4:4");  // 4N3 = 4N2 / 2.0
+    subscribe("4:1:0", "1:1"); // 4N1 = X / _
+    subscribe("4:1:1", "2:2"); // 4N1 = X / Root
+    subscribe("4:2:0", "4:1"); // 4N2 = 4N1 + _
+    subscribe("4:2:1", "2:2"); // 4N2 = 4N1 + Root
+    subscribe("4:3:0", "4:2"); // 4N3 = 4N2 / _
+    subscribe("4:3:1", "4:4"); // 4N3 = 4N2 / 2.0
 
     /* Run program */
 
@@ -92,7 +91,7 @@ void sqrt_loop_test() {
     double x = 144.0;
     double epsilon = 10;
 
-    DF_VALUE *double_value = build_double(2);
+    DF_VALUE* double_value = build_double(2);
     operand op(*double_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op);
     operand op2(*double_value, 2);
@@ -103,7 +102,7 @@ void sqrt_loop_test() {
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op4);
     deep_delete(double_value);
 
-    DF_VALUE *x_value = build_double(x);
+    DF_VALUE* x_value = build_double(x);
     op.value = op2.value = op3.value = op4.value = *x_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op2);
@@ -111,7 +110,7 @@ void sqrt_loop_test() {
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op4);
     deep_delete(x_value);
 
-    DF_VALUE *epsilon_value = build_double(epsilon);
+    DF_VALUE* epsilon_value = build_double(epsilon);
     op.value = op2.value = op3.value = op4.value = *epsilon_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op2);
@@ -122,23 +121,23 @@ void sqrt_loop_test() {
     // Initialization
 
     // Seed initialization feedback with junk (not used in first iter)
-    DF_VALUE *empty_value = build_double(0);
+    DF_VALUE* empty_value = build_double(0);
     op.value = *empty_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 3), OUTPUT_HANDLER, &op);
     deep_delete(empty_value);
     // unsigned long consumer_ptr = 2;
     // woof_put("laminar-2.subscription_pointer.3", "", &consumer_ptr);
 
-    DF_VALUE *two_value = build_double(2);
+    DF_VALUE* two_value = build_double(2);
     op.value = op2.value = op3.value = op4.value = *two_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op4);
     deep_delete(two_value);
-    DF_VALUE *zero_value = build_double(0);
+    DF_VALUE* zero_value = build_double(0);
     op.value = *zero_value;
-    DF_VALUE *one_value = build_double(1);
+    DF_VALUE* one_value = build_double(1);
     op2.value = op3.value = op4.value = *one_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op2);
@@ -193,153 +192,153 @@ void multinode_regression() {
     const DF_OPERATION subtraction = {DF_ARITHMETIC, DF_ARITH_SUBTRACTION};
     const DF_OPERATION division = {DF_ARITHMETIC, DF_ARITH_DIVISION};
     const DF_OPERATION greater_than = {DF_LOGIC, DF_LOGIC_GREATER_THAN};
-    add_node(1, 1, 1, multiplication);      // num *= decay_rate
-    add_node(1, 1, 2, multiplication);      // x *= decay_rate
-    add_node(1, 1, 3, multiplication);      // y *= decay_rate
-    add_node(1, 1, 4, multiplication);      // xx *= decay_rate
-    add_node(1, 1, 5, multiplication);      // xy *= decay_rate
-    add_node(1, 1, 6, addition);      // num += 1
-    add_node(1, 1, 7, addition);      // x += new_x
-    add_node(1, 1, 8, addition);      // y += new_y
-    add_node(1, 1, 9, multiplication);      // new_x ^ 2
-    add_node(1, 1, 10, addition);     // xx += new_x ^ 2
-    add_node(1, 1, 11, multiplication);     // new_x * new_y
-    add_node(1, 1, 12, addition);     // xy += new_x * new_y
-    add_node(1, 1, 13, offset);  // num seq + 1
-    add_node(1, 1, 14, offset);  // x seq + 1
-    add_node(1, 1, 15, offset);  // y seq + 1
-    add_node(1, 1, 16, offset);  // xx seq + 1
-    add_node(1, 1, 17, offset);  // xy seq + 1
-    add_node(1, 1, 18, select);     // num or 0?
-    add_node(1, 1, 19, select);     // x or 0?
-    add_node(1, 1, 20, select);     // y or 0?
-    add_node(1, 1, 21, select);     // xx or 0?
-    add_node(1, 1, 22, select);     // xy or 0?
+    add_node(1, 1, 1, multiplication);  // num *= decay_rate
+    add_node(1, 1, 2, multiplication);  // x *= decay_rate
+    add_node(1, 1, 3, multiplication);  // y *= decay_rate
+    add_node(1, 1, 4, multiplication);  // xx *= decay_rate
+    add_node(1, 1, 5, multiplication);  // xy *= decay_rate
+    add_node(1, 1, 6, addition);        // num += 1
+    add_node(1, 1, 7, addition);        // x += new_x
+    add_node(1, 1, 8, addition);        // y += new_y
+    add_node(1, 1, 9, multiplication);  // new_x ^ 2
+    add_node(1, 1, 10, addition);       // xx += new_x ^ 2
+    add_node(1, 1, 11, multiplication); // new_x * new_y
+    add_node(1, 1, 12, addition);       // xy += new_x * new_y
+    add_node(1, 1, 13, offset);         // num seq + 1
+    add_node(1, 1, 14, offset);         // x seq + 1
+    add_node(1, 1, 15, offset);         // y seq + 1
+    add_node(1, 1, 16, offset);         // xx seq + 1
+    add_node(1, 1, 17, offset);         // xy seq + 1
+    add_node(1, 1, 18, select);         // num or 0?
+    add_node(1, 1, 19, select);         // x or 0?
+    add_node(1, 1, 20, select);         // y or 0?
+    add_node(1, 1, 21, select);         // xx or 0?
+    add_node(1, 1, 22, select);         // xy or 0?
 
     // Calculate slope and intercept
 
-    add_node(2, 1, 1, multiplication);   // num * xx
-    add_node(2, 1, 2, multiplication);   // x * x
-    add_node(2, 1, 3, subtraction);   // det = num * xx - x * x
-    add_node(2, 1, 4, multiplication);   // xx * y
-    add_node(2, 1, 5, multiplication);   // xy * x
-    add_node(2, 1, 6, subtraction);   // xx * y - xy * x
-    add_node(2, 1, 7, division);   // intercept = (xx * y - xy * x) / det;
-    add_node(2, 1, 8, multiplication);   // xy * num
-    add_node(2, 1, 9, multiplication);   // x * y
-    add_node(2, 1, 10, subtraction);  // xy * num - x * y
-    add_node(2, 1, 11, division);  // slope = (xy * num - x * y) / det;
-    add_node(2, 1, 12, greater_than);   // det > 1e-10?
+    add_node(2, 1, 1, multiplication); // num * xx
+    add_node(2, 1, 2, multiplication); // x * x
+    add_node(2, 1, 3, subtraction);    // det = num * xx - x * x
+    add_node(2, 1, 4, multiplication); // xx * y
+    add_node(2, 1, 5, multiplication); // xy * x
+    add_node(2, 1, 6, subtraction);    // xx * y - xy * x
+    add_node(2, 1, 7, division);       // intercept = (xx * y - xy * x) / det;
+    add_node(2, 1, 8, multiplication); // xy * num
+    add_node(2, 1, 9, multiplication); // x * y
+    add_node(2, 1, 10, subtraction);   // xy * num - x * y
+    add_node(2, 1, 11, division);      // slope = (xy * num - x * y) / det;
+    add_node(2, 1, 12, greater_than);  // det > 1e-10?
     // add_node(2, 1, 13, SEL);   // intercept or 0?
     // // add_node(2, 1, 14, SEL);   // slope or 0?
 
     // Constants
-    add_operand(3, 1, 1);  // const 1
-    add_operand(3, 1, 2);  // const 0
-    add_operand(3, 1, 3);  // decay_factor = exp(-dt / T)
-    add_operand(3, 1, 4);  // handle init (0, 1, 1, ..., 1)
-    add_operand(3, 1, 5);  // const 1e-10
+    add_operand(3, 1, 1); // const 1
+    add_operand(3, 1, 2); // const 0
+    add_operand(3, 1, 3); // decay_factor = exp(-dt / T)
+    add_operand(3, 1, 4); // handle init (0, 1, 1, ..., 1)
+    add_operand(3, 1, 5); // const 1e-10
 
     // Inputs
 
-    add_operand(4, 1, 1);  // input x
-    add_operand(4, 1, 2);  // input y
+    add_operand(4, 1, 1); // input x
+    add_operand(4, 1, 2); // input y
 
     // Outputs
 
-    add_node(5, 1, 1, select);  // intercept = intercept or 0
-    add_node(5, 1, 2, select);  // slope = slope or 0
+    add_node(5, 1, 1, select); // intercept = intercept or 0
+    add_node(5, 1, 2, select); // slope = slope or 0
 
     // Edges
 
     // Update num, x, y, xx, xy
-    subscribe("1:1:0", "3:3");    // decay_rate * _
-    subscribe("1:1:1", "1:18");   // decay_rate * num
-    subscribe("1:2:0", "3:3");    // decay_rate * _
-    subscribe("1:2:1", "1:19");   // decay_rate * x
-    subscribe("1:3:0", "3:3");    // decay_rate * _
-    subscribe("1:3:1", "1:20");   // decay_rate * y
-    subscribe("1:4:0", "3:3");    // decay_rate * _
-    subscribe("1:4:1", "1:21");   // decay_rate * xx
-    subscribe("1:5:0", "3:3");    // decay_rate * _
-    subscribe("1:5:1", "1:22");   // decay_rate * xy
-    subscribe("1:6:0", "3:1");    // _ + 1
-    subscribe("1:6:1", "1:1");    // num += 1
-    subscribe("1:7:0", "4:1");    // _ + new_x
-    subscribe("1:7:1", "1:2");    // x += new_x
-    subscribe("1:8:0", "4:2");    // _ + new_y
-    subscribe("1:8:1", "1:3");    // y += new_y
-    subscribe("1:9:0", "4:1");    // new_x * _
-    subscribe("1:9:1", "4:1");    // new_x * new_x
-    subscribe("1:10:0", "1:9");   // _ + new_x * new_x
-    subscribe("1:10:1", "1:4");   // xx += new_x * new_x
-    subscribe("1:11:0", "4:1");   // x * _
-    subscribe("1:11:1", "4:2");   // x * y
-    subscribe("1:12:0", "1:11");  // _ + x * y
-    subscribe("1:12:1", "1:5");   // xy += x * y
+    subscribe("1:1:0", "3:3");   // decay_rate * _
+    subscribe("1:1:1", "1:18");  // decay_rate * num
+    subscribe("1:2:0", "3:3");   // decay_rate * _
+    subscribe("1:2:1", "1:19");  // decay_rate * x
+    subscribe("1:3:0", "3:3");   // decay_rate * _
+    subscribe("1:3:1", "1:20");  // decay_rate * y
+    subscribe("1:4:0", "3:3");   // decay_rate * _
+    subscribe("1:4:1", "1:21");  // decay_rate * xx
+    subscribe("1:5:0", "3:3");   // decay_rate * _
+    subscribe("1:5:1", "1:22");  // decay_rate * xy
+    subscribe("1:6:0", "3:1");   // _ + 1
+    subscribe("1:6:1", "1:1");   // num += 1
+    subscribe("1:7:0", "4:1");   // _ + new_x
+    subscribe("1:7:1", "1:2");   // x += new_x
+    subscribe("1:8:0", "4:2");   // _ + new_y
+    subscribe("1:8:1", "1:3");   // y += new_y
+    subscribe("1:9:0", "4:1");   // new_x * _
+    subscribe("1:9:1", "4:1");   // new_x * new_x
+    subscribe("1:10:0", "1:9");  // _ + new_x * new_x
+    subscribe("1:10:1", "1:4");  // xx += new_x * new_x
+    subscribe("1:11:0", "4:1");  // x * _
+    subscribe("1:11:1", "4:2");  // x * y
+    subscribe("1:12:0", "1:11"); // _ + x * y
+    subscribe("1:12:1", "1:5");  // xy += x * y
 
     // Feedback offset
-    subscribe("1:13:0", "3:1");   // offset = 1
-    subscribe("1:13:1", "1:6");   // num seq + 1
-    subscribe("1:14:0", "3:1");   // offset = 1
-    subscribe("1:14:1", "1:7");   // x seq + 1
-    subscribe("1:15:0", "3:1");   // offset = 1
-    subscribe("1:15:1", "1:8");   // y seq + 1
-    subscribe("1:16:0", "3:1");   // offset = 1
-    subscribe("1:16:1", "1:10");  // xx seq + 1
-    subscribe("1:17:0", "3:1");   // offset = 1
-    subscribe("1:17:1", "1:12");  // xy seq + 1
-    subscribe("1:18:0", "3:4");   // SEL: 0, 1, ..., 1
-    subscribe("1:18:1", "3:2");   // 0 or _?
-    subscribe("1:18:2", "1:13");  // 0 or num?
-    subscribe("1:19:0", "3:4");   // SEL: 0, 1, ..., 1
-    subscribe("1:19:1", "3:2");   // 0 or _?
-    subscribe("1:19:2", "1:14");  // 0 or x?
-    subscribe("1:20:0", "3:4");   // SEL: 0, 1, ..., 1
-    subscribe("1:20:1", "3:2");   // 0 or _?
-    subscribe("1:20:2", "1:15");  // 0 or y?
-    subscribe("1:21:0", "3:4");   // SEL: 0, 1, ..., 1
-    subscribe("1:21:1", "3:2");   // 0 or _?
-    subscribe("1:21:2", "1:16");  // 0 or xx?
-    subscribe("1:22:0", "3:4");   // SEL: 0, 1, ..., 1
-    subscribe("1:22:1", "3:2");   // 0 or _?
-    subscribe("1:22:2", "1:17");  // 0 or xy?
+    subscribe("1:13:0", "3:1");  // offset = 1
+    subscribe("1:13:1", "1:6");  // num seq + 1
+    subscribe("1:14:0", "3:1");  // offset = 1
+    subscribe("1:14:1", "1:7");  // x seq + 1
+    subscribe("1:15:0", "3:1");  // offset = 1
+    subscribe("1:15:1", "1:8");  // y seq + 1
+    subscribe("1:16:0", "3:1");  // offset = 1
+    subscribe("1:16:1", "1:10"); // xx seq + 1
+    subscribe("1:17:0", "3:1");  // offset = 1
+    subscribe("1:17:1", "1:12"); // xy seq + 1
+    subscribe("1:18:0", "3:4");  // SEL: 0, 1, ..., 1
+    subscribe("1:18:1", "3:2");  // 0 or _?
+    subscribe("1:18:2", "1:13"); // 0 or num?
+    subscribe("1:19:0", "3:4");  // SEL: 0, 1, ..., 1
+    subscribe("1:19:1", "3:2");  // 0 or _?
+    subscribe("1:19:2", "1:14"); // 0 or x?
+    subscribe("1:20:0", "3:4");  // SEL: 0, 1, ..., 1
+    subscribe("1:20:1", "3:2");  // 0 or _?
+    subscribe("1:20:2", "1:15"); // 0 or y?
+    subscribe("1:21:0", "3:4");  // SEL: 0, 1, ..., 1
+    subscribe("1:21:1", "3:2");  // 0 or _?
+    subscribe("1:21:2", "1:16"); // 0 or xx?
+    subscribe("1:22:0", "3:4");  // SEL: 0, 1, ..., 1
+    subscribe("1:22:1", "3:2");  // 0 or _?
+    subscribe("1:22:2", "1:17"); // 0 or xy?
 
     // Determinant
-    subscribe("2:1:0", "1:6");   // num * _
-    subscribe("2:1:1", "1:10");  // num * xx
-    subscribe("2:2:0", "1:7");   // x * _
-    subscribe("2:2:1", "1:7");   // x * x
-    subscribe("2:3:0", "2:1");   // num * xx - ____
-    subscribe("2:3:1", "2:2");   // det = num * xx - x * x
-    subscribe("2:12:0", "2:3");  // det > ____?
-    subscribe("2:12:1", "3:5");  // det > 1e-10?
+    subscribe("2:1:0", "1:6");  // num * _
+    subscribe("2:1:1", "1:10"); // num * xx
+    subscribe("2:2:0", "1:7");  // x * _
+    subscribe("2:2:1", "1:7");  // x * x
+    subscribe("2:3:0", "2:1");  // num * xx - ____
+    subscribe("2:3:1", "2:2");  // det = num * xx - x * x
+    subscribe("2:12:0", "2:3"); // det > ____?
+    subscribe("2:12:1", "3:5"); // det > 1e-10?
 
     // Intercept
-    subscribe("2:4:0", "1:10");  // xx * _
-    subscribe("2:4:1", "1:8");   // xx * y
-    subscribe("2:5:0", "1:12");  // xy * _
-    subscribe("2:5:1", "1:7");   // xy * x
-    subscribe("2:6:0", "2:4");   // xx * y - ____
-    subscribe("2:6:1", "2:5");   // xx * y - xy * x
-    subscribe("2:7:0", "2:6");   // (xx * y - xy * x) / ____
-    subscribe("2:7:1", "2:3");   // intercept = (xx * y - xy * x) / det
-    subscribe("5:1:0", "2:12");  // result SEL: det > 1e-10?
-    subscribe("5:1:1", "3:2");   // result = 0 or ____?
-    subscribe("5:1:2", "2:7");   // result = 0 or intercept?
+    subscribe("2:4:0", "1:10"); // xx * _
+    subscribe("2:4:1", "1:8");  // xx * y
+    subscribe("2:5:0", "1:12"); // xy * _
+    subscribe("2:5:1", "1:7");  // xy * x
+    subscribe("2:6:0", "2:4");  // xx * y - ____
+    subscribe("2:6:1", "2:5");  // xx * y - xy * x
+    subscribe("2:7:0", "2:6");  // (xx * y - xy * x) / ____
+    subscribe("2:7:1", "2:3");  // intercept = (xx * y - xy * x) / det
+    subscribe("5:1:0", "2:12"); // result SEL: det > 1e-10?
+    subscribe("5:1:1", "3:2");  // result = 0 or ____?
+    subscribe("5:1:2", "2:7");  // result = 0 or intercept?
 
     // Slope
-    subscribe("2:8:0", "1:12");   // xy * _
-    subscribe("2:8:1", "1:6");    // xy * num
-    subscribe("2:9:0", "1:7");    // x * _
-    subscribe("2:9:1", "1:8");    // x * y
-    subscribe("2:10:0", "2:8");   // xy * num - ____
-    subscribe("2:10:1", "2:9");   // xy * num - x * y
-    subscribe("2:11:0", "2:10");  // (xy * num - x * y) / ____
-    subscribe("2:11:1", "2:3");   // slope = (xy * num - x * y) / det
-    subscribe("5:2:0", "2:12");   // result SEL: det > 1e-10?
-    subscribe("5:2:1", "3:2");    // result = 0 or ____?
-    subscribe("5:2:2", "2:11");   // result = 0 or slope?
+    subscribe("2:8:0", "1:12");  // xy * _
+    subscribe("2:8:1", "1:6");   // xy * num
+    subscribe("2:9:0", "1:7");   // x * _
+    subscribe("2:9:1", "1:8");   // x * y
+    subscribe("2:10:0", "2:8");  // xy * num - ____
+    subscribe("2:10:1", "2:9");  // xy * num - x * y
+    subscribe("2:11:0", "2:10"); // (xy * num - x * y) / ____
+    subscribe("2:11:1", "2:3");  // slope = (xy * num - x * y) / det
+    subscribe("5:2:0", "2:12");  // result SEL: det > 1e-10?
+    subscribe("5:2:1", "3:2");   // result = 0 or ____?
+    subscribe("5:2:2", "2:11");  // result = 0 or slope?
 
     // std::cout << graphviz_representation();
     // return;
@@ -354,7 +353,7 @@ void multinode_regression() {
 
     // Const (3:1) = 1
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(1.0);
+        DF_VALUE* double_value = build_double(1.0);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 1), "", &op);
         deep_delete(double_value);
@@ -362,7 +361,7 @@ void multinode_regression() {
 
     // Const (3:2) = 0
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(0.0);
+        DF_VALUE* double_value = build_double(0.0);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 2), "", &op);
         deep_delete(double_value);
@@ -373,7 +372,7 @@ void multinode_regression() {
     double T = 5e-2;
     double decay_rate = exp(-dt / T);
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(decay_rate);
+        DF_VALUE* double_value = build_double(decay_rate);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 3), "", &op);
         deep_delete(double_value);
@@ -382,7 +381,7 @@ void multinode_regression() {
     // Const (3:4) = 0, 1, 1, ..., 1
     for (int i = 1; i <= iters; i++) {
         int val = (i == 1 ? 0 : 1);
-        DF_VALUE *double_value = build_double(val);
+        DF_VALUE* double_value = build_double(val);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 4), "", &op);
         deep_delete(double_value);
@@ -390,7 +389,7 @@ void multinode_regression() {
 
     // Const (3:5) = 1e-10
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(1e-10);
+        DF_VALUE* double_value = build_double(1e-10);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 5), "", &op);
         deep_delete(double_value);
@@ -398,7 +397,7 @@ void multinode_regression() {
 
     // Seed offset nodes with initial value
     for (int i = 13; i <= 17; i++) {
-        DF_VALUE *double_value = build_double(0.0);
+        DF_VALUE* double_value = build_double(0.0);
         operand op(*double_value, 1);
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
         deep_delete(double_value);
@@ -419,12 +418,12 @@ void multinode_regression() {
 
     std::cout << "Writing x and y values" << std::endl;
 
-    std::vector<DF_VALUE *> pointers_to_free;
+    std::vector<DF_VALUE*> pointers_to_free;
     for (int i = 0; i < iters; i++) {
         double x = i + distr(eng);
-        DF_VALUE *x_value = build_double(x);
+        DF_VALUE* x_value = build_double(x);
         double y = 3 + 2 * i + distr(eng);
-        DF_VALUE *y_value = build_double(y);
+        DF_VALUE* y_value = build_double(y);
         x_values.push_back(operand(*x_value, i + 1));
         y_values.push_back(operand(*y_value, i + 1));
         pointers_to_free.push_back(x_value);
@@ -435,7 +434,7 @@ void multinode_regression() {
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 1), "output_handler", &x_values[i - 1]);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 2), "output_handler", &y_values[i - 1]);
     }
-    for (const auto &item: pointers_to_free) {
+    for (const auto& item : pointers_to_free) {
         deep_delete(item);
     }
 
@@ -485,6 +484,6 @@ void loop_tests() {
     set_host(1);
     add_host(1, "localhost", "/home/centos/cspot/build/bin/");
 
-    // sqrt_loop_test();
+    sqrt_loop_test();
     multinode_regression();
 }

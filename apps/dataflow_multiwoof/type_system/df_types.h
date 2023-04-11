@@ -1,14 +1,15 @@
 //
-// Created by Lukas Brand Privat on 29.03.23.
+// Created by Lukas Brand on 29.03.23.
 //
 
 #ifndef CSPOT_DF_TYPES_H
 #define CSPOT_DF_TYPES_H
 
-#include <uuid/uuid.h>
 #include <stdio.h>
+#include <uuid/uuid.h>
 
-enum df_types_enum {
+enum df_types_enum
+{
     DF_UNKNOWN = 0,
 
     // Simple Types
@@ -43,7 +44,7 @@ typedef struct df_storage_system DF_STORAGE_SYSTEM;
 /* **************** STRING **************** */
 struct df_value_string {
     struct df_storage_system storage_system;
-    const char *value;
+    const char* value;
 };
 typedef struct df_value_string DF_VALUE_STRING;
 
@@ -52,7 +53,7 @@ struct df_value_array {
     struct df_storage_system storage_system;
     size_t size;
     enum df_types_enum type;
-    const void *value;
+    const void* value;
 };
 typedef struct df_value_array DF_VALUE_ARRAY;
 
@@ -61,7 +62,7 @@ typedef struct df_value_array DF_VALUE_ARRAY;
 struct df_record_element {
     char identifier[21];
     enum df_types_enum type;
-    struct df_types_struct *value;
+    struct df_types_struct* value;
 };
 typedef struct df_record_element DF_RECORD_ELEMENTS;
 
@@ -81,8 +82,8 @@ union df_values_union {
     double df_double;
     struct df_value_string df_string;
     struct df_value_array df_array;
-    struct df_value_array df_list; //TODO
-    struct df_value_array df_stream; //TODO
+    struct df_value_array df_list;   // TODO
+    struct df_value_array df_stream; // TODO
     struct df_value_record df_record;
 };
 typedef union df_values_union DF_TYPE_VALUE;
@@ -98,15 +99,15 @@ typedef struct df_types_struct DF_VALUE;
 extern "C" {
 #endif
 
-char *type_to_string(DF_TYPE type);
-char *value_to_string(DF_VALUE value);
+char* type_to_string(DF_TYPE type);
+char* value_to_string(const DF_VALUE* value);
 
 
-int deep_copy(const DF_VALUE *src, DF_VALUE *dest);
-int deep_delete(DF_VALUE *value);
+int deep_copy(const DF_VALUE* src, DF_VALUE* dest);
+int deep_delete(DF_VALUE* value);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //CSPOT_DF_TYPES_H
+#endif // CSPOT_DF_TYPES_H
