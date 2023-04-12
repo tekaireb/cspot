@@ -5,6 +5,8 @@
 #ifndef CSPOT_DF_TYPES_H
 #define CSPOT_DF_TYPES_H
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <uuid/uuid.h>
 
@@ -41,12 +43,14 @@ struct df_storage_system {
 };
 typedef struct df_storage_system DF_STORAGE_SYSTEM;
 
+
 /* **************** STRING **************** */
 struct df_value_string {
     struct df_storage_system storage_system;
     const char* value;
 };
 typedef struct df_value_string DF_VALUE_STRING;
+
 
 /* **************** ARRAY **************** */
 struct df_value_array {
@@ -58,11 +62,19 @@ struct df_value_array {
 typedef struct df_value_array DF_VALUE_ARRAY;
 
 
+/* **************** LIST **************** */
+struct df_value_list {
+    struct df_types_struct* value;
+    struct df_value_list* next;
+};
+typedef struct df_value_list DF_VALUE_LIST;
+
+
 /* **************** RECORD **************** */
 struct df_record_element {
     char identifier[21];
-    enum df_types_enum type;
     struct df_types_struct* value;
+    struct df_record_element* next_element;
 };
 typedef struct df_record_element DF_RECORD_ELEMENTS;
 
@@ -75,22 +87,22 @@ typedef struct df_value_record DF_VALUE_RECORD;
 
 /* **************** NODE VALUE **************** */
 union df_values_union {
-    unsigned int df_unsigned_int;
-    unsigned long df_unsigned_long;
-    int df_int;
-    long df_long;
+    uint32_t df_unsigned_int;
+    uint64_t df_unsigned_long;
+    int32_t df_int;
+    int64_t df_long;
     double df_double;
     struct df_value_string df_string;
     struct df_value_array df_array;
-    struct df_value_array df_list;   // TODO
+    struct df_value_list df_list;
     struct df_value_array df_stream; // TODO
     struct df_value_record df_record;
 };
 typedef union df_values_union DF_TYPE_VALUE;
 
 struct df_types_struct {
-    union df_values_union value;
     enum df_types_enum type;
+    union df_values_union value;
 };
 typedef struct df_types_struct DF_VALUE;
 

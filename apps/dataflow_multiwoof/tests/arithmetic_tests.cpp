@@ -26,7 +26,7 @@ void simple_arithmetic() {
     sleep(1);
 
     // 1 + 1 == 2
-    DF_VALUE *op1_value = build_double(1);
+    DF_VALUE* op1_value = value_from_double(1);
     operand op1(*op1_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op1);
     sleep(2);
@@ -61,14 +61,14 @@ void complex_arithmetic() {
     setup();
 
     // 1 + 1 == 2
-    DF_VALUE *op1_value = build_double(1);
+    DF_VALUE* op1_value = value_from_double(1);
     operand op1(*op1_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op1);
     deep_delete(op1_value);
 
     // 2 + 2 == 4
-    DF_VALUE *op2_value = build_double(2);
+    DF_VALUE* op2_value = value_from_double(2);
     operand op2(*op2_value, 2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &op2);
@@ -76,9 +76,9 @@ void complex_arithmetic() {
 
     // 3 + 3 == 6
     // Receive two inputs on a before receiving inputs on b
-    DF_VALUE *op3_value = build_double(3);
+    DF_VALUE* op3_value = value_from_double(3);
     operand op3(*op3_value, 3);
-    DF_VALUE *op4_value = build_double(3);
+    DF_VALUE* op4_value = value_from_double(3);
     operand op4(*op4_value, 4);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op4);
@@ -144,7 +144,7 @@ void stream_arithmetic() {
     double d = 4.0;
 
     for (unsigned long i = 1; i <= iters; i++) {
-        DF_VALUE *op_value = build_double(a);
+        DF_VALUE* op_value = value_from_double(a);
         operand op(*op_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op);
         op_value->value.df_double = b;
@@ -234,7 +234,7 @@ void quadratic_test() {
 
     setup();
 
-    DF_VALUE *op_value = build_double(a);
+    DF_VALUE* op_value = value_from_double(a);
     operand op(*op_value);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 9), OUTPUT_HANDLER, &op);
     op_value->value.df_double = b;
@@ -321,7 +321,7 @@ void stream_quadratic_test() {
     unsigned long iters = 15;
 
     for (unsigned long i = 1; i <= iters; i++) {
-        DF_VALUE *op_value = build_double(a);
+        DF_VALUE* op_value = value_from_double(a);
         operand op(*op_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 9), OUTPUT_HANDLER, &op);
         op_value->value.df_double = b;
@@ -413,7 +413,7 @@ std::vector<std::vector<double>> mat_test(
     // Write matrices to operands
     for (int i = 0; i < rows_a; i++) {
         for (int j = 0; j < cols_a; j++) {
-            DF_VALUE *op_value = build_double(a[i][j]);
+            DF_VALUE* op_value = value_from_double(a[i][j]);
             operand op(*op_value, 1);
             id = i * cols_a + j + 1;
             woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, id), OUTPUT_HANDLER, &op);
@@ -423,7 +423,7 @@ std::vector<std::vector<double>> mat_test(
 
     for (int i = 0; i < rows_b; i++) {
         for (int j = 0; j < cols_b; j++) {
-            DF_VALUE *op_value = build_double(b[i][j]);
+            DF_VALUE* op_value = value_from_double(b[i][j]);
             operand op(*op_value, 1);
             id = i * cols_b + j + 1;
             woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, id), OUTPUT_HANDLER, &op);

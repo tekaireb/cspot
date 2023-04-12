@@ -45,7 +45,7 @@ void simple_namespace_test() {
 
     setup();
 
-    DF_VALUE *op_value = build_double(1);
+    DF_VALUE* op_value = value_from_double(1);
     operand op(*op_value);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op);

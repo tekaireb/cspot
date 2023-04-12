@@ -39,7 +39,7 @@ struct operand {
     DF_VALUE value;
     unsigned long seq;
 
-    explicit operand(DF_VALUE value = {.type = DF_UNKNOWN}, unsigned long seq = 1)
+    explicit operand(DF_VALUE value = {.type = DF_UNKNOWN, .value = {.df_int = 1}}, unsigned long seq = 1)
         : value(value)
         , seq(seq) {
     }
@@ -50,7 +50,7 @@ struct cached_output {
     unsigned long seq; // CSPOT seq in output woof
 
     // Defaults execution iteration and seq to 0 so initial access is thrown out and updated
-    explicit cached_output(operand op = operand({.type = DF_UNKNOWN}, 0), unsigned long seq = 0)
+    explicit cached_output(operand op = operand({.type = DF_UNKNOWN, .value = {.df_int = 1}}, 0), unsigned long seq = 0)
         : op(op)
         , seq(seq) {
     }

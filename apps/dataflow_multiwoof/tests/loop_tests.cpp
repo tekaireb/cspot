@@ -91,7 +91,7 @@ void sqrt_loop_test() {
     double x = 144.0;
     double epsilon = 10;
 
-    DF_VALUE* double_value = build_double(2);
+    DF_VALUE* double_value = value_from_double(2);
     operand op(*double_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op);
     operand op2(*double_value, 2);
@@ -102,7 +102,7 @@ void sqrt_loop_test() {
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 4, 4), OUTPUT_HANDLER, &op4);
     deep_delete(double_value);
 
-    DF_VALUE* x_value = build_double(x);
+    DF_VALUE* x_value = value_from_double(x);
     op.value = op2.value = op3.value = op4.value = *x_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op2);
@@ -110,7 +110,7 @@ void sqrt_loop_test() {
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 1), OUTPUT_HANDLER, &op4);
     deep_delete(x_value);
 
-    DF_VALUE* epsilon_value = build_double(epsilon);
+    DF_VALUE* epsilon_value = value_from_double(epsilon);
     op.value = op2.value = op3.value = op4.value = *epsilon_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 1, 2), OUTPUT_HANDLER, &op2);
@@ -121,23 +121,23 @@ void sqrt_loop_test() {
     // Initialization
 
     // Seed initialization feedback with junk (not used in first iter)
-    DF_VALUE* empty_value = build_double(0);
+    DF_VALUE* empty_value = value_from_double(0);
     op.value = *empty_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 3), OUTPUT_HANDLER, &op);
     deep_delete(empty_value);
     // unsigned long consumer_ptr = 2;
     // woof_put("laminar-2.subscription_pointer.3", "", &consumer_ptr);
 
-    DF_VALUE* two_value = build_double(2);
+    DF_VALUE* two_value = value_from_double(2);
     op.value = op2.value = op3.value = op4.value = *two_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 4), OUTPUT_HANDLER, &op4);
     deep_delete(two_value);
-    DF_VALUE* zero_value = build_double(0);
+    DF_VALUE* zero_value = value_from_double(0);
     op.value = *zero_value;
-    DF_VALUE* one_value = build_double(1);
+    DF_VALUE* one_value = value_from_double(1);
     op2.value = op3.value = op4.value = *one_value;
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 2, 5), OUTPUT_HANDLER, &op2);
@@ -353,7 +353,7 @@ void multinode_regression() {
 
     // Const (3:1) = 1
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE* double_value = build_double(1.0);
+        DF_VALUE* double_value = value_from_double(1.0);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 1), "", &op);
         deep_delete(double_value);
@@ -361,7 +361,7 @@ void multinode_regression() {
 
     // Const (3:2) = 0
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE* double_value = build_double(0.0);
+        DF_VALUE* double_value = value_from_double(0.0);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 2), "", &op);
         deep_delete(double_value);
@@ -372,7 +372,7 @@ void multinode_regression() {
     double T = 5e-2;
     double decay_rate = exp(-dt / T);
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE* double_value = build_double(decay_rate);
+        DF_VALUE* double_value = value_from_double(decay_rate);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 3), "", &op);
         deep_delete(double_value);
@@ -381,7 +381,7 @@ void multinode_regression() {
     // Const (3:4) = 0, 1, 1, ..., 1
     for (int i = 1; i <= iters; i++) {
         int val = (i == 1 ? 0 : 1);
-        DF_VALUE* double_value = build_double(val);
+        DF_VALUE* double_value = value_from_double(val);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 4), "", &op);
         deep_delete(double_value);
@@ -389,7 +389,7 @@ void multinode_regression() {
 
     // Const (3:5) = 1e-10
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE* double_value = build_double(1e-10);
+        DF_VALUE* double_value = value_from_double(1e-10);
         operand op(*double_value, i);
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, 3, 5), "", &op);
         deep_delete(double_value);
@@ -397,7 +397,7 @@ void multinode_regression() {
 
     // Seed offset nodes with initial value
     for (int i = 13; i <= 17; i++) {
-        DF_VALUE* double_value = build_double(0.0);
+        DF_VALUE* double_value = value_from_double(0.0);
         operand op(*double_value, 1);
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
         deep_delete(double_value);
@@ -421,9 +421,9 @@ void multinode_regression() {
     std::vector<DF_VALUE*> pointers_to_free;
     for (int i = 0; i < iters; i++) {
         double x = i + distr(eng);
-        DF_VALUE* x_value = build_double(x);
+        DF_VALUE* x_value = value_from_double(x);
         double y = 3 + 2 * i + distr(eng);
-        DF_VALUE* y_value = build_double(y);
+        DF_VALUE* y_value = value_from_double(y);
         x_values.push_back(operand(*x_value, i + 1));
         y_values.push_back(operand(*y_value, i + 1));
         pointers_to_free.push_back(x_value);

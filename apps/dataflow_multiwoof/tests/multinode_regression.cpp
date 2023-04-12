@@ -178,7 +178,7 @@ void online_linreg_multinode() {
 
     // Const (3:1) = 1
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(1.0);
+        DF_VALUE* double_value = value_from_double(1.0);
         operand op(*double_value, i);
         woof_put("laminar-3.output.1", "", &op);
         deep_delete(double_value);
@@ -186,7 +186,7 @@ void online_linreg_multinode() {
 
     // Const (3:2) = 0
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(0.0);
+        DF_VALUE* double_value = value_from_double(0.0);
         operand op(*double_value, i);
         woof_put("laminar-3.output.2", "", &op);
         deep_delete(double_value);
@@ -197,7 +197,7 @@ void online_linreg_multinode() {
     const double T = 5e-2;
     const double decay_rate = exp(-dt / T);
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(decay_rate);
+        DF_VALUE* double_value = value_from_double(decay_rate);
         operand op(*double_value, i);
         woof_put("laminar-3.output.3", "", &op);
         deep_delete(double_value);
@@ -206,7 +206,7 @@ void online_linreg_multinode() {
     // Const (3:4) = 0, 1, 1, ..., 1
     for (int i = 1; i <= iters; i++) {
         int val = (i == 1 ? 0 : 1);
-        DF_VALUE *double_value = build_double(val);
+        DF_VALUE* double_value = value_from_double(val);
         operand op(*double_value, i);
         woof_put("laminar-3.output.4", "", &op);
         deep_delete(double_value);
@@ -214,7 +214,7 @@ void online_linreg_multinode() {
 
     // Const (3:5) = 1e-10
     for (int i = 1; i <= iters; i++) {
-        DF_VALUE *double_value = build_double(1e-10);
+        DF_VALUE* double_value = value_from_double(1e-10);
         operand op(*double_value, i);
         woof_put("laminar-3.output.5", "", &op);
         deep_delete(double_value);
@@ -222,7 +222,7 @@ void online_linreg_multinode() {
 
     // Seed offset nodes with initial value
     for (int i = 13; i <= 17; i++) {
-        DF_VALUE *double_value = build_double(0.0);
+        DF_VALUE* double_value = value_from_double(0.0);
         operand op(*double_value, 1);
         woof_put("laminar-1.output." + std::to_string(i), "output_handler", &op);
         deep_delete(double_value);
@@ -246,9 +246,9 @@ void online_linreg_multinode() {
     std::vector<DF_VALUE *> pointers_to_free;
     for (int i = 0; i < iters; i++) {
         double x = i + distr(eng);
-        DF_VALUE *x_value = build_double(x);
+        DF_VALUE* x_value = value_from_double(x);
         double y = 3 + 2 * i + distr(eng);
-        DF_VALUE *y_value = build_double(y);
+        DF_VALUE* y_value = value_from_double(y);
         x_values.push_back(operand(*x_value, i + 1));
         y_values.push_back(operand(*y_value, i + 1));
         pointers_to_free.push_back(x_value);

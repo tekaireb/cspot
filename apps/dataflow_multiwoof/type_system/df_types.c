@@ -10,93 +10,93 @@ char* type_to_string(const DF_TYPE type) {
     char* string;
     switch (type) {
         case DF_UNKNOWN: {
-            char* temp_string = "UNKNOWN";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "UNKNOWN";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_BOOLEAN: {
-            char* temp_string = "BOOLEAN";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "BOOLEAN";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_BYTE: {
-            char* temp_string = "BYTE";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "BYTE";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_SHORT: {
-            char* temp_string = "SHORT";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "SHORT";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_INTEGER: {
-            char* temp_string = "INTEGER";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "INTEGER";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_LONG: {
-            char* temp_string = "LONG";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "LONG";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_UNSIGNED_BYTE: {
-            char* temp_string = "UNSIGNED BYTE";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "UNSIGNED BYTE";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_UNSIGNED_SHORT: {
-            char* temp_string = "UNSIGNED SHORT";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "UNSIGNED SHORT";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_UNSIGNED_INTEGER: {
-            char* temp_string = "UNSIGNED INTEGER";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "UNSIGNED INTEGER";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_UNSIGNED_LONG: {
-            char* temp_string = "UNSIGNED LONG";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "UNSIGNED LONG";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_DOUBLE: {
-            char* temp_string = "DOUBLE";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "DOUBLE";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_DATETIME: {
-            char* temp_string = "DATETIME";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "DATETIME";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_STRING: {
-            char* temp_string = "STRING";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "STRING";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_ARRAY: {
-            char* temp_string = "ARRAY";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "ARRAY";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_LIST: {
-            char* temp_string = "LIST";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "LIST";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_STREAM: {
-            char* temp_string = "STREAM";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "STREAM";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         case DF_RECORD: {
-            char* temp_string = "RECORD";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "RECORD";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         } break;
         default: {
-            char* temp_string = "UNRECOGNIZED TYPE";
-            string = malloc(sizeof(strlen(temp_string)) + 1);
+            const char* temp_string = "UNRECOGNIZED TYPE";
+            string = malloc(strlen(temp_string) + 1);
             strcpy(string, temp_string);
         }
     }

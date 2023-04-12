@@ -26,15 +26,15 @@ void selector_test() {
     setup();
 
     for (int i = 1; i <= 2; i++) {
-        DF_VALUE* selector = build_double(i - 1);
+        DF_VALUE* selector = value_from_double(i - 1);
         operand op(*selector, i); // Selector
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &op);
         deep_delete(selector);
-        DF_VALUE* a_value = build_double(10);
+        DF_VALUE* a_value = value_from_double(10);
         operand a(*a_value, i); // a
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &a);
         deep_delete(a_value);
-        DF_VALUE* b_value = build_double(20);
+        DF_VALUE* b_value = value_from_double(20);
         operand b(*b_value, i); // b
         woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 4), OUTPUT_HANDLER, &b);
         deep_delete(b_value);
@@ -71,47 +71,47 @@ void filter_test() {
 
     setup();
 
-    DF_VALUE* filter1_value = build_double(0);
+    DF_VALUE* filter1_value = value_from_double(0);
     operand filter1(*filter1_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &filter1);
     deep_delete(filter1_value);
-    DF_VALUE* data1_value = build_double(1);
+    DF_VALUE* data1_value = value_from_double(1);
     operand data1(*data1_value, 1);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &data1);
     deep_delete(filter1_value);
 
-    DF_VALUE* filter2_value = build_double(1);
+    DF_VALUE* filter2_value = value_from_double(1);
     operand filter2(*filter2_value, 2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &filter2);
     deep_delete(filter2_value);
-    DF_VALUE* data2_value = build_double(2);
+    DF_VALUE* data2_value = value_from_double(2);
     operand data2(*data2_value, 2);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &data2);
     deep_delete(data2_value);
 
-    DF_VALUE* filter3_value = build_double(1);
+    DF_VALUE* filter3_value = value_from_double(1);
     operand filter3(*filter3_value, 3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &filter3);
     deep_delete(filter3_value);
-    DF_VALUE* data3_value = build_double(3);
+    DF_VALUE* data3_value = value_from_double(3);
     operand data3(*data3_value, 3);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &data3);
     deep_delete(data3_value);
 
-    DF_VALUE* filter4_value = build_double(0);
+    DF_VALUE* filter4_value = value_from_double(0);
     operand filter4(*filter4_value, 4);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &filter4);
     deep_delete(filter4_value);
-    DF_VALUE* data4_value = build_double(4);
+    DF_VALUE* data4_value = value_from_double(4);
     operand data4(*data4_value, 4);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &data4);
     deep_delete(data4_value);
 
-    DF_VALUE* filter5_value = build_double(1);
+    DF_VALUE* filter5_value = value_from_double(1);
     operand filter5(*filter5_value, 5);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 2), OUTPUT_HANDLER, &filter5);
     deep_delete(filter5_value);
-    DF_VALUE* data5_value = build_double(5);
+    DF_VALUE* data5_value = value_from_double(5);
     operand data5(*data5_value, 5);
     woof_put(generate_woof_path(OUTPUT_WOOF_TYPE, ns, 3), OUTPUT_HANDLER, &data5);
     deep_delete(data5_value);
